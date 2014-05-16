@@ -1,2 +1,11 @@
 
-build/*
+bin/*
+
+CMmake
+cmake_install.cmake
+**/CMakeFiles/*
+**/CMakeCache.txt
+**/Makefile
+
+.cproject
+.project

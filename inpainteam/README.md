@@ -4,9 +4,7 @@ Decor3D
 Compilation
 --------------
 
-	mkdir build
-	cd build
-	cmake ..
+	cmake .
 	make
 
 
