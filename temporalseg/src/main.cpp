@@ -9,7 +9,7 @@ using namespace cv;
 
 int main(int, char**)
 {
-	VideoCapture movie("C:/series/house of cards/House.of.Cards.S01E01.720p.WEBrip.AAC2.0.x264-NTb.www.TuSerie.COM.mkv");
+	VideoCapture movie("C:/Downloads/FILMS/The Hunt [Jagten] [2012] 720p BRRip H264 AC3 - CODY.mp4");
 	//VideoCapture movie("C:/series/pilot.mp4");
 	//VideoCapture movie("C:/series/The Walking Dead - 3x16 - Welcome to the Tombs.mp4");
 
