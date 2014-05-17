@@ -4,7 +4,12 @@ Decor3D
 Compilation
 --------------
 
-	cmake .
+	mkdir build
+	cmake ../src
 	make
+	
+	# to place executable in ../bin
+	# or just execute ./decor3d
+	make install
 
 
