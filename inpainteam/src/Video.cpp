@@ -7,6 +7,7 @@ using namespace cv;
 
 Video::Video()
 {
+	framesPerSecond = 24;
 }
 
 Video::Video(string filename)
@@ -30,31 +31,16 @@ Video::Video(string filename)
  *Plays video until the user presses a key.
  */
 void Video::play() {
-	play(framesPerSecond);
+
+	getPlayer().play();
 }
 
-/**
- * Plays the video until the user presses a key, with specified frame rate
- * @param framesPerSecond
- */
-void Video::play(int framesPerSecond) {
-	int delay = 1000 / framesPerSecond;
-	if(framesPerSecond > 0 && delay < 0) {
-		delay = 1;
-	}
+VideoPlayer Video::getPlayer() {
+	VideoPlayer player;
+	Video *video = this;
+	player.setVideo(video);
 
-	vector<Frame>::iterator it = frames.begin();
-	while(true) {
-		if(++it == frames.end()) {
-			it = frames.begin();
-		}
-
-		imshow("Video" , it->image);
-
-		if(waitKey(delay) >= 0) {
-			break;
-		}
-	}
+	return player;
 }
 
 /**
@@ -63,7 +49,6 @@ void Video::play(int framesPerSecond) {
  */
 void Video::write(string filename) {
 	int outputCodec = CV_FOURCC('X', 'V', 'I', 'D');
-
 
 	VideoWriter outputVideo;
 	int width = (int) frames.begin()->image.size().width;

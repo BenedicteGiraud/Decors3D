@@ -3,19 +3,23 @@
 
 #include <vector>
 #include "Frame.h"
+#include "VideoPlayer.h"
+
+class VideoPlayer;
 
 class Video
 {
 private:
-	std::vector<Frame> frames;
 	int framesPerSecond;
 
 public:
+	std::vector<Frame> frames;
+
 	Video();
 	Video(std::string filename);
 
 	void play();
-	void play(int framesPerSecond);
+	VideoPlayer getPlayer();
 
 	void write(std::string filename);
 };

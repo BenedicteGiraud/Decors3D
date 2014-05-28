@@ -13,9 +13,12 @@
 class Frame {
 public:
 	cv::Mat image;
+	std::vector<cv::KeyPoint> keypoints;
 
 	Frame(cv::Mat image);
 	virtual ~Frame();
+
+	void detectKeyPoints();
 };
 
 #endif /* FRAME_H_ */

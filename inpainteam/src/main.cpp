@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cv.h>
 #include <highgui.h>
-#include <opencv2/nonfree/features2d.hpp>
 
 #include "Video.h"
+#include "KeyPointFrameAnnotator.h"
 
 using namespace std;
 using namespace cv;
@@ -20,7 +20,12 @@ int main(int argc, char* argv[]) {
 	string outputDirectory = argv[2];
 
 	Video video(inputFilename);
-	video.play();
+	VideoPlayer player = video.getPlayer();
+
+	KeyPointFrameAnnotator annotator;
+	player.setFramesAnnotator(&annotator);
+	player.play();
+
 	//video.write(outputDirectory + "/output.avi");
 
 	/*Mat image;
