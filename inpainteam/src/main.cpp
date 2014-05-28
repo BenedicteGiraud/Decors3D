@@ -2,7 +2,7 @@
 #include <cv.h>
 #include <highgui.h>
 
-#include "Video.h"
+#include "entities/Video.h"
 #include "frame-annotator/KeyPointFrameAnnotator.h"
 #include "frame-annotator/ResizeFrameAnnotator.h"
 #include "frame-annotator/PipelineFrameAnnotator.h"

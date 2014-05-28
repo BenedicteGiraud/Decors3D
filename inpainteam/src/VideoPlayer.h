@@ -9,7 +9,7 @@
 #define VIDEOPLAYER_H_
 
 #include "frame-annotator/FrameAnnotator.h"
-#include "Video.h"
+#include "entities/Video.h"
 
 class Video;
 class FrameAnnotator;

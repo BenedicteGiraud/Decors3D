@@ -11,10 +11,16 @@ set( CMAKE_BUILD_TYPE Debug )
 
 find_package( OpenCV REQUIRED )
 
-file(GLOB cpp
+file(GLOB_RECURSE cpp
 	"*.cpp"
-	"frame-annotator/*.cpp"
 )
+
+file(GLOB_RECURSE h
+	"*.h"
+)
+
+include_directories( ${PROJECT_SOURCE_DIR} )
+
 
 add_executable(decor3d ${cpp})
 

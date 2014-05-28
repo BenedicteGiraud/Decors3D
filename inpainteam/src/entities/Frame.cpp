@@ -5,7 +5,7 @@
  *      Author: tr
  */
 
-#include "Frame.h"
+#include "entities/Frame.h"
 
 using namespace cv;
 #include <cv.h>

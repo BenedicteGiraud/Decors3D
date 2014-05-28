@@ -9,7 +9,7 @@
 #include <highgui.h>
 
 #include "VideoPlayer.h"
-#include "Frame.h"
+#include "entities/Frame.h"
 
 using namespace std;
 using namespace cv;
