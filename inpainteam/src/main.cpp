@@ -19,20 +19,12 @@ int main(int argc, char* argv[]) {
 	string inputFilename = argv[1];
 	string outputDirectory = argv[2];
 
-	int outputCodec = CV_FOURCC('X', 'V', 'I', 'D');
-
 	Video video(inputFilename);
 	video.play();
+	//video.write(outputDirectory + "/output.avi");
 
 	/*Mat image;
 
-
-	VideoWriter outputVideo;
-	int width = (int) inputVideo.get(CV_CAP_PROP_FRAME_WIDTH);
-	int height = (int) inputVideo.get(CV_CAP_PROP_FRAME_HEIGHT);
-	Size size = Size(width, height);
-    outputVideo.open(outputDirectory + "/output.avi", outputCodec,
-			inputVideo.get(CV_CAP_PROP_FPS), size, true);
 
 	Mat mask, lastImage;
 	vector<Mat> frames;

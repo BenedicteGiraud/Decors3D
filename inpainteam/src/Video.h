@@ -8,6 +8,7 @@ class Video
 {
 private:
 	std::vector<Frame> frames;
+	int framesPerSecond;
 
 public:
 	Video();
@@ -15,6 +16,8 @@ public:
 
 	void play();
 	void play(int framesPerSecond);
+
+	void write(std::string filename);
 };
 
 #endif // VIDEO_H
