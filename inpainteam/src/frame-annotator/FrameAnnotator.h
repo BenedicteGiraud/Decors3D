@@ -8,8 +8,8 @@
 #ifndef FRAMEANNOTATOR_H_
 #define FRAMEANNOTATOR_H_
 
-#include "Video.h"
-#include "Frame.h"
+#include "../Video.h"
+#include "../Frame.h"
 
 class Video;
 

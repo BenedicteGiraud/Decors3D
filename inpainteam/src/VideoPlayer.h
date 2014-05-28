@@ -8,7 +8,7 @@
 #ifndef VIDEOPLAYER_H_
 #define VIDEOPLAYER_H_
 
-#include "FrameAnnotator.h"
+#include "frame-annotator/FrameAnnotator.h"
 #include "Video.h"
 
 class Video;

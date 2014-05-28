@@ -13,6 +13,7 @@ find_package( OpenCV REQUIRED )
 
 file(GLOB cpp
 	"*.cpp"
+	"frame-annotator/*.cpp"
 )
 
 add_executable(decor3d ${cpp})

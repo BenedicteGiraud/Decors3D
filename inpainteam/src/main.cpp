@@ -3,7 +3,9 @@
 #include <highgui.h>
 
 #include "Video.h"
-#include "KeyPointFrameAnnotator.h"
+#include "frame-annotator/KeyPointFrameAnnotator.h"
+#include "frame-annotator/ResizeFrameAnnotator.h"
+#include "frame-annotator/PipelineFrameAnnotator.h"
 
 using namespace std;
 using namespace cv;
@@ -22,8 +24,16 @@ int main(int argc, char* argv[]) {
 	Video video(inputFilename);
 	VideoPlayer player = video.getPlayer();
 
-	KeyPointFrameAnnotator annotator;
-	player.setFramesAnnotator(&annotator);
+	ResizeFrameAnnotator resize;
+	resize.setFactor(3);
+
+	KeyPointFrameAnnotator keypoints;
+
+	PipelineFrameAnnotator pipeline;
+	pipeline.add(&keypoints);
+	pipeline.add(&resize);
+
+	player.setFramesAnnotator(&pipeline);
 	player.play();
 
 	//video.write(outputDirectory + "/output.avi");
