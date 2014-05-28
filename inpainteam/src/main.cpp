@@ -3,27 +3,35 @@
 #include <highgui.h>
 #include <opencv2/nonfree/features2d.hpp>
 
+#include "Video.h"
+
 using namespace std;
 using namespace cv;
+
+
 
 int main(int argc, char* argv[]) {
 	if( argc < 3) {
 		cout << "Missing arguments: ";
-		cout << argv[0] << " [input] [output]\n";
+        cout << argv[0] << " [input] [output folder]\n";
 		return -1;
 	}
 	string inputFilename = argv[1];
-	string outputFilename = argv[2];
+	string outputDirectory = argv[2];
 
 	int outputCodec = CV_FOURCC('X', 'V', 'I', 'D');
 
-	Mat image;
-	VideoCapture inputVideo(inputFilename);
+	Video video(inputFilename);
+	video.play();
+
+	/*Mat image;
+
+
 	VideoWriter outputVideo;
 	int width = (int) inputVideo.get(CV_CAP_PROP_FRAME_WIDTH);
 	int height = (int) inputVideo.get(CV_CAP_PROP_FRAME_HEIGHT);
 	Size size = Size(width, height);
-	outputVideo.open(outputFilename, outputCodec,
+    outputVideo.open(outputDirectory + "/output.avi", outputCodec,
 			inputVideo.get(CV_CAP_PROP_FPS), size, true);
 
 	Mat mask, lastImage;
@@ -74,7 +82,7 @@ int main(int argc, char* argv[]) {
 
 	namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
 	imshow( "Display Image", result );
-	waitKey(0);
+	waitKey(0);*/
 
 	return 0;
 }
