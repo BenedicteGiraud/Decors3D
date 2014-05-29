@@ -29,7 +29,7 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 
 	vector<PointTrace*>* traces;
 
-	if(video->sceneTraces.size() == 0) {
+	if(video->sceneTraces.size() < 10) {
 		traces = (&video->pointTraces);
 	}
 	else {
@@ -50,9 +50,17 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 	}
 
 	// TODO: use scene / object information
-	if(points1.size() == 0 || points2.size() == 0) {
+	if(points1.size() < 4 || points2.size() < 4) {
 		cout << "No points for frame " << frame1->index << " and " << frame2->index << endl;
-		Mat homography = video->homographies.back();
+		Mat homography;
+		if(video->homographies.size() > 0) {
+			homography = video->homographies.back();
+		}
+		else {
+			homography = (Mat_<double>(3,3)
+					<< 1, 0, 0,
+					0 , 1, 0);
+		}
 		video->homographies.push_back(homography);
 	}
 	else {
