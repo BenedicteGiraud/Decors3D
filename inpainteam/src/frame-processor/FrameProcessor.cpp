@@ -16,10 +16,10 @@ FrameProcessor::~FrameProcessor() {
 	// TODO Auto-generated destructor stub
 }
 
-void FrameProcessor::processStart() {
+void FrameProcessor::processStart(Video* video) {
 
 }
 
-void FrameProcessor::processEnd() {
+void FrameProcessor::processEnd(Video* video) {
 
 }

@@ -26,20 +26,20 @@ KeyPointProcessor::~KeyPointProcessor() {
 void KeyPointProcessor::processFrame(Video* video, Frame* frame) {
 	if(frame->keypoints.size() == 0) {
 		SurfFeatureDetector detector(
-				100, // hessianThreshold
-				1, // nOctaves
-				4, // nOctaveLayers
+				2, // hessianThreshold
+				4, // nOctaves
+				8, // nOctaveLayers
 				true, // extended
 				false // upright
-				);
+				); //*/
 
 		/*GFTTDetector detector(
 				10000, // maxCorners
-				0.02, // qualityLevel
+				0.01, // qualityLevel
 				4, // minDistance
-				5, // blockSize
+				3, // blockSize
 				true, // useHarrisDetector
-				0.04); // k*/
+				0.1); // k*/
 		vector<KeyPoint> keypoints;
 		detector.detect(frame->image, keypoints);
 

@@ -11,6 +11,7 @@
 
 #include "frame-processor/DoubleFrameProcessor.h"
 #include "frame-processor/KeyPointProcessor.h"
+#include "frame-processor/CombineProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -90,6 +91,8 @@ int main(int argc, char* argv[]) {
 	} processor;
 	video.applyDoubleFrameProcessor(processor);
 
+	CombineProcessor combineProcessor;
+	video.applyFrameProcessor(combineProcessor);
 	/*
 	struct : DoubleFrameProcessor {
 		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {

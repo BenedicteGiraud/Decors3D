@@ -18,8 +18,8 @@ public:
 
 	virtual void processFrame(Video* video, Frame* frame) = 0;
 
-	virtual void processStart();
-	virtual void processEnd();
+	virtual void processStart(Video* video);
+	virtual void processEnd(Video* video);
 };
 
 #endif /* FRAMEPROCESSOR_H_ */

@@ -20,6 +20,10 @@ public:
 	std::vector<Frame*> frames;
 	std::vector<PointTrace*> pointTraces;
 
+	std::vector<PointTrace*> sceneTraces;
+	std::vector<PointTrace*> objectTraces;
+
+
 	Video();
 	Video(std::string filename);
 	void write(std::string filename);

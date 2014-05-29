@@ -71,9 +71,11 @@ VideoPlayer Video::getPlayer() {
 
 
 void Video::applyFrameProcessor(FrameProcessor &processor) {
+	processor.processStart(this);
 	for(auto it = frames.begin(); it != frames.end(); it++) {
 		processor.processFrame(this, (*it));
 	}
+	processor.processEnd(this);
 }
 
 void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
