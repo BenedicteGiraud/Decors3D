@@ -40,9 +40,8 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame) {
 		vector<KeyPoint> keypoints;
 		detector.detect(frame->image, keypoints);
 
-		vector<KeyPoint>::iterator it = keypoints.begin();
-		for(; it != keypoints.end(); it++) {
-			frame->keypoints.push_back(ExtendedPoint(*it));
+		for(auto keypoint : keypoints) {
+			frame->keypoints.push_back(ExtendedPoint(keypoint));
 		}
 	}
 }

@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
 
 	struct : FrameProcessor {
 		void processFrame(Video* video, Frame* frame) {
-			vector<ExtendedPoint> workingList(frame->keypoints);
-			vector<ExtendedPoint>::iterator it = workingList.begin();
-			for(; it != workingList.end(); it++) {
+			for(auto point : frame->keypoints) {
+				for(auto trace : video->traces) {
 
+				}
 			}
 		}
 	} processor;
