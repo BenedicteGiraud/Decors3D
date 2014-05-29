@@ -8,6 +8,7 @@
 #include "frame-annotator/PipelineFrameAnnotator.h"
 
 #include "frame-processor/DoubleFrameProcessor.h"
+#include "frame-processor/KeyPointProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -26,9 +27,16 @@ int main(int argc, char* argv[]) {
 	Video video(inputFilename);
 	VideoPlayer player = video.getPlayer();
 
+	KeyPointProcessor keypointProcessor;
+	video.applyFrameProcessor(keypointProcessor);
+
 	struct : DoubleFrameProcessor {
 		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 			frame1->image -= frame2->image;
+		}
+
+		void processEnd(Video* video, Frame* lastFrame) {
+			lastFrame->image *= 0;
 		}
 	} processor;
 	video.applyDoubleFrameProcessor(processor);
