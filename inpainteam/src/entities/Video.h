@@ -23,6 +23,7 @@ public:
 	std::vector<PointTrace*> sceneTraces;
 	std::vector<PointTrace*> objectTraces;
 
+	std::vector<cv::Mat> homographies;
 
 	Video();
 	Video(std::string filename);

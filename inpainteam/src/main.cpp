@@ -8,6 +8,7 @@
 #include "frame-annotator/TraceFrameAnnotator.h"
 #include "frame-annotator/ResizeFrameAnnotator.h"
 #include "frame-annotator/PipelineFrameAnnotator.h"
+#include "frame-annotator/HomographyAnnotator.h"
 
 #include "frame-processor/DoubleFrameProcessor.h"
 #include "frame-processor/KeyPointProcessor.h"
@@ -15,8 +16,6 @@
 
 using namespace std;
 using namespace cv;
-
-
 
 int main(int argc, char* argv[]) {
 	if( argc < 3) {
@@ -43,20 +42,31 @@ int main(int argc, char* argv[]) {
 			vector<vector<DMatch>> matches;
 			matcher.radiusMatch(frame1->rawDescriptors, frame2->rawDescriptors, matches, searchDistance, Mat(), true);
 
+			vector<Point2f> points1;
+			vector<Point2f> points2;
 			for(vector<DMatch> matchList : matches) {
 				DMatch match = matchList.front();
-				ExtendedPoint* p1 = frame1->keypoints.at(match.queryIdx);
-				ExtendedPoint* p2 = frame2->keypoints.at(match.trainIdx);
+				ExtendedPoint* ep1 = frame1->keypoints.at(match.queryIdx);
+				ExtendedPoint* ep2 = frame2->keypoints.at(match.trainIdx);
 
-				double distance = norm(p1->keypoint.pt - p2->keypoint.pt);
+				Point2f p1 = ep1->keypoint.pt;
+				points1.push_back(p1);
+				Point2f p2 = ep2->keypoint.pt;
+				points2.push_back(p2);
+
+				double distance = norm(p1 - p2);
 				if(distance < searchDistance) {
-					PointTrace* trace = p1->getOrCreate();
-					trace->points.push_back(p2);
-					p2->trace = trace;
+					PointTrace* trace = ep1->getOrCreate();
+					trace->points.push_back(ep2);
+					ep2->trace = trace;
 				}
 			}
 
-			//
+			// TODO: use scene / object information
+			Mat homography = findHomography(points1, points2, CV_RANSAC);
+			video->homographies.push_back(homography);
+
+			// assign remaining points to traces
 			vector<ExtendedPoint*> workingList(frame2->keypoints);
 			for(auto it = workingList.begin(); it != workingList.end(); it++) {
 				if((*it)->trace != NULL) continue;
@@ -68,7 +78,8 @@ int main(int argc, char* argv[]) {
 					if((*trace)->points.size() < 1) continue;
 					ExtendedPoint* last = (*trace)->points.back();
 
-					double distance = norm(last->keypoint.pt - (*it)->keypoint.pt);
+					Point2f projectedPoint = ExtendedPoint::applyHomography(homography,last->keypoint.pt);
+					double distance = norm(projectedPoint - (*it)->keypoint.pt);
 					if(distance < minDistance) {
 						minDistance = distance;
 						bestTrace = (*trace);
@@ -93,6 +104,7 @@ int main(int argc, char* argv[]) {
 
 	CombineProcessor combineProcessor;
 	video.applyFrameProcessor(combineProcessor);
+
 	/*
 	struct : DoubleFrameProcessor {
 		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
@@ -113,11 +125,13 @@ int main(int argc, char* argv[]) {
 	resize.setFactor(3);
 
 	TraceFrameAnnotator traceAnnotator;
+	HomographyAnnotator homographyAnnotator;
 
 	PipelineFrameAnnotator pipeline;
-	pipeline.add(&traceAnnotator);
-	pipeline.add(&resize);
+	//pipeline.add(&traceAnnotator);
+	pipeline.add(&homographyAnnotator);
 
+	pipeline.add(&resize);
 	player.setFramesAnnotator(&pipeline);
 	player.setFramesPerSecond(5);
 	player.play();

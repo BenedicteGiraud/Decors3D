@@ -29,3 +29,20 @@ PointTrace* ExtendedPoint::getOrCreate() {
 	}
 	return this->trace;
 }
+
+
+Point2f ExtendedPoint::applyHomography(Mat homography, Point2f point) {
+
+	Mat p(3, 1, CV_64F);
+	p.at<double>(0,0) = point.x;
+	p.at<double>(1,0) = point.y;
+	p.at<double>(2,0) = 1;
+
+	Mat projected = homography * p;
+
+	Point2f result;
+	result.x = projected.at<double>(0,0) / projected.at<double>(2,0);
+	result.y = projected.at<double>(1,0) / projected.at<double>(2,0);
+
+	return result;
+}
