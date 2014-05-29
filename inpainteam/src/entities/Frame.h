@@ -10,10 +10,12 @@
 
 #include <cv.h>
 
+#include "entities/ExtendedPoint.h"
+
 class Frame {
 public:
 	cv::Mat image;
-	std::vector<cv::KeyPoint> keypoints;
+	std::vector<ExtendedPoint> keypoints;
 
 	Frame(cv::Mat image);
 	virtual ~Frame();

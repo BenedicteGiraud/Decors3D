@@ -5,8 +5,10 @@
  *      Author: tr
  */
 
-#include "KeyPointFrameAnnotator.h"
 #include <cv.h>
+
+#include "KeyPointFrameAnnotator.h"
+#include "entities/ExtendedPoint.h"
 
 using namespace cv;
 
@@ -20,5 +22,10 @@ KeyPointFrameAnnotator::~KeyPointFrameAnnotator() {
 
 void KeyPointFrameAnnotator::annotate(Video* video, Frame* frame, cv::Mat* image) {
 	Mat annotatedImage;
-	drawKeypoints(*image, frame->keypoints, *image, Scalar(255,150,0), DrawMatchesFlags::DRAW_OVER_OUTIMG);
+	vector<ExtendedPoint>::iterator it = frame->keypoints.begin();
+	for(; it != frame->keypoints.end(); it++) {
+		vector<KeyPoint> todraw;
+		todraw.push_back(it->keypoint);
+		drawKeypoints(*image, todraw, *image, Scalar(255,150,0), DrawMatchesFlags::DRAW_OVER_OUTIMG);
+	}
 }

@@ -30,16 +30,32 @@ int main(int argc, char* argv[]) {
 	KeyPointProcessor keypointProcessor;
 	video.applyFrameProcessor(keypointProcessor);
 
+	struct : FrameProcessor {
+		void processFrame(Video* video, Frame* frame) {
+			vector<ExtendedPoint> workingList(frame->keypoints);
+			vector<ExtendedPoint>::iterator it = workingList.begin();
+			for(; it != workingList.end(); it++) {
+
+			}
+		}
+	} processor;
+	video.applyFrameProcessor(processor);
+
+	/*
 	struct : DoubleFrameProcessor {
 		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 			frame1->image -= frame2->image;
 		}
 
 		void processEnd(Video* video, Frame* lastFrame) {
-			lastFrame->image *= 0;
+
+		}
+
+		void processStart(Video* video, Frame* startFrame) {
+
 		}
 	} processor;
-	video.applyDoubleFrameProcessor(processor);
+	video.applyDoubleFrameProcessor(processor);*/
 
 	ResizeFrameAnnotator resize;
 	resize.setFactor(3);

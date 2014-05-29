@@ -10,6 +10,8 @@
 
 #include <cv.h>
 
+#include "entities/ExtendedPoint.h"
+
 using namespace cv;
 
 class PointTrace {
@@ -19,7 +21,7 @@ public:
 
 	Scalar color;
 
-	//vector<>
+	vector<ExtendedPoint> points;
 };
 
 #endif /* POINTTRACE_H_ */
