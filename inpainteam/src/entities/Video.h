@@ -3,15 +3,14 @@
 
 #include <vector>
 #include "entities/Frame.h"
-#include "VideoPlayer.h"
 #include "entities/PointTrace.h"
-
-#include "frame-processor/DoubleFrameProcessor.h"
-#include "frame-processor/FrameProcessor.h"
+#include "VideoPlayer.h"
 
 class VideoPlayer;
 class FrameProcessor;
 class DoubleFrameProcessor;
+class Frame;
+class FrameTrace;
 
 class Video
 {

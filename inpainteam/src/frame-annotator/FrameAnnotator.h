@@ -8,10 +8,10 @@
 #ifndef FRAMEANNOTATOR_H_
 #define FRAMEANNOTATOR_H_
 
-#include "entities/Video.h"
-#include "entities/Frame.h"
+#include <cv.h>
 
 class Video;
+class Frame;
 
 class FrameAnnotator {
 public:

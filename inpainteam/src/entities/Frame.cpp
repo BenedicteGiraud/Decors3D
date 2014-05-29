@@ -10,8 +10,10 @@
 using namespace cv;
 #include <cv.h>
 
-Frame::Frame(Mat image) {
+Frame::Frame(Mat image, Video* video, int index) {
 	this->image = image;
+	this->video = video;
+	this->index = index;
 }
 
 Frame::~Frame() {

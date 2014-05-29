@@ -5,6 +5,7 @@
  *      Author: tr
  */
 
+#include <cv.h>
 #include "PipelineFrameAnnotator.h"
 
 using namespace cv;

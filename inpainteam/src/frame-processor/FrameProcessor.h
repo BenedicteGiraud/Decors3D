@@ -8,9 +8,6 @@
 #ifndef FRAMEPROCESSOR_H_
 #define FRAMEPROCESSOR_H_
 
-#include "entities/Frame.h"
-#include "entities/Video.h"
-
 class Video;
 class Frame;
 
@@ -20,6 +17,9 @@ public:
 	virtual ~FrameProcessor();
 
 	virtual void processFrame(Video* video, Frame* frame) = 0;
+
+	virtual void processStart();
+	virtual void processEnd();
 };
 
 #endif /* FRAMEPROCESSOR_H_ */

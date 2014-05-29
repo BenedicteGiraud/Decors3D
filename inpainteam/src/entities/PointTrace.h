@@ -14,12 +14,16 @@
 
 using namespace cv;
 
+class Video;
+class ExtendedPoint;
+
 class PointTrace {
 public:
-	PointTrace();
+	PointTrace(Video* video);
 	virtual ~PointTrace();
 
 	Scalar color;
+	Video* video;
 
 	vector<ExtendedPoint> points;
 };

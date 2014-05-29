@@ -8,8 +8,9 @@
 #include "PointTrace.h"
 #include <time.h>
 
-PointTrace::PointTrace() {
+PointTrace::PointTrace(Video* video) {
 	color = Scalar(255*rand(), 255*rand(), 255*rand());
+	this->video = video;
 }
 
 PointTrace::~PointTrace() {

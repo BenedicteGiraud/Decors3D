@@ -7,8 +7,9 @@
 
 #include "ExtendedPoint.h"
 
-ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint) {
+ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint, Frame* frame) {
 	this->keypoint = keypoint;
+	this->frame = frame;
 }
 
 ExtendedPoint::~ExtendedPoint() {

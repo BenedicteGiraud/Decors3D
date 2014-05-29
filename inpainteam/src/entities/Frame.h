@@ -12,12 +12,17 @@
 
 #include "entities/ExtendedPoint.h"
 
+class Video;
+class ExtendedPoint;
+
 class Frame {
 public:
 	cv::Mat image;
 	std::vector<ExtendedPoint> keypoints;
+	Video* video;
+	int index;
 
-	Frame(cv::Mat image);
+	Frame(cv::Mat image, Video* video, int index);
 	virtual ~Frame();
 
 	void detectKeyPoints();

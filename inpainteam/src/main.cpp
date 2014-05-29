@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
 				if(!found) {
 					// create new trace
-					PointTrace trace;
+					PointTrace trace(video);
 					trace.points.push_back(*it);
 					video->traces.push_back(trace);
 				}

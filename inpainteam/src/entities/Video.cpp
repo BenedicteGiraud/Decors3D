@@ -1,6 +1,11 @@
-#include "Video.h"
 
 #include <highgui.h>
+
+#include "frame-processor/DoubleFrameProcessor.h"
+#include "frame-processor/FrameProcessor.h"
+
+#include "Video.h"
+
 
 using namespace std;
 using namespace cv;
@@ -19,11 +24,12 @@ Video::Video(string filename)
 	}
 	framesPerSecond = inputVideo.get(CV_CAP_PROP_FPS);
 	Mat image;
+	int index = 0;
 	while(true) {
 		inputVideo >> image;
 		if(image.empty()) break;
 
-		frames.push_back(Frame(image.clone()));
+		frames.push_back(Frame(image.clone(), this, index++));
 	}
 }
 

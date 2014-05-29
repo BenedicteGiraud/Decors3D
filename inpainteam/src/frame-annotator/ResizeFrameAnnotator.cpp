@@ -5,6 +5,8 @@
  *      Author: tr
  */
 
+#include <cv.h>
+
 #include "ResizeFrameAnnotator.h"
 
 using namespace cv;

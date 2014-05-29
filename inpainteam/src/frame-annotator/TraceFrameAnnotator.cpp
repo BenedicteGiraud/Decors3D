@@ -9,6 +9,7 @@
 
 #include "TraceFrameAnnotator.h"
 #include "entities/ExtendedPoint.h"
+#include "entities/Video.h"
 
 using namespace cv;
 

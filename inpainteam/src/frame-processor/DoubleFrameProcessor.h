@@ -8,9 +8,6 @@
 #ifndef DOUBLEFRAMEPROCESSOR_H_
 #define DOUBLEFRAMEPROCESSOR_H_
 
-#include "entities/Frame.h"
-#include "entities/Video.h"
-
 class Video;
 class Frame;
 

@@ -10,11 +10,14 @@
 
 #include <cv.h>
 
+class Frame;
+
 class ExtendedPoint {
 public:
-	ExtendedPoint(cv::KeyPoint keypoint);
+	ExtendedPoint(cv::KeyPoint keypoint, Frame* frame);
 	virtual ~ExtendedPoint();
 
+	Frame* frame;
 	cv::KeyPoint keypoint;
 };
 

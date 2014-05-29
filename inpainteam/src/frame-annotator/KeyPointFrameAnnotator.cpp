@@ -9,6 +9,7 @@
 
 #include "KeyPointFrameAnnotator.h"
 #include "entities/ExtendedPoint.h"
+#include "entities/Frame.h"
 
 using namespace cv;
 
