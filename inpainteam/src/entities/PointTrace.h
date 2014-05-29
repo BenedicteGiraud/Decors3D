@@ -26,7 +26,8 @@ public:
 
 	vector<ExtendedPoint*> points;
 
-	vector<KeyPoint> filter(Frame* frame);
+	KeyPoint* filter(Frame* frame);
+	vector<KeyPoint> filterAll(Frame* frame);
 };
 
 #endif /* POINTTRACE_H_ */

@@ -19,7 +19,7 @@ PointTrace::~PointTrace() {
 }
 
 
-vector<KeyPoint> PointTrace::filter(Frame* frame) {
+vector<KeyPoint> PointTrace::filterAll(Frame* frame) {
 	vector<KeyPoint> result;
 	for(auto point : points) {
 		if(point->frame == frame) {
@@ -27,4 +27,14 @@ vector<KeyPoint> PointTrace::filter(Frame* frame) {
 		}
 	}
 	return result;
+}
+
+KeyPoint* PointTrace::filter(Frame* frame) {
+	for(auto point : points) {
+		if(point->frame == frame) {
+			return &point->keypoint;
+		}
+	}
+
+	return NULL;
 }
