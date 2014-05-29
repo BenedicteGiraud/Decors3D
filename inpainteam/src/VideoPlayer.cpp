@@ -45,23 +45,35 @@ void VideoPlayer::play() {
 	if(framesPerSecond > 0 && delay < 0) {
 		delay = 1;
 	}
+	bool pause = false;
 
-	vector<Frame>::iterator it = video->frames.begin();
+	auto it = video->frames.begin();
 	while(true) {
-		if(++it == video->frames.end()) {
-			it = video->frames.begin();
+		if(!pause) {
+			if(++it == video->frames.end()) {
+				it = video->frames.begin();
+			}
 		}
 
-		Mat image = it->image;
+		Mat image = (*it)->image;
 		if(annotator != NULL) {
 			image = image.clone();
-			annotator->annotate(video, &(*it), &image);
+			annotator->annotate(video, *it, &image);
 		}
 
 		imshow("Video" , image);
 
-		if(waitKey(delay) >= 0) {
-			break;
+		int key = waitKey(delay);
+		if(key >= 0) {
+			switch(key) {
+			case ' ':
+				pause = !pause;
+				break;
+
+			default:
+				cout << "VideoPlayer: received key code " << key << ", exiting" << endl;
+				return;
+			}
 		}
 	}
 }
