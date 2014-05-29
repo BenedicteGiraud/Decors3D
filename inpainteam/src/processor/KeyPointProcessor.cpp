@@ -15,6 +15,8 @@
 #include "entities/Video.h"
 #include "entities/Frame.h"
 
+using namespace std;
+
 KeyPointProcessor::KeyPointProcessor() {
 
 }
@@ -23,36 +25,52 @@ KeyPointProcessor::~KeyPointProcessor() {
 
 }
 
+void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
+	for(auto keypoint : *keypoints) {
+		frame->keypoints.push_back(new ExtendedPoint(keypoint, frame));
+	}
+
+	SurfDescriptorExtractor extractor;
+	Mat descriptors;
+	extractor.compute(frame->image, *keypoints, descriptors);
+	if(frame->rawDescriptors.rows == 0) {
+		frame->rawDescriptors = descriptors;
+		return;
+	}
+
+	cout << "size rawdesc " << frame->rawDescriptors.rows << "x" << frame->rawDescriptors.cols << endl;
+	cout << "size rawdesc " << descriptors.rows << "x" << descriptors.cols << endl;
+	vconcat(frame->rawDescriptors, descriptors, frame->rawDescriptors);
+
+	int i=0;
+	for(auto keypoint : frame->keypoints) {
+		keypoint->descriptor = frame->rawDescriptors.row(i++);
+	}
+}
+
 void KeyPointProcessor::processFrame(Video* video, Frame* frame) {
 	if(frame->keypoints.size() == 0) {
-		SurfFeatureDetector detector(
+		vector<KeyPoint> keypoints;
+		SurfFeatureDetector surf(
 				2, // hessianThreshold
 				4, // nOctaves
 				8, // nOctaveLayers
 				true, // extended
 				false // upright
-				); //*/
+				);
+		surf.detect(frame->image, keypoints);
+		addKeypoints(frame, &keypoints); //*/
 
-		/*GFTTDetector detector(
+		keypoints.clear();
+		GFTTDetector gftt(
 				10000, // maxCorners
 				0.01, // qualityLevel
 				4, // minDistance
 				3, // blockSize
 				true, // useHarrisDetector
 				0.1); // k*/
-		vector<KeyPoint> keypoints;
-		detector.detect(frame->image, keypoints);
+		gftt.detect(frame->image, keypoints);
+		addKeypoints(frame, &keypoints);
 
-		for(auto keypoint : keypoints) {
-			frame->keypoints.push_back(new ExtendedPoint(keypoint, frame));
-		}
-
-		SurfDescriptorExtractor extractor;
-		extractor.compute(frame->image, keypoints, frame->rawDescriptors);
-
-		int i=0;
-		for(auto keypoint : frame->keypoints) {
-			keypoint->descriptor = frame->rawDescriptors.row(i++);
-		}
 	}
 }

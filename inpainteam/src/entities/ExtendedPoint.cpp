@@ -5,6 +5,8 @@
  *      Author: tr
  */
 
+#include <cv.h>
+
 #include "Video.h"
 #include "Frame.h"
 #include "PointTrace.h"
@@ -45,4 +47,23 @@ Point2f ExtendedPoint::applyHomography(Mat homography, Point2f point) {
 	result.y = projected.at<double>(1,0) / projected.at<double>(2,0);
 
 	return result;
+}
+
+Mat ExtendedPoint::concatenateHomography(Mat homography1, Mat homography2) {
+	Mat h1 = homography1;
+	Mat h2 = homography2;
+
+	if(h1.rows != 3) {
+		h1 = Mat::eye(3,3,CV_64F);
+		h1.row(0) = homography1.row(0);
+		h1.row(1) = homography1.row(1);
+	}
+
+	if(h2.rows != 3) {
+		h2 = Mat::eye(3,3,CV_64F);
+		h2.row(0) = homography2.row(0);
+		h2.row(1) = homography2.row(1);
+	}
+
+	return h1 * h2;
 }

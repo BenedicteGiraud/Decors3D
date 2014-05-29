@@ -100,6 +100,8 @@ int main(int argc, char* argv[]) {
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
+	video.applyVideoProcessor(SceneTraceClassifierProcessor);
+
 	/*
 	struct : DoubleFrameProcessor {
 		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
@@ -124,7 +126,7 @@ int main(int argc, char* argv[]) {
 
 	PipelineFrameAnnotator pipeline;
 	pipeline.add(&traceAnnotator);
-	//pipeline.add(&homographyAnnotator);
+	pipeline.add(&homographyAnnotator);
 
 	pipeline.add(&resize);
 	player.setFramesAnnotator(&pipeline);
