@@ -1,5 +1,5 @@
 /*
- * CombineProcessor.cpp
+ * SceneTraceClassifierProcessor.cpp
  *
  *  Created on: 2014/05/28
  *      Author: tr
@@ -8,18 +8,18 @@
 #include "entities/Video.h"
 #include "entities/Frame.h"
 
-#include "CombineProcessor.h"
+#include "SceneTraceClassifierProcessor.h"
 
-CombineProcessor::CombineProcessor() {
+SceneTraceClassifierProcessor::SceneTraceClassifierProcessor() {
 	// TODO Auto-generated constructor stub
 
 }
 
-CombineProcessor::~CombineProcessor() {
+SceneTraceClassifierProcessor::~SceneTraceClassifierProcessor() {
 	// TODO Auto-generated destructor stub
 }
 
-void CombineProcessor::processStart(Video* video) {
+void SceneTraceClassifierProcessor::processStart(Video* video) {
 	int i = -1;
 	for(auto trace : video->pointTraces) {
 		i++;
@@ -44,13 +44,12 @@ void CombineProcessor::processStart(Video* video) {
 
 		}
 	}
+}
+
+void SceneTraceClassifierProcessor::processFrame(Video* video, Frame* frame) {
 
 }
 
-void CombineProcessor::processFrame(Video* video, Frame* frame) {
-
-}
-
-void CombineProcessor::processEnd(Video* video) {
+void SceneTraceClassifierProcessor::processEnd(Video* video) {
 
 }

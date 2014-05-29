@@ -12,7 +12,8 @@
 
 #include "frame-processor/DoubleFrameProcessor.h"
 #include "frame-processor/KeyPointProcessor.h"
-#include "frame-processor/CombineProcessor.h"
+#include "frame-processor/SceneTraceClassifierProcessor.h"
+#include "frame-processor/HomographyEstimatorProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -42,17 +43,13 @@ int main(int argc, char* argv[]) {
 			vector<vector<DMatch>> matches;
 			matcher.radiusMatch(frame1->rawDescriptors, frame2->rawDescriptors, matches, searchDistance, Mat(), true);
 
-			vector<Point2f> points1;
-			vector<Point2f> points2;
 			for(vector<DMatch> matchList : matches) {
 				DMatch match = matchList.front();
 				ExtendedPoint* ep1 = frame1->keypoints.at(match.queryIdx);
 				ExtendedPoint* ep2 = frame2->keypoints.at(match.trainIdx);
 
 				Point2f p1 = ep1->keypoint.pt;
-				points1.push_back(p1);
 				Point2f p2 = ep2->keypoint.pt;
-				points2.push_back(p2);
 
 				double distance = norm(p1 - p2);
 				if(distance < searchDistance) {
@@ -61,10 +58,6 @@ int main(int argc, char* argv[]) {
 					ep2->trace = trace;
 				}
 			}
-
-			// TODO: use scene / object information
-			Mat homography = findHomography(points1, points2, CV_RANSAC);
-			video->homographies.push_back(homography);
 
 			// assign remaining points to traces
 			vector<ExtendedPoint*> workingList(frame2->keypoints);
@@ -78,8 +71,7 @@ int main(int argc, char* argv[]) {
 					if((*trace)->points.size() < 1) continue;
 					ExtendedPoint* last = (*trace)->points.back();
 
-					Point2f projectedPoint = ExtendedPoint::applyHomography(homography,last->keypoint.pt);
-					double distance = norm(projectedPoint - (*it)->keypoint.pt);
+					double distance = norm(last->keypoint.pt - (*it)->keypoint.pt);
 					if(distance < minDistance) {
 						minDistance = distance;
 						bestTrace = (*trace);
@@ -102,8 +94,11 @@ int main(int argc, char* argv[]) {
 	} processor;
 	video.applyDoubleFrameProcessor(processor);
 
-	CombineProcessor combineProcessor;
-	video.applyFrameProcessor(combineProcessor);
+	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
+	video.applyFrameProcessor(SceneTraceClassifierProcessor);
+
+	HomographyEstimatorProcessor homographyEstimator;
+	video.applyDoubleFrameProcessor(homographyEstimator);
 
 	/*
 	struct : DoubleFrameProcessor {
@@ -128,8 +123,8 @@ int main(int argc, char* argv[]) {
 	HomographyAnnotator homographyAnnotator;
 
 	PipelineFrameAnnotator pipeline;
-	//pipeline.add(&traceAnnotator);
-	pipeline.add(&homographyAnnotator);
+	pipeline.add(&traceAnnotator);
+	//pipeline.add(&homographyAnnotator);
 
 	pipeline.add(&resize);
 	player.setFramesAnnotator(&pipeline);
