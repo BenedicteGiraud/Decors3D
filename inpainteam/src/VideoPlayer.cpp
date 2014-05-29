@@ -50,7 +50,7 @@ void VideoPlayer::play() {
 	auto it = video->frames.begin();
 	while(true) {
 		if(!pause) {
-			if(++it == video->frames.end()) {
+			if(it == video->frames.end()) {
 				it = video->frames.begin();
 			}
 		}
@@ -75,5 +75,7 @@ void VideoPlayer::play() {
 				return;
 			}
 		}
+
+		if(!pause) it++;
 	}
 }

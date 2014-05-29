@@ -30,7 +30,8 @@ Video::Video(string filename)
 		inputVideo >> image;
 		if(image.empty()) break;
 
-		frames.push_back(new Frame(image.clone(), this, index++));
+		frames.push_back(new Frame(image.clone(), this, index));
+		index++;
 	}
 }
 
