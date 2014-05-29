@@ -1,8 +1,10 @@
 #include <iostream>
 #include <cv.h>
 #include <highgui.h>
+#include <opencv2/features2d/features2d.hpp>
 
 #include "entities/Video.h"
+#include "entities/Frame.h"
 #include "frame-annotator/TraceFrameAnnotator.h"
 #include "frame-annotator/ResizeFrameAnnotator.h"
 #include "frame-annotator/PipelineFrameAnnotator.h"
@@ -30,34 +32,63 @@ int main(int argc, char* argv[]) {
 	KeyPointProcessor keypointProcessor;
 	video.applyFrameProcessor(keypointProcessor);
 
-	struct : FrameProcessor {
-		void processFrame(Video* video, Frame* frame) {
-			vector<ExtendedPoint> workingList(frame->keypoints);
+	struct : DoubleFrameProcessor {
+		int searchDistance = 10;
+
+		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
+			// calculate matches between frame
+
+			BFMatcher matcher;
+			vector<vector<DMatch>> matches;
+			matcher.radiusMatch(frame1->rawDescriptors, frame2->rawDescriptors, matches, searchDistance, Mat(), true);
+
+			for(vector<DMatch> matchList : matches) {
+				DMatch match = matchList.front();
+				ExtendedPoint* p1 = frame1->keypoints.at(match.queryIdx);
+				ExtendedPoint* p2 = frame2->keypoints.at(match.trainIdx);
+
+				double distance = norm(p1->keypoint.pt - p2->keypoint.pt);
+				if(distance < searchDistance) {
+					PointTrace* trace = p1->getOrCreate();
+					trace->points.push_back(p2);
+					p2->trace = trace;
+				}
+			}
+
+			//
+			vector<ExtendedPoint*> workingList(frame2->keypoints);
 			for(auto it = workingList.begin(); it != workingList.end(); it++) {
+				if((*it)->trace != NULL) continue;
 				bool found = false;
-				for(auto trace = video->traces.begin(); trace != video->traces.end(); trace++) {
+				int minDistance = INT_MAX;
+				PointTrace *bestTrace = NULL;
+				for(auto trace = video->pointTraces.begin(); trace != video->pointTraces.end(); trace++) {
 					// search for corresponding trace
-					if(trace->points.size() < 1) continue;
-					ExtendedPoint last = trace->points.back();
+					if((*trace)->points.size() < 1) continue;
+					ExtendedPoint* last = (*trace)->points.back();
 
-					double distance = norm(last.keypoint.pt - it->keypoint.pt);
-
-					if(distance < 5) {
-						trace->points.push_back(*it);
-						found = true;
+					double distance = norm(last->keypoint.pt - (*it)->keypoint.pt);
+					if(distance < minDistance) {
+						minDistance = distance;
+						bestTrace = (*trace);
 					}
+				}
+
+				if(minDistance < searchDistance) {
+					bestTrace->points.push_back(*it);
+					(*it)->trace = bestTrace;
+					found = true;
+					break;
 				}
 
 				if(!found) {
 					// create new trace
-					PointTrace trace(video);
-					trace.points.push_back(*it);
-					video->traces.push_back(trace);
+					//(*it)->getOrCreate();
 				}
 			}
 		}
 	} processor;
-	video.applyFrameProcessor(processor);
+	video.applyDoubleFrameProcessor(processor);
 
 	/*
 	struct : DoubleFrameProcessor {
@@ -85,6 +116,7 @@ int main(int argc, char* argv[]) {
 	pipeline.add(&resize);
 
 	player.setFramesAnnotator(&pipeline);
+	player.setFramesPerSecond(5);
 	player.play();
 
 	//video.write(outputDirectory + "/output.avi");
