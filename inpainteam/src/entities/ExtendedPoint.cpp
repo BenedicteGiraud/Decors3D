@@ -14,4 +14,3 @@ ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint) {
 ExtendedPoint::~ExtendedPoint() {
 
 }
-

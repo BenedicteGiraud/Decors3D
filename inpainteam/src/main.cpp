@@ -3,7 +3,7 @@
 #include <highgui.h>
 
 #include "entities/Video.h"
-#include "frame-annotator/KeyPointFrameAnnotator.h"
+#include "frame-annotator/TraceFrameAnnotator.h"
 #include "frame-annotator/ResizeFrameAnnotator.h"
 #include "frame-annotator/PipelineFrameAnnotator.h"
 
@@ -32,9 +32,27 @@ int main(int argc, char* argv[]) {
 
 	struct : FrameProcessor {
 		void processFrame(Video* video, Frame* frame) {
-			for(auto point : frame->keypoints) {
-				for(auto trace : video->traces) {
+			vector<ExtendedPoint> workingList(frame->keypoints);
+			for(auto it = workingList.begin(); it != workingList.end(); it++) {
+				bool found = false;
+				for(auto trace = video->traces.begin(); trace != video->traces.end(); trace++) {
+					// search for corresponding trace
+					if(trace->points.size() < 1) continue;
+					ExtendedPoint last = trace->points.back();
 
+					double distance = norm(last.keypoint.pt - it->keypoint.pt);
+
+					if(distance < 5) {
+						trace->points.push_back(*it);
+						found = true;
+					}
+				}
+
+				if(!found) {
+					// create new trace
+					PointTrace trace;
+					trace.points.push_back(*it);
+					video->traces.push_back(trace);
 				}
 			}
 		}
@@ -60,10 +78,10 @@ int main(int argc, char* argv[]) {
 	ResizeFrameAnnotator resize;
 	resize.setFactor(3);
 
-	KeyPointFrameAnnotator keypoints;
+	TraceFrameAnnotator traceAnnotator;
 
 	PipelineFrameAnnotator pipeline;
-	pipeline.add(&keypoints);
+	pipeline.add(&traceAnnotator);
 	pipeline.add(&resize);
 
 	player.setFramesAnnotator(&pipeline);

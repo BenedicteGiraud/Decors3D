@@ -9,7 +9,6 @@
 #include <time.h>
 
 PointTrace::PointTrace() {
-	srand((unsigned int)time(NULL));
 	color = Scalar(255*rand(), 255*rand(), 255*rand());
 }
 
