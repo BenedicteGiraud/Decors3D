@@ -6,6 +6,7 @@
 #include "VideoPlayer.h"
 
 class VideoPlayer;
+class VideoProcessor;
 class FrameProcessor;
 class DoubleFrameProcessor;
 class Frame;
@@ -32,6 +33,7 @@ public:
 	void play();
 	VideoPlayer getPlayer();
 
+	void applyVideoProcessor(VideoProcessor &processor);
 	void applyFrameProcessor(FrameProcessor &processor);
 	void applyDoubleFrameProcessor(DoubleFrameProcessor &processor);
 };

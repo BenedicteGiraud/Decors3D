@@ -11,15 +11,14 @@
 #include "SceneTraceClassifierProcessor.h"
 
 SceneTraceClassifierProcessor::SceneTraceClassifierProcessor() {
-	// TODO Auto-generated constructor stub
 
 }
 
 SceneTraceClassifierProcessor::~SceneTraceClassifierProcessor() {
-	// TODO Auto-generated destructor stub
+
 }
 
-void SceneTraceClassifierProcessor::processStart(Video* video) {
+void SceneTraceClassifierProcessor::process(Video* video) {
 	int i = -1;
 	for(auto trace : video->pointTraces) {
 		i++;
@@ -46,10 +45,3 @@ void SceneTraceClassifierProcessor::processStart(Video* video) {
 	}
 }
 
-void SceneTraceClassifierProcessor::processFrame(Video* video, Frame* frame) {
-
-}
-
-void SceneTraceClassifierProcessor::processEnd(Video* video) {
-
-}

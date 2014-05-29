@@ -8,20 +8,17 @@
 #ifndef SceneTraceClassifierProcessor_H_
 #define SceneTraceClassifierProcessor_H_
 
-#include "FrameProcessor.h"
+#include "VideoProcessor.h"
 
 class Video;
 class Frame;
 
-class SceneTraceClassifierProcessor : public FrameProcessor {
+class SceneTraceClassifierProcessor : public VideoProcessor {
 public:
 	SceneTraceClassifierProcessor();
 	virtual ~SceneTraceClassifierProcessor();
 
-	virtual void processFrame(Video* video, Frame* frame);
-
-	virtual void processStart(Video* video);
-	virtual void processEnd(Video* video);
+	virtual void process(Video* video);
 };
 
 #endif /* SceneTraceClassifierProcessor_H_ */

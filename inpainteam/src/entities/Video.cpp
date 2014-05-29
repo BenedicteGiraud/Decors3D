@@ -1,8 +1,9 @@
 
 #include <highgui.h>
 
-#include "frame-processor/DoubleFrameProcessor.h"
-#include "frame-processor/FrameProcessor.h"
+#include "processor/VideoProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
+#include "processor/FrameProcessor.h"
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
@@ -70,6 +71,9 @@ VideoPlayer Video::getPlayer() {
 	return player;
 }
 
+void Video::applyVideoProcessor(VideoProcessor &processor) {
+	processor.process(this);
+}
 
 void Video::applyFrameProcessor(FrameProcessor &processor) {
 	processor.processStart(this);

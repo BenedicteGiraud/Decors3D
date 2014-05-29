@@ -8,7 +8,7 @@
 #ifndef KEYPOINTPROCESSOR_H_
 #define KEYPOINTPROCESSOR_H_
 
-#include "frame-processor/FrameProcessor.h"
+#include "processor/FrameProcessor.h"
 
 class KeyPointProcessor : public FrameProcessor {
 public:

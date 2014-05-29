@@ -10,10 +10,10 @@
 #include "frame-annotator/PipelineFrameAnnotator.h"
 #include "frame-annotator/HomographyAnnotator.h"
 
-#include "frame-processor/DoubleFrameProcessor.h"
-#include "frame-processor/KeyPointProcessor.h"
-#include "frame-processor/SceneTraceClassifierProcessor.h"
-#include "frame-processor/HomographyEstimatorProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
+#include "processor/KeyPointProcessor.h"
+#include "processor/SceneTraceClassifierProcessor.h"
+#include "processor/HomographyEstimatorProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 	video.applyDoubleFrameProcessor(processor);
 
 	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
-	video.applyFrameProcessor(SceneTraceClassifierProcessor);
+	video.applyVideoProcessor(SceneTraceClassifierProcessor);
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);

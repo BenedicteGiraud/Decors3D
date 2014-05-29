@@ -8,7 +8,7 @@
 #ifndef KEYPOINTTRACEPROCESSOR_H_
 #define KEYPOINTTRACEPROCESSOR_H_
 
-#include "frame-processor/DoubleFrameProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
 
 class KeyPointTraceProcessor : public DoubleFrameProcessor {
 public:
