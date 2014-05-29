@@ -13,6 +13,7 @@
 using namespace cv;
 
 class Video;
+class Frame;
 class ExtendedPoint;
 
 class PointTrace {
@@ -24,6 +25,8 @@ public:
 	Video* video;
 
 	vector<ExtendedPoint*> points;
+
+	vector<KeyPoint> filter(Frame* frame);
 };
 
 #endif /* POINTTRACE_H_ */
