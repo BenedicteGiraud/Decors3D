@@ -17,10 +17,17 @@ class ExtendedPoint;
 
 class Frame {
 public:
-	cv::Mat image;
-	std::vector<ExtendedPoint> keypoints;
+	// Reference to Video and index of frame
 	Video* video;
 	int index;
+
+	// content of frame
+	cv::Mat image;
+
+	// detected keypoints
+	std::vector<ExtendedPoint*> keypoints;
+	std::vector<cv::KeyPoint> rawKeypoints;
+	cv::Mat rawDescriptors;
 
 	Frame(cv::Mat image, Video* video, int index);
 	virtual ~Frame();

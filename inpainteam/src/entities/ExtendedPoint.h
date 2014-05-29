@@ -11,6 +11,7 @@
 #include <cv.h>
 
 class Frame;
+class PointTrace;
 
 class ExtendedPoint {
 public:
@@ -18,7 +19,12 @@ public:
 	virtual ~ExtendedPoint();
 
 	Frame* frame;
+	PointTrace* trace;
+
 	cv::KeyPoint keypoint;
+	cv::Mat descriptor;
+
+	PointTrace* getOrCreate();
 };
 
 #endif /* EXTENDEDPOINT_H_ */

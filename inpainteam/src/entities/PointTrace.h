@@ -10,8 +10,6 @@
 
 #include <cv.h>
 
-#include "entities/ExtendedPoint.h"
-
 using namespace cv;
 
 class Video;
@@ -25,7 +23,7 @@ public:
 	Scalar color;
 	Video* video;
 
-	vector<ExtendedPoint> points;
+	vector<ExtendedPoint*> points;
 };
 
 #endif /* POINTTRACE_H_ */

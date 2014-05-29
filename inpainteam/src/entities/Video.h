@@ -2,7 +2,6 @@
 #define VIDEO_H
 
 #include <vector>
-#include "entities/Frame.h"
 #include "entities/PointTrace.h"
 #include "VideoPlayer.h"
 
@@ -18,8 +17,8 @@ private:
 	int framesPerSecond;
 
 public:
-	std::vector<Frame> frames;
-	std::vector<PointTrace> traces;
+	std::vector<Frame*> frames;
+	std::vector<PointTrace*> pointTraces;
 
 	Video();
 	Video(std::string filename);

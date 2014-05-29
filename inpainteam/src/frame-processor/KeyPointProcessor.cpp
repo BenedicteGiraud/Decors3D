@@ -44,7 +44,15 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame) {
 		detector.detect(frame->image, keypoints);
 
 		for(auto keypoint : keypoints) {
-			frame->keypoints.push_back(ExtendedPoint(keypoint, frame));
+			frame->keypoints.push_back(new ExtendedPoint(keypoint, frame));
+		}
+
+		SurfDescriptorExtractor extractor;
+		extractor.compute(frame->image, keypoints, frame->rawDescriptors);
+
+		int i=0;
+		for(auto keypoint : frame->keypoints) {
+			keypoint->descriptor = frame->rawDescriptors.row(i++);
 		}
 	}
 }

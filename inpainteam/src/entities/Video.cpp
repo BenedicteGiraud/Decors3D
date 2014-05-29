@@ -4,7 +4,8 @@
 #include "frame-processor/DoubleFrameProcessor.h"
 #include "frame-processor/FrameProcessor.h"
 
-#include "Video.h"
+#include "entities/Video.h"
+#include "entities/Frame.h"
 
 
 using namespace std;
@@ -29,7 +30,7 @@ Video::Video(string filename)
 		inputVideo >> image;
 		if(image.empty()) break;
 
-		frames.push_back(Frame(image.clone(), this, index++));
+		frames.push_back(new Frame(image.clone(), this, index++));
 	}
 }
 
@@ -41,15 +42,14 @@ void Video::write(string filename) {
 	int outputCodec = CV_FOURCC('X', 'V', 'I', 'D');
 
 	VideoWriter outputVideo;
-	int width = (int) frames.begin()->image.size().width;
-	int height = (int) frames.begin()->image.size().height;
+	int width = (int) (*frames.begin())->image.size().width;
+	int height = (int) (*frames.begin())->image.size().height;
 	Size size = Size(width, height);
 	outputVideo.open(filename, outputCodec,
 			framesPerSecond, size, true);
 
-	vector<Frame>::iterator it = frames.begin();
-	for(; it != frames.end(); it++) {
-		outputVideo << it->image;
+	for(auto it = frames.begin(); it != frames.end(); it++) {
+		outputVideo << (*it)->image;
 	}
 }
 
@@ -71,19 +71,18 @@ VideoPlayer Video::getPlayer() {
 
 
 void Video::applyFrameProcessor(FrameProcessor &processor) {
-	vector<Frame>::iterator it = frames.begin();
-	for(; it != frames.end(); it++) {
-		processor.processFrame(this, &(*it));
+	for(auto it = frames.begin(); it != frames.end(); it++) {
+		processor.processFrame(this, (*it));
 	}
 }
 
 void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
-	vector<Frame>::iterator it = frames.begin();
-	processor.processStart(this, &(*it));
-	Frame* last = &(*it); it++;
+	auto it = frames.begin();
+	processor.processStart(this, *it);
+	Frame* last = *it; it++;
 	while(it != frames.end()) {
-		processor.processDoubleFrame(this, last, &(*it));
-		last = &(*it); it++;
+		processor.processDoubleFrame(this, last, *it);
+		last = *it; it++;
 	}
 	processor.processEnd(this, last);
 }
