@@ -7,6 +7,8 @@
 #include "frame-annotator/ResizeFrameAnnotator.h"
 #include "frame-annotator/PipelineFrameAnnotator.h"
 
+#include "frame-processor/DoubleFrameProcessor.h"
+
 using namespace std;
 using namespace cv;
 
@@ -23,6 +25,13 @@ int main(int argc, char* argv[]) {
 
 	Video video(inputFilename);
 	VideoPlayer player = video.getPlayer();
+
+	struct : DoubleFrameProcessor {
+		void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
+			frame1->image -= frame2->image;
+		}
+	} processor;
+	video.applyDoubleFrameProcessor(processor);
 
 	ResizeFrameAnnotator resize;
 	resize.setFactor(3);

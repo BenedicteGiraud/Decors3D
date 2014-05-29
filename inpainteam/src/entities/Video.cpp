@@ -28,22 +28,6 @@ Video::Video(string filename)
 }
 
 /**
- *Plays video until the user presses a key.
- */
-void Video::play() {
-
-	getPlayer().play();
-}
-
-VideoPlayer Video::getPlayer() {
-	VideoPlayer player;
-	Video *video = this;
-	player.setVideo(video);
-
-	return player;
-}
-
-/**
  * Saves the video to a file using the XVID codec.
  * @param filename
  */
@@ -61,4 +45,39 @@ void Video::write(string filename) {
 	for(; it != frames.end(); it++) {
 		outputVideo << it->image;
 	}
+}
+
+/**
+ *Plays video until the user presses a key.
+ */
+void Video::play() {
+
+	getPlayer().play();
+}
+
+VideoPlayer Video::getPlayer() {
+	VideoPlayer player;
+	Video *video = this;
+	player.setVideo(video);
+
+	return player;
+}
+
+
+void Video::applyFrameProcessor(FrameProcessor &processor) {
+	vector<Frame>::iterator it = frames.begin();
+	for(; it != frames.end(); it++) {
+		processor.processFrame(this, &(*it));
+	}
+}
+
+void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
+	vector<Frame>::iterator it = frames.begin();
+	processor.processStart(this, &(*it));
+	Frame* last = &(*it); it++;
+	while(it != frames.end()) {
+		processor.processDoubleFrame(this, last, &(*it));
+		last = &(*it); it++;
+	}
+	processor.processEnd(this, last);
 }

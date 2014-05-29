@@ -4,9 +4,14 @@
 #include <vector>
 #include "entities/Frame.h"
 #include "VideoPlayer.h"
-#include "PointTrace.h"
+#include "entities/PointTrace.h"
+
+#include "frame-processor/DoubleFrameProcessor.h"
+#include "frame-processor/FrameProcessor.h"
 
 class VideoPlayer;
+class FrameProcessor;
+class DoubleFrameProcessor;
 
 class Video
 {
@@ -19,11 +24,13 @@ public:
 
 	Video();
 	Video(std::string filename);
+	void write(std::string filename);
 
 	void play();
 	VideoPlayer getPlayer();
 
-	void write(std::string filename);
+	void applyFrameProcessor(FrameProcessor &processor);
+	void applyDoubleFrameProcessor(DoubleFrameProcessor &processor);
 };
 
 #endif // VIDEO_H
