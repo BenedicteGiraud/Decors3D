@@ -64,6 +64,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	int delta = 20;
 	// initial grid
 	vector<Point2f> grid1;
+	vector<PointTrace*> traces;
 	if(video->pointTraces.size() == 0) {
 		vector<unsigned char> status;
 		for(int row=delta/2; row<frame1->image.rows; row += delta) {
@@ -79,7 +80,10 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 		int descIndex=-1;
 		for(Point2f pt : grid1) {
 			statusIndex++;
-			if(status.at(statusIndex) == 0) continue;
+			if(status.at(statusIndex) == 0) {
+				status.erase(status.begin() + statusIndex--);
+				continue;
+			}
 			descIndex++;
 
 			// add point to frame and corresponding trace
@@ -89,6 +93,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			frame1->keypoints.push_back(ep);
 
 			PointTrace *trace = new PointTrace(video);
+			traces.push_back(trace);
 			trace->points.push_back(ep);
 			video->pointTraces.push_back(trace);
 		}
@@ -97,6 +102,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 		for(PointTrace* trace : video->pointTraces) {
 			ExtendedPoint* ep = trace->filter(frame1);
 			if(ep != NULL) {
+				traces.push_back(trace);
 				grid1.push_back(ep->coordinates);
 			}
 		}
@@ -125,16 +131,27 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	Mat maxDiffDescriptor;
 	cv::reduce(abs(frame2->rawDescriptors - averageDescriptor), maxDiffDescriptor, 0, CV_REDUCE_MAX, -1);
 
+	if(grid1.size() != traces.size()) {
+		cout << "grid1.size() " << grid1.size() << " traces.size() " << traces.size() << endl;
+		throw 1;
+	}
+
 	// add points to traces, if they match
-	auto itTrace = video->pointTraces.begin();
+	auto itTrace = traces.begin();
 	int statusIndex=-1;
 	int descIndex = -1;
 	for(Point2f pt : grid2) {
 		statusIndex++;
-		if(status.at(statusIndex) == 0) continue;
+		if(status.at(statusIndex) == 0) {
+			itTrace++;
+			continue;
+		}
 		descIndex++;
 		ExtendedPoint* lastEp = (*itTrace)->points.front();
-		if(lastEp == NULL) continue;
+		if(lastEp == NULL) {
+			itTrace++;
+			continue;
+		}
 		Mat descriptor1 = lastEp->descriptor;
 		Mat descriptor2 = frame2->rawDescriptors.row(descIndex);
 
@@ -144,7 +161,10 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 		}
 		double ratio = norm(scaled);
 		cout << ratio << endl;
-		if(ratio > 1.05) continue;
+		if(ratio > 0.70) {
+			itTrace++;
+			continue;
+		}
 
 		// add point to frame and corresponding trace
 		ExtendedPoint* ep = new ExtendedPoint(pt, frame2);
@@ -154,4 +174,8 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 		itTrace++;
 	}
 
+	if(itTrace != traces.end()) {
+		cout << "some traces not processed ... " << endl;
+		throw 1;
+	}
 }
