@@ -91,6 +91,87 @@ void extractDescriptors(Frame* frame, vector<Point2f> grid, vector<unsigned char
 	frame->rawDescriptors = descriptors;
 }
 
+vector<Point2f> sampleGrid(Frame* frame, vector<unsigned char> &status, int delta) {
+	vector<Point2f> grid;
+	for(int row=delta/2; row<frame->image.rows; row += delta) {
+		for(int col=delta/2; col<frame->image.cols; col += delta) {
+			Point2f p(col, row);
+			grid.push_back(p);
+			status.push_back(1);
+		}
+	}
+	return grid;
+}
+
+vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> grid, int delta) {
+
+}
+
+void addPointsToTraces(Video* video, Frame* frame,
+		vector<Point2f> &points, vector<PointTrace*> &traces,
+		vector<unsigned char> &status,
+		bool (*checkAddPointToTrace)(PointTrace*, Point2f, Mat)) {
+
+	bool create = false;
+	if(traces.size() == 0) {
+		create = true;
+	}
+
+	auto itTrace = traces.begin();
+	int statusIndex=-1;
+	int descIndex=-1;
+	for(auto it = points.begin(); it != points.end(); it++) {
+		statusIndex++;
+		if(status.at(statusIndex) == 0) {
+			it = points.erase(it)-1;
+			status.erase(status.begin() + statusIndex--);
+			itTrace++;
+			continue;
+		}
+		descIndex++;
+
+		// add point to frame and corresponding trace
+		Mat descriptor = frame->rawDescriptors.row(descIndex);
+		if(checkAddPointToTrace != NULL &&
+				!checkAddPointToTrace(*itTrace, *it, descriptor)) {
+			itTrace++;
+			continue;
+		}
+
+		ExtendedPoint* ep = new ExtendedPoint(*it, frame);
+		ep->descriptor = descriptor;
+		frame->keypoints.push_back(ep);
+
+		PointTrace *trace;
+		if(create) {
+			trace = new PointTrace(video);
+			traces.push_back(trace);
+			video->pointTraces.push_back(trace);
+		}
+		else {
+			trace = *itTrace;
+			itTrace++;
+		}
+		trace->points.push_back(ep);
+	}
+}
+
+bool checkAddPointToTrace(PointTrace* trace, Point2f point, Mat descriptor) {
+	ExtendedPoint* lastEp = trace->points.front();
+	if(lastEp == NULL) {
+		return false;
+	}
+	Mat descriptor1 = lastEp->descriptor;
+	Mat descriptor2 = descriptor;
+
+	Mat scaled = descriptor1-descriptor2;
+	for(int col=0; col<scaled.cols; col++) {
+		//scaled.at<float>(0, col) /= maxDiffDescriptor.at<float>(0, col);
+	}
+	double ratio = norm(scaled);
+	return(ratio < 0.70);
+}
+
 void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 	frame2->keypoints.clear();
 	frame2->rawKeypoints.clear();
@@ -101,37 +182,9 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	vector<PointTrace*> traces;
 	if(video->pointTraces.size() == 0) {
 		vector<unsigned char> status;
-		for(int row=delta/2; row<frame1->image.rows; row += delta) {
-			for(int col=delta/2; col<frame1->image.cols; col += delta) {
-				Point2f p(col, row);
-				grid1.push_back(p);
-				status.push_back(1);
-			}
-		}
+		grid1 = sampleGrid(frame1, status, delta);
 		extractDescriptors(frame1, grid1, status, delta);
-
-		int statusIndex=-1;
-		int descIndex=-1;
-		for(auto it = grid1.begin(); it != grid1.end(); it++) {
-			statusIndex++;
-			if(status.at(statusIndex) == 0) {
-				it = grid1.erase(it)-1;
-				status.erase(status.begin() + statusIndex--);
-				continue;
-			}
-			descIndex++;
-
-			// add point to frame and corresponding trace
-			Mat descriptor1 = frame1->rawDescriptors.row(descIndex);
-			ExtendedPoint* ep = new ExtendedPoint(*it, frame1);
-			ep->descriptor = descriptor1;
-			frame1->keypoints.push_back(ep);
-
-			PointTrace *trace = new PointTrace(video);
-			traces.push_back(trace);
-			trace->points.push_back(ep);
-			video->pointTraces.push_back(trace);
-		}
+		addPointsToTraces(video, frame1, grid1, traces, status, NULL);
 	}
 	else {
 		for(PointTrace* trace : video->pointTraces) {
@@ -185,20 +238,9 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			continue;
 		}
 		descIndex++;
-		ExtendedPoint* lastEp = (*itTrace)->points.front();
-		if(lastEp == NULL) {
-			itTrace++;
-			continue;
-		}
-		Mat descriptor1 = lastEp->descriptor;
-		Mat descriptor2 = frame2->rawDescriptors.row(descIndex);
 
-		Mat scaled = descriptor1-descriptor2;
-		for(int col=0; col<scaled.cols; col++) {
-			//scaled.at<float>(0, col) /= maxDiffDescriptor.at<float>(0, col);
-		}
-		double ratio = norm(scaled);
-		if(ratio > 0.70) {
+		Mat descriptor2 = frame2->rawDescriptors.row(descIndex);
+		if(!checkAddPointToTrace(*itTrace, pt, descriptor2)) {
 			itTrace++;
 			continue;
 		}
