@@ -107,6 +107,36 @@ vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> grid, int delta) {
 
 }
 
+void removeInvalidPoints(vector<Point2f> &points,
+		vector<unsigned char> &status, vector<PointTrace*> &traces) {
+	vector<Point2f> pointsFiltered;
+	vector<unsigned char> statusFiltered;
+	vector<PointTrace*> tracesFiltered;
+	int statusIndex=-1;
+	auto itTrace = traces.begin();
+	for(auto point : points) {
+		statusIndex++;
+		if(status.at(statusIndex) != 0) {
+			pointsFiltered.push_back(point);
+			statusFiltered.push_back(1);
+			if(traces.size() != 0) {
+				tracesFiltered.push_back(*itTrace);
+			}
+		}
+		if(traces.size() != 0) {
+			itTrace++;
+		}
+	}
+	points = pointsFiltered;
+	status = statusFiltered;
+	traces = tracesFiltered;
+
+	if(points.size() != status.size()) {
+		cout << "Warning: point size and status size not matching" << endl;
+		throw 1;
+	}
+}
+
 void addPointsToTraces(Video* video, Frame* frame,
 		vector<Point2f> &points, vector<PointTrace*> &traces,
 		vector<unsigned char> &status,
@@ -117,24 +147,20 @@ void addPointsToTraces(Video* video, Frame* frame,
 		create = true;
 	}
 
+	removeInvalidPoints(points, status, traces);
+
 	auto itTrace = traces.begin();
-	int statusIndex=-1;
-	int descIndex=-1;
+	int index=-1;
 	for(auto it = points.begin(); it != points.end(); it++) {
-		statusIndex++;
-		if(status.at(statusIndex) == 0) {
-			it = points.erase(it)-1;
-			status.erase(status.begin() + statusIndex--);
-			itTrace++;
-			continue;
-		}
-		descIndex++;
+		index++;
 
 		// add point to frame and corresponding trace
-		Mat descriptor = frame->rawDescriptors.row(descIndex);
+		Mat descriptor = frame->rawDescriptors.row(index);
 		if(checkAddPointToTrace != NULL &&
 				!checkAddPointToTrace(*itTrace, *it, descriptor)) {
-			itTrace++;
+			if(!create) {
+				itTrace++;
+			}
 			continue;
 		}
 
@@ -153,6 +179,11 @@ void addPointsToTraces(Video* video, Frame* frame,
 			itTrace++;
 		}
 		trace->points.push_back(ep);
+	}
+
+	if(!create && itTrace != traces.end()) {
+		cout << "some traces not processed ... " << endl;
+		throw 1;
 	}
 }
 
@@ -228,33 +259,6 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	cv::reduce(abs(frame2->rawDescriptors - averageDescriptor), maxDiffDescriptor, 0, CV_REDUCE_MAX, -1);
 
 	// add points to traces, if they match
-	auto itTrace = traces.begin();
-	int statusIndex=-1;
-	int descIndex = -1;
-	for(Point2f pt : grid2) {
-		statusIndex++;
-		if(status.at(statusIndex) == 0) {
-			itTrace++;
-			continue;
-		}
-		descIndex++;
+	addPointsToTraces(video, frame2, grid2, traces, status, checkAddPointToTrace);
 
-		Mat descriptor2 = frame2->rawDescriptors.row(descIndex);
-		if(!checkAddPointToTrace(*itTrace, pt, descriptor2)) {
-			itTrace++;
-			continue;
-		}
-
-		// add point to frame and corresponding trace
-		ExtendedPoint* ep = new ExtendedPoint(pt, frame2);
-		ep->descriptor = descriptor2;
-		frame2->keypoints.push_back(ep);
-		(*itTrace)->points.push_back(ep);
-		itTrace++;
-	}
-
-	if(itTrace != traces.end()) {
-		cout << "some traces not processed ... " << endl;
-		throw 1;
-	}
 }
