@@ -8,10 +8,9 @@
 #include "VideoProcessor.h"
 
 VideoProcessor::VideoProcessor() {
-	// TODO Auto-generated constructor stub
 
 }
 
 VideoProcessor::~VideoProcessor() {
-	// TODO Auto-generated destructor stub
+
 }

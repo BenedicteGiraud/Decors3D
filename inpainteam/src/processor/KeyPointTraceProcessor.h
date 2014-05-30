@@ -10,12 +10,15 @@
 
 #include "processor/DoubleFrameProcessor.h"
 
+class Video;
+class Frame;
+
 class KeyPointTraceProcessor : public DoubleFrameProcessor {
 public:
 	KeyPointTraceProcessor();
 	virtual ~KeyPointTraceProcessor();
 
-
+	virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
 };
 
 #endif /* KEYPOINTTRACEPROCESSOR_H_ */

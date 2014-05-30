@@ -17,12 +17,11 @@ using namespace cv;
 using namespace std;
 
 HomographyEstimatorProcessor::HomographyEstimatorProcessor() {
-	// TODO Auto-generated constructor stub
 
 }
 
 HomographyEstimatorProcessor::~HomographyEstimatorProcessor() {
-	// TODO Auto-generated destructor stub
+
 }
 
 void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
