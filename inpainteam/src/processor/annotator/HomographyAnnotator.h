@@ -17,6 +17,7 @@ public:
 
 	std::vector<cv::Point2f> points;
 
+	virtual void processStart(Video* video);
 	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
 };
 

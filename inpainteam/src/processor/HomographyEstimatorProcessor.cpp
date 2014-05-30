@@ -51,23 +51,35 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 	// TODO: use scene / object information
 	if(points1.size() < 4 || points2.size() < 4) {
 		cout << "No points for frame " << frame1->index << " and " << frame2->index << endl;
-		Mat homography;
-		if(video->homographies.size() > 0) {
-			homography = video->homographies.back();
+		Mat homographyToLastFrame;
+		Mat homographyToBeginning;
+		if(video->homographiesToLastFrame.size() > 0) {
+			homographyToLastFrame = video->homographiesToLastFrame.back();
+			homographyToBeginning = video->homographiesToBeginning.back();
 		}
 		else {
-			homography = (Mat_<double>(3,3)
+			homographyToLastFrame = (Mat_<double>(3,3)
 					<< 1, 0, 0,
 					0 , 1, 0);
+			homographyToBeginning = homographyToLastFrame;
 		}
-		video->homographies.push_back(homography);
+		video->homographiesToLastFrame.push_back(homographyToLastFrame);
+		video->homographiesToBeginning.push_back(homographyToBeginning);
 	}
 	else {
 		cout << "Estimating homography with "
 				<< points1.size() << " and " << points2.size() << " points"
 				<< " in " << traces->size() << " traces " << endl;
 		Mat homography = findHomography(points1, points2, CV_RANSAC, 1);
-		video->homographies.push_back(homography);
+		video->homographiesToLastFrame.push_back(homography);
+
+		if(video->homographiesToBeginning.size() > 0) {
+			Mat homographyToBeginning = video->homographiesToBeginning.back();
+			video->homographiesToBeginning.push_back(ExtendedPoint::concatenateHomography(homographyToBeginning, homography));
+		}
+		else {
+			video->homographiesToBeginning.push_back(homography);
+		}
 	}
 
 }

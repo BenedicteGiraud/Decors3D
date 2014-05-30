@@ -35,11 +35,11 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 			double threshold;
 			ExtendedPoint* last = NULL;
 
-			if(video->homographies.size() != 0) {
+			if(video->homographiesToLastFrame.size() != 0) {
 				Mat homography = Mat::eye(3, 3, CV_64F);
 
 				int homographiesIndex = 0;
-				vector<Mat>::iterator it = video->homographies.begin(), end = it;
+				vector<Mat>::iterator it = video->homographiesToLastFrame.begin(), end = it;
 				for(ExtendedPoint* point : trace->points) {
 					if(last != NULL) {
 						for(; homographiesIndex < point->frame->index; it++, homographiesIndex++) {

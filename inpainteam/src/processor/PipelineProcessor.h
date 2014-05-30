@@ -26,6 +26,9 @@ public:
 	void add(FrameProcessor *processor);
 
 	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+
+	virtual void processStart(Video* video);
+	virtual void processEnd(Video* video);
 };
 
 #endif /* PipelineProcessor_H_ */

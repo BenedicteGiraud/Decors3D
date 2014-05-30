@@ -24,7 +24,8 @@ public:
 	std::vector<PointTrace*> sceneTraces;
 	std::vector<PointTrace*> objectTraces;
 
-	std::vector<cv::Mat> homographies;
+	std::vector<cv::Mat> homographiesToLastFrame;
+	std::vector<cv::Mat> homographiesToBeginning;
 
 	Video();
 	Video(std::string filename);
