@@ -15,11 +15,14 @@ class PointTrace;
 
 class ExtendedPoint {
 public:
+	ExtendedPoint(cv::Point2f point, Frame* frame);
 	ExtendedPoint(cv::KeyPoint keypoint, Frame* frame);
 	virtual ~ExtendedPoint();
 
 	Frame* frame;
 	PointTrace* trace;
+
+	cv::Point2f coordinates;
 
 	cv::KeyPoint keypoint;
 	cv::Mat descriptor;

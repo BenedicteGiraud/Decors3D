@@ -13,7 +13,14 @@
 
 #include "ExtendedPoint.h"
 
+ExtendedPoint::ExtendedPoint(Point2f point, Frame* frame) {
+	this->coordinates = point;
+	this->frame = frame;
+	this->trace = NULL;
+}
+
 ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint, Frame* frame) {
+	this->coordinates = keypoint.pt;
 	this->keypoint = keypoint;
 	this->frame = frame;
 	this->trace = NULL;

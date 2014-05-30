@@ -39,8 +39,8 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 	vector<Point2f> points2;
 
 	for(PointTrace* trace : *traces) {
-		KeyPoint* keypoint1 = trace->filter(frame1);
-		KeyPoint* keypoint2 = trace->filter(frame2);
+		KeyPoint* keypoint1 = trace->filterKeyPoints(frame1);
+		KeyPoint* keypoint2 = trace->filterKeyPoints(frame2);
 
 		if(keypoint1 == NULL || keypoint2 == NULL) continue;
 

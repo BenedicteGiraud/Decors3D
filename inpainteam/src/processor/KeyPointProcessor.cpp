@@ -38,8 +38,6 @@ void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
 		return;
 	}
 
-	cout << "size rawdesc " << frame->rawDescriptors.rows << "x" << frame->rawDescriptors.cols << endl;
-	cout << "size rawdesc " << descriptors.rows << "x" << descriptors.cols << endl;
 	vconcat(frame->rawDescriptors, descriptors, frame->rawDescriptors);
 
 	int i=0;

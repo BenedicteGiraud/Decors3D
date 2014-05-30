@@ -14,6 +14,7 @@
 
 #include "processor/KeyPointProcessor.h"
 #include "processor/KeyPointTraceProcessor.h"
+#include "processor/FlowTraceProcessor.h"
 #include "processor/SceneTraceClassifierProcessor.h"
 #include "processor/HomographyEstimatorProcessor.h"
 
@@ -23,6 +24,7 @@ using namespace cv;
 /*
  * TODO:
  * - use optical flow to create traces
+ * - hashmap frame index -> ExtendedPoint for PointTrace
  * - add high precision coordinates to points
  * - interpolate traces based on neighboring traces
  * - evaluate methods for combining traces
@@ -45,11 +47,13 @@ int main(int argc, char* argv[]) {
 	Video video(inputFilename);
 	VideoPlayer player = video.getPlayer();
 
-	KeyPointProcessor keypointProcessor;
-	video.applyFrameProcessor(keypointProcessor);
+	/*KeyPointProcessor keypointProcessor;
+	video.applyFrameProcessor(keypointProcessor);*/
 
-	KeyPointTraceProcessor keypointTraceProcessor;
-	video.applyDoubleFrameProcessor(keypointTraceProcessor);
+	/*KeyPointTraceProcessor keypointTraceProcessor;
+	video.applyDoubleFrameProcessor(keypointTraceProcessor);*/
+	FlowTraceProcessor flowTraceProcessor;
+	video.applyDoubleFrameProcessor(flowTraceProcessor);
 
 	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
 	video.applyVideoProcessor(SceneTraceClassifierProcessor);
@@ -71,7 +75,7 @@ int main(int argc, char* argv[]) {
 
 	pipeline.add(&resize);
 	player.setFramesAnnotator(&pipeline);
-	player.setFramesPerSecond(5);
+	player.setFramesPerSecond(15);
 	player.play();
 
 	//video.write(outputDirectory + "/output.avi");
