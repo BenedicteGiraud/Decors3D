@@ -73,6 +73,18 @@ void VideoPlayer::play() {
 				pause = !pause;
 				break;
 
+			case 65361: // left
+				pause = true;
+				if(it == video->frames.begin()) it = video->frames.end();
+				it--;
+				break;
+
+			case 65363: // right
+				pause = true;
+				it++;
+				if(it == video->frames.end()) it = video->frames.begin();
+				break;
+
 			default:
 				cout << "VideoPlayer: received key code " << key << ", exiting" << endl;
 				return;
