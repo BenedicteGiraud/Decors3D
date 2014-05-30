@@ -5,11 +5,11 @@
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
-#include "frame-annotator/TraceFrameAnnotator.h"
-#include "frame-annotator/ResizeFrameAnnotator.h"
-#include "frame-annotator/PipelineFrameAnnotator.h"
-#include "frame-annotator/HomographyAnnotator.h"
+#include "processor/annotator/TraceAnnotator.h"
+#include "processor/annotator/ResizeAnnotator.h"
+#include "processor/annotator/HomographyAnnotator.h"
 
+#include "processor/PipelineProcessor.h"
 #include "processor/DoubleFrameProcessor.h"
 #include "processor/KeyPointProcessor.h"
 #include "processor/SceneTraceClassifierProcessor.h"
@@ -17,6 +17,19 @@
 
 using namespace std;
 using namespace cv;
+
+/*
+ * TODO:
+ * - use optical flow to create traces
+ * - add high precision coordinates to points
+ * - interpolate traces based on neighboring traces
+ * - evaluate methods for combining traces
+ *
+ *  cleanup:
+ * - add delete statements to destructors
+ * - comments
+ * - move processor classes to subfolders (except interfaces)
+ */
 
 int main(int argc, char* argv[]) {
 	if( argc < 3) {
@@ -118,13 +131,13 @@ int main(int argc, char* argv[]) {
 	} processor;
 	video.applyDoubleFrameProcessor(processor);*/
 
-	ResizeFrameAnnotator resize;
+	ResizeAnnotator resize;
 	resize.setFactor(3);
 
-	TraceFrameAnnotator traceAnnotator;
+	TraceAnnotator traceAnnotator;
 	HomographyAnnotator homographyAnnotator;
 
-	PipelineFrameAnnotator pipeline;
+	PipelineProcessor pipeline;
 	pipeline.add(&traceAnnotator);
 	pipeline.add(&homographyAnnotator);
 

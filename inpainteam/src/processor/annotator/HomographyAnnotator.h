@@ -8,16 +8,16 @@
 #ifndef HomographyAnnotator_H_
 #define HomographyAnnotator_H_
 
-#include "FrameAnnotator.h"
+#include "processor/FrameProcessor.h"
 
-class HomographyAnnotator : public FrameAnnotator {
+class HomographyAnnotator : public FrameProcessor {
 public:
 	HomographyAnnotator();
 	virtual ~HomographyAnnotator();
 
 	std::vector<cv::Point2f> points;
 
-	virtual void annotate(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
 };
 
 #endif /* HomographyAnnotator_H_ */

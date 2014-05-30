@@ -1,5 +1,5 @@
 /*
- * TraceFrameAnnotator.cpp
+ * TraceAnnotator.cpp
  *
  *  Created on: 2014/05/28
  *      Author: tr
@@ -7,22 +7,22 @@
 
 #include <cv.h>
 
-#include "TraceFrameAnnotator.h"
+#include "TraceAnnotator.h"
 #include "entities/ExtendedPoint.h"
 #include "entities/Video.h"
 
 using namespace cv;
 using namespace std;
 
-TraceFrameAnnotator::TraceFrameAnnotator() {
+TraceAnnotator::TraceAnnotator() {
 
 }
 
-TraceFrameAnnotator::~TraceFrameAnnotator() {
+TraceAnnotator::~TraceAnnotator() {
 
 }
 
-void TraceFrameAnnotator::annotate(Video* video, Frame* frame, cv::Mat* image) {
+void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
 	Mat annotatedImage;
 	int i = 0;
 	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;

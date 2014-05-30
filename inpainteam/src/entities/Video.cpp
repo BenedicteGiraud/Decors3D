@@ -78,7 +78,7 @@ void Video::applyVideoProcessor(VideoProcessor &processor) {
 void Video::applyFrameProcessor(FrameProcessor &processor) {
 	processor.processStart(this);
 	for(auto it = frames.begin(); it != frames.end(); it++) {
-		processor.processFrame(this, (*it));
+		processor.processFrame(this, (*it), &(*it)->image);
 	}
 	processor.processEnd(this);
 }

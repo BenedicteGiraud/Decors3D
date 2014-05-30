@@ -8,16 +8,13 @@
 #ifndef VIDEOPLAYER_H_
 #define VIDEOPLAYER_H_
 
-#include "frame-annotator/FrameAnnotator.h"
-#include "entities/Video.h"
-
 class Video;
-class FrameAnnotator;
+class FrameProcessor;
 
 class VideoPlayer {
 private:
 	int framesPerSecond;
-	FrameAnnotator *annotator;
+	FrameProcessor *annotator;
 	Video *video;
 
 public:
@@ -26,7 +23,7 @@ public:
 
 	void setVideo(Video *video);
 	void setFramesPerSecond(int framesPerSecond);
-	void setFramesAnnotator(FrameAnnotator *annotator);
+	void setFramesAnnotator(FrameProcessor *annotator);
 
 	void play();
 };

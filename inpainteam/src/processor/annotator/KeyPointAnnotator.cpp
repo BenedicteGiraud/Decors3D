@@ -1,5 +1,5 @@
 /*
- * KeyPointFrameAnnotator.cpp
+ * KeyPointAnnotator.cpp
  *
  *  Created on: 2014/05/28
  *      Author: tr
@@ -7,21 +7,21 @@
 
 #include <cv.h>
 
-#include "KeyPointFrameAnnotator.h"
+#include "KeyPointAnnotator.h"
 #include "entities/ExtendedPoint.h"
 #include "entities/Frame.h"
 
 using namespace cv;
 
-KeyPointFrameAnnotator::KeyPointFrameAnnotator() {
+KeyPointAnnotator::KeyPointAnnotator() {
 
 }
 
-KeyPointFrameAnnotator::~KeyPointFrameAnnotator() {
+KeyPointAnnotator::~KeyPointAnnotator() {
 
 }
 
-void KeyPointFrameAnnotator::annotate(Video* video, Frame* frame, cv::Mat* image) {
+void KeyPointAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
 	Mat annotatedImage;
 	auto it = frame->keypoints.begin();
 	for(; it != frame->keypoints.end(); it++) {

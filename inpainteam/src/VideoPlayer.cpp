@@ -8,8 +8,11 @@
 #include <vector>
 #include <highgui.h>
 
-#include "VideoPlayer.h"
+#include "entities/Video.h"
 #include "entities/Frame.h"
+#include "VideoPlayer.h"
+
+#include "processor/FrameProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -32,7 +35,7 @@ void VideoPlayer::setFramesPerSecond(int framesPerSecond) {
 	this->framesPerSecond = framesPerSecond;
 }
 
-void VideoPlayer::setFramesAnnotator(FrameAnnotator* annotator) {
+void VideoPlayer::setFramesAnnotator(FrameProcessor* annotator) {
 	this->annotator = annotator;
 }
 
@@ -58,7 +61,7 @@ void VideoPlayer::play() {
 		Mat image = (*it)->image;
 		if(annotator != NULL) {
 			image = image.clone();
-			annotator->annotate(video, *it, &image);
+			annotator->processFrame(video, *it, &image);
 		}
 
 		imshow("Video" , image);

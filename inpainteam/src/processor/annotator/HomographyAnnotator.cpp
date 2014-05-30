@@ -24,7 +24,7 @@ HomographyAnnotator::~HomographyAnnotator() {
 
 }
 
-void HomographyAnnotator::annotate(Video* video, Frame* frame, cv::Mat* image) {
+void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
 	Mat annotatedImage;
 	int i = 0;
 	if(frame->index == 0 || this->points.size() == 0) {
