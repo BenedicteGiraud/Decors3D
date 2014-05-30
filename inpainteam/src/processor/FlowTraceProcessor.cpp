@@ -61,7 +61,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	frame2->keypoints.clear();
 	frame2->rawKeypoints.clear();
 
-	int delta = 20;
+	int delta = 15;
 	// initial grid
 	vector<Point2f> grid1;
 	vector<PointTrace*> traces;
@@ -74,7 +74,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 				status.push_back(1);
 			}
 		}
-		extractDescriptors(frame1, grid1, status, delta/2);
+		extractDescriptors(frame1, grid1, status, delta);
 
 		int statusIndex=-1;
 		int descIndex=-1;
@@ -123,7 +123,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			status, // whether flow is valid for each point
 			err); // indicates quality of each point?
 
-	extractDescriptors(frame2, grid2, status, delta/2);
+	extractDescriptors(frame2, grid2, status, delta);
 
 	Mat averageDescriptor;
 	cv::reduce(frame2->rawDescriptors, averageDescriptor, 0, CV_REDUCE_AVG, -1);

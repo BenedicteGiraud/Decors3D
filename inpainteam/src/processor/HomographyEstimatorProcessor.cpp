@@ -39,13 +39,13 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 	vector<Point2f> points2;
 
 	for(PointTrace* trace : *traces) {
-		KeyPoint* keypoint1 = trace->filterKeyPoints(frame1);
-		KeyPoint* keypoint2 = trace->filterKeyPoints(frame2);
+		ExtendedPoint* ep1 = trace->filter(frame1);
+		ExtendedPoint* ep2 = trace->filter(frame2);
 
-		if(keypoint1 == NULL || keypoint2 == NULL) continue;
+		if(ep1 == NULL || ep2 == NULL) continue;
 
-		points1.push_back(keypoint1->pt);
-		points2.push_back(keypoint2->pt);
+		points1.push_back(ep1->coordinates);
+		points2.push_back(ep2->coordinates);
 	}
 
 	// TODO: use scene / object information
@@ -66,7 +66,7 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 		cout << "Estimating homography with "
 				<< points1.size() << " and " << points2.size() << " points"
 				<< " in " << traces->size() << " traces " << endl;
-		Mat homography = findHomography(points1, points2, CV_LMEDS, 1);
+		Mat homography = findHomography(points1, points2, CV_RANSAC, 1);
 		video->homographies.push_back(homography);
 	}
 

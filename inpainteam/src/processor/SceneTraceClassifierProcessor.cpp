@@ -51,13 +51,14 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 			else {
 				for(ExtendedPoint* point : trace->points) {
 					if(last != NULL) {
-						distance += norm(last->keypoint.pt - point->keypoint.pt);
+						double n = norm(last->keypoint.pt - point->keypoint.pt);
+						distance += n * n;
 					}
 					last = point;
 				}
 			}
 
-			if(distance / trace->points.size() < 0.5) {
+			if(distance / trace->points.size() < 0.7) {
 				video->sceneTraces.push_back(trace);
 			}
 			else {

@@ -28,8 +28,12 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
 	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	for(auto trace : video->sceneTraces) {
 		//if(i++ > 30) break;
-		vector<KeyPoint> todraw = trace->filterAllKeyPoints(frame);
-		drawKeypoints(*image, todraw, *image, trace->color, DrawMatchesFlags::DRAW_OVER_OUTIMG);
+		vector<ExtendedPoint*> todraw = trace->filterAll(frame);
+		for(auto point : todraw) {
+			Point_<int> p(point->coordinates.x, point->coordinates.y);
+			circle(*image, p, 4, trace->color);
+			break;
+		}
 	}
 
 	i=0;
