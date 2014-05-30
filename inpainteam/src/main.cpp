@@ -29,6 +29,9 @@ using namespace cv;
  * - interpolate traces based on neighboring traces
  * - evaluate methods for combining traces
  *
+ * - use homography estimation to improve flow trace
+ * - kalman filter to make homography more stable?
+ *
  *  cleanup:
  * - add delete statements to destructors
  * - comments

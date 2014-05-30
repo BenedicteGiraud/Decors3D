@@ -103,8 +103,25 @@ vector<Point2f> sampleGrid(Frame* frame, vector<unsigned char> &status, int delt
 	return grid;
 }
 
-vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> grid, int delta) {
+vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> points, int delta) {
+	vector<unsigned char> status;
+	vector<Point2f> grid = sampleGrid(frame, status, delta);
 
+	vector<Point2f> result;
+	for(Point2f gridpoint : grid) {
+		// check whether to add
+		double minDist = FLT_MAX;
+		for(Point2f point : points) {
+			double dist = norm(gridpoint - point);
+			if(dist < minDist) minDist = dist;
+		}
+
+		if(minDist >= delta/2) {
+			result.push_back(gridpoint);
+		}
+	}
+
+	return result;
 }
 
 void removeInvalidPoints(vector<Point2f> &points,
@@ -147,7 +164,9 @@ void addPointsToTraces(Video* video, Frame* frame,
 		create = true;
 	}
 
-	removeInvalidPoints(points, status, traces);
+	if(status.size() > 0) {
+		removeInvalidPoints(points, status, traces);
+	}
 
 	auto itTrace = traces.begin();
 	int index=-1;
@@ -204,17 +223,19 @@ bool checkAddPointToTrace(PointTrace* trace, Point2f point, Mat descriptor) {
 }
 
 void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
+	cout << "frame " << frame1->index;
 	frame2->keypoints.clear();
 	frame2->rawKeypoints.clear();
 
 	int delta = 10;
+	int descriptorScale = delta/2;
 	// initial grid
 	vector<Point2f> grid1;
 	vector<PointTrace*> traces;
 	if(video->pointTraces.size() == 0) {
 		vector<unsigned char> status;
 		grid1 = sampleGrid(frame1, status, delta);
-		extractDescriptors(frame1, grid1, status, delta);
+		extractDescriptors(frame1, grid1, status, descriptorScale);
 		addPointsToTraces(video, frame1, grid1, traces, status, NULL);
 	}
 	else {
@@ -247,7 +268,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			status, // whether flow is valid for each point
 			err); // indicates quality of each point?
 
-	extractDescriptors(frame2, grid2, status, delta);
+	extractDescriptors(frame2, grid2, status, descriptorScale);
 	if(frame2->rawDescriptors.rows == 0) {
 		return;
 	}
@@ -261,4 +282,12 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	// add points to traces, if they match
 	addPointsToTraces(video, frame2, grid2, traces, status, checkAddPointToTrace);
 
+	cout << "resampling start" << endl;
+	vector<Point2f> additionalPoints = resampleGrid(frame2, grid2, delta);
+	cout << "resampling end, found " << additionalPoints << " additional points " << endl;
+	vector<PointTrace*> dummyTraces;
+	vector<unsigned char> dummyStatus;
+	cout << "add start" << endl;
+	addPointsToTraces(video, frame2, additionalPoints, dummyTraces, dummyStatus, NULL);
+	cout << "add end" << endl;
 }
