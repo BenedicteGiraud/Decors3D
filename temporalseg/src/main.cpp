@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\core\core.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
@@ -13,31 +14,32 @@ int main(int, char**)
 	//---------parameters
 
 	//filepath to the movie
-	//VideoCapture movie("F:/The.Lord.of.the.Rings.The.Fellowship.of.the.Ring.2001.EXTENDED.MULTi.1080p.BluRay.X264-LOST/the.lord.of.the.rings.the.fellowship.of.the.ring.2001.extended.multi.1080p.bluray.x264.mkv");
-	VideoCapture movie("C:/4a/Telecom/SI381/data/Fellowship31-32.m4v");
+	VideoCapture movie("G:/films/LotR/Fellowship.mkv");
+	//VideoCapture movie("C:/4a/Telecom/SI381/data/Fellowship31-32.m4v");
 	//VideoCapture movie("C:/series/house of cards/House.of.Cards.S01E01.720p.WEBrip.AAC2.0.x264-NTb.www.TuSerie.COM.mkv");
 	//VideoCapture movie("C:/series/pilot.mp4");
 	//VideoCapture movie("C:/series/The Walking Dead - 3x16 - Welcome to the Tombs.mp4");
 	
 	//The prefix of the output files. Directory MUST exist.
-	string outputPath = "C:/4a/Telecom/SI381/keyframes/HDFellowship";
+	string outputPath = "C:/4a/Telecom/SI381/keyframes/fellowship end/status-";
 
 	//The suffix of the output files. Changes the type of image
 	string outputExt = ".jpg";
 
 	//start of the movie
-	double minute = 0., sec=0.;
+	double minute = 176., sec = 30.;
+
+	//length of the movie
+	double lenmin = 5., lensec = 30.;
 	
 	//number of bins for the 3D HSV histogram
-	int hSize = 8, sSize=4, vSize=4;
-	int sizes[] = {hSize, sSize, vSize};
-	int channels[] = {0, 1, 2};
+	int hSize = 8, sSize=4, vSize=4; int sizes[] = {hSize, sSize, vSize};
 
 	//ratio of histogram intersection that says if two consecutive frames belong to same shot
-	double histRatio = 0.71;
+	double histRatio = 0.75;
 
 	//ratio of histogram intersection that says if two frames describe same point of view
-	double histKeyRatio = 0.76;
+	double histKeyRatio = 0.87;
 
 	//------------code
 
@@ -45,7 +47,12 @@ int main(int, char**)
 		return -1;
 
 	movie.set(CV_CAP_PROP_POS_MSEC,1000.*(minute*60.+sec));
+	double fr = movie.get(CV_CAP_PROP_POS_FRAMES);
+	ofstream info;
+	info.open(outputPath+"info.txt");
 	
+	int channels[] = {0, 1, 2};
+
 	//the current frame
 	Mat frame;
 	
@@ -69,7 +76,7 @@ int main(int, char**)
 
 	movie >> frame;
 	cvtColor(frame, hsvframe, CV_BGR2HSV);
-	cout << frame.rows * frame.cols << endl;
+	//cout << frame.rows * frame.cols << endl;
 	calcHist(&hsvframe, 1, channels, Mat(), hist, 3, sizes, ranges);
 
 
@@ -77,18 +84,18 @@ int main(int, char**)
 	int key = 0;
 	cout << "shot " << shotNumber << "\tkey " << key << endl;
 	stringstream imPath;
-	imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+	imPath << outputPath << setw(4) << setfill('0') << shotNumber << "-" << setw(4) << setfill('0') << key << outputExt;
 	imwrite(imPath.str(), frame);
+	info << shotNumber << " " << key << " " << fr++ << endl;
 	double histThresh = histRatio * frame.rows * frame.cols;
 	double histKeyThresh = histKeyRatio * frame.rows * frame.cols;
 	hist.copyTo(histKey);
-	
+	movie >> frame;
 
-
-	while(!frame.empty())
+	double endFrame = (60*lenmin+lensec)*movie.get(CV_CAP_PROP_FPS)+fr;
+	while(!frame.empty() && (fr++ < endFrame))
 	{
 		hist.copyTo(hist_prev);
-		movie >> frame;
 		imshow("movie", frame);
 		cvtColor(frame, hsvframe, CV_BGR2HSV);
 		calcHist(&hsvframe, 1, channels, Mat(), hist, 3, sizes, ranges);
@@ -99,10 +106,12 @@ int main(int, char**)
 			key=0;
 			cout << "shot " << shotNumber << "\tkey " << key << endl;
 			hist.copyTo(histKey);
-			if(waitKey()==27) break;
+			//if(waitKey()==27) break;
 			stringstream imPath;
-			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+			imPath << outputPath << setw(4) << setfill('0') << shotNumber << "-" << setw(4) << setfill('0') << key << outputExt;
 			imwrite(imPath.str(), frame);
+			info << shotNumber << " " << key << " " << fr++ << endl;
+
 		}
 		else
 		{
@@ -114,14 +123,16 @@ int main(int, char**)
 				hist.copyTo(histKey);
 				//if(waitKey()==27) break;
 			stringstream imPath;
-			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+			imPath << outputPath << setw(4) << setfill('0') << shotNumber << "-" << setw(4) << setfill('0') << key << outputExt;
 			imwrite(imPath.str(), frame);
+			info << shotNumber << " " << key << " " << fr++ << endl;
 			}
 		}
 		//cout << comp << endl;
 
 		if(waitKey(1)==27)
 			break;
-	}
+		movie >> frame;
+}
 	return 0;
 }
