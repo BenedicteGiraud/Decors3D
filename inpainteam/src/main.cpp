@@ -11,6 +11,7 @@
 
 #include "processor/PipelineProcessor.h"
 #include "processor/DoubleFrameProcessor.h"
+#include "processor/OutputProcessor.h"
 
 #include "processor/KeyPointProcessor.h"
 #include "processor/KeyPointTraceProcessor.h"
@@ -84,8 +85,19 @@ int main(int argc, char* argv[]) {
 
 	video.applyVideoProcessor(SceneTraceClassifierProcessor);
 
-
 	player.play();
+
+	// write to file
+	Video annotatedOutput;
+	PipelineProcessor outputPipeline;
+	outputPipeline.add(&pipeline);
+	OutputProcessor outputProcessor;
+	outputProcessor.setOutput(&annotatedOutput);
+	outputPipeline.add(&outputProcessor);
+
+	video.applyFrameProcessor(outputPipeline);
+
+	annotatedOutput.write(outputDirectory + "/annotatedOutput.avi");
 
 	//video.write(outputDirectory + "/output.avi");
 
