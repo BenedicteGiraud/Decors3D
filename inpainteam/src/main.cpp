@@ -47,22 +47,7 @@ int main(int argc, char* argv[]) {
 	Video video(inputFilename);
 	VideoPlayer player = video.getPlayer();
 
-	/*KeyPointProcessor keypointProcessor;
-	video.applyFrameProcessor(keypointProcessor);*/
-
-	/*KeyPointTraceProcessor keypointTraceProcessor;
-	video.applyDoubleFrameProcessor(keypointTraceProcessor);*/
-	FlowTraceProcessor flowTraceProcessor;
-	video.applyDoubleFrameProcessor(flowTraceProcessor);
-
-	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
-	video.applyVideoProcessor(SceneTraceClassifierProcessor);
-
-	HomographyEstimatorProcessor homographyEstimator;
-	video.applyDoubleFrameProcessor(homographyEstimator);
-
-	video.applyVideoProcessor(SceneTraceClassifierProcessor);
-
+	// configure video player
 	ResizeAnnotator resize;
 	resize.setFactor(3);
 
@@ -76,6 +61,27 @@ int main(int argc, char* argv[]) {
 	pipeline.add(&resize);
 	player.setFramesAnnotator(&pipeline);
 	player.setFramesPerSecond(15);
+
+	// configure processor pipeline
+	/*KeyPointProcessor keypointProcessor;
+	video.applyFrameProcessor(keypointProcessor);*/
+
+	/*KeyPointTraceProcessor keypointTraceProcessor;
+	video.applyDoubleFrameProcessor(keypointTraceProcessor);*/
+	FlowTraceProcessor flowTraceProcessor;
+	video.applyDoubleFrameProcessor(flowTraceProcessor);
+
+	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
+	video.applyVideoProcessor(SceneTraceClassifierProcessor);
+
+	player.play();
+
+	HomographyEstimatorProcessor homographyEstimator;
+	video.applyDoubleFrameProcessor(homographyEstimator);
+
+	video.applyVideoProcessor(SceneTraceClassifierProcessor);
+
+
 	player.play();
 
 	//video.write(outputDirectory + "/output.avi");

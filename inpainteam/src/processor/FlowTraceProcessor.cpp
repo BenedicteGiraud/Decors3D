@@ -28,6 +28,44 @@ FlowTraceProcessor::~FlowTraceProcessor() {
 
 }
 
+void extractDescriptorSURF(Frame* frame, Point2f pt, int delta, Mat &descriptor) {
+	// calculate SURF descriptor
+	vector<KeyPoint> keypoints;
+	keypoints.push_back(KeyPoint(pt, delta));
+	SurfDescriptorExtractor extractor;
+	extractor.compute(frame->image, keypoints, descriptor);
+}
+
+/*void extractDescriptorPixel(Frame* frame, Point2f pt, int delta, Mat &descriptor) {
+	// TODO border treatment
+	Point_<int> p(pt.x, pt.y);
+	int channels = frame->image.channels();
+
+	if(p.x-delta < 0 || p.y-delta < 0 ||
+			p.x+delta >= frame->image.cols || p.y+delta >= frame->image.rows) {
+		return;
+	}
+
+	/*Mat result(1, (2*delta+1)*(2*delta+1), frame->image.type());
+
+	int colResult = 0;
+	for(int col=(p.x-delta)*channels; col<(p.x+delta)*channels; col++) {
+		int rowResult = 0;
+		for(int row=p.y-delta; row<p.y+delta; row++) {
+			*result.ptr(rowResult, colResult) = *frame->image.ptr(row, col);
+			rowResult++;
+		}
+		colResult++;
+	}
+
+	descriptor = result;*/
+/*	int x = p.x-delta, y = p.y-delta, width = 2*delta+1, height = width;
+	Mat c = frame->image(Rect(x,y,width,height));
+
+	c = c.clone();
+	descriptor = c.reshape(0, 1);
+}*/
+
 void extractDescriptors(Frame* frame, vector<Point2f> grid, vector<unsigned char> &status, int delta) {
 	if(delta < 1) delta = 1;
 	// extract descriptors, remove points if no descriptor was calculated
@@ -36,12 +74,8 @@ void extractDescriptors(Frame* frame, vector<Point2f> grid, vector<unsigned char
 	for(Point2f pt : grid) {
 		i++;
 		if(status.at(i) == 0) continue;
-		// calculate SURF descriptor
-		vector<KeyPoint> keypoints;
-		keypoints.push_back(KeyPoint(pt, delta));
-		SurfDescriptorExtractor extractor;
 		Mat singleDescriptor;
-		extractor.compute(frame->image, keypoints, singleDescriptor);
+		extractDescriptorSURF(frame, pt, delta, singleDescriptor);
 		if(singleDescriptor.rows == 0) {
 			status.at(i) = 0;
 			continue;
@@ -61,7 +95,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	frame2->keypoints.clear();
 	frame2->rawKeypoints.clear();
 
-	int delta = 15;
+	int delta = 10;
 	// initial grid
 	vector<Point2f> grid1;
 	vector<PointTrace*> traces;
@@ -78,9 +112,10 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 		int statusIndex=-1;
 		int descIndex=-1;
-		for(Point2f pt : grid1) {
+		for(auto it = grid1.begin(); it != grid1.end(); it++) {
 			statusIndex++;
 			if(status.at(statusIndex) == 0) {
+				it = grid1.erase(it)-1;
 				status.erase(status.begin() + statusIndex--);
 				continue;
 			}
@@ -88,7 +123,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 			// add point to frame and corresponding trace
 			Mat descriptor1 = frame1->rawDescriptors.row(descIndex);
-			ExtendedPoint* ep = new ExtendedPoint(pt, frame1);
+			ExtendedPoint* ep = new ExtendedPoint(*it, frame1);
 			ep->descriptor = descriptor1;
 			frame1->keypoints.push_back(ep);
 
@@ -108,6 +143,11 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 		}
 	}
 
+	if(grid1.size() != traces.size()) {
+		cout << "grid1.size() " << grid1.size() << " traces.size() " << traces.size() << endl;
+		throw 1;
+	}
+
 	// caculate next point with Lucas-Kanade
 	vector<Point2f> grid2 = grid1;
 	vector<unsigned char> status;
@@ -124,17 +164,15 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			err); // indicates quality of each point?
 
 	extractDescriptors(frame2, grid2, status, delta);
+	if(frame2->rawDescriptors.rows == 0) {
+		return;
+	}
 
 	Mat averageDescriptor;
 	cv::reduce(frame2->rawDescriptors, averageDescriptor, 0, CV_REDUCE_AVG, -1);
 	repeat(averageDescriptor, frame2->rawDescriptors.rows, 1, averageDescriptor);
 	Mat maxDiffDescriptor;
 	cv::reduce(abs(frame2->rawDescriptors - averageDescriptor), maxDiffDescriptor, 0, CV_REDUCE_MAX, -1);
-
-	if(grid1.size() != traces.size()) {
-		cout << "grid1.size() " << grid1.size() << " traces.size() " << traces.size() << endl;
-		throw 1;
-	}
 
 	// add points to traces, if they match
 	auto itTrace = traces.begin();
@@ -160,7 +198,6 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			//scaled.at<float>(0, col) /= maxDiffDescriptor.at<float>(0, col);
 		}
 		double ratio = norm(scaled);
-		cout << ratio << endl;
 		if(ratio > 0.70) {
 			itTrace++;
 			continue;

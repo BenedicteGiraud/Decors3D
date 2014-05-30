@@ -10,6 +10,8 @@
 
 #include "SceneTraceClassifierProcessor.h"
 
+using namespace std;
+
 SceneTraceClassifierProcessor::SceneTraceClassifierProcessor() {
 
 }
@@ -30,6 +32,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 		if(trace->points.size() >= 4) {
 			//if(i > 30) break;
 			double distance = 0;
+			double threshold;
 			ExtendedPoint* last = NULL;
 
 			if(video->homographies.size() != 0) {
@@ -42,23 +45,28 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 						for(; homographiesIndex < point->frame->index; it++, homographiesIndex++) {
 							homography = ExtendedPoint::concatenateHomography(homography,*it);
 						}
-						Point2f projectedPoint = ExtendedPoint::applyHomography(homography,last->keypoint.pt);
-						distance += norm(projectedPoint - point->keypoint.pt);
+						Point2f projectedPoint = ExtendedPoint::applyHomography(homography,last->coordinates);
+						double n = norm(projectedPoint - point->coordinates);
+						distance += n*n;
 					}
 					last = point;
 				}
+				threshold = 0.5;
+				cout << "distance A " << distance/ trace->points.size() << endl;
 			}
 			else {
 				for(ExtendedPoint* point : trace->points) {
 					if(last != NULL) {
-						double n = norm(last->keypoint.pt - point->keypoint.pt);
-						distance += n * n;
+						double n = norm(last->coordinates - point->coordinates);
+						distance += n*n;
 					}
 					last = point;
 				}
+				cout << "distance B " << distance/ trace->points.size() << endl;
+				threshold = 0.10;
 			}
 
-			if(distance / trace->points.size() < 0.7) {
+			if(distance / trace->points.size() < threshold) {
 				video->sceneTraces.push_back(trace);
 			}
 			else {
