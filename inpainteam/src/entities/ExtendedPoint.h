@@ -28,9 +28,6 @@ public:
 	cv::Mat descriptor;
 
 	PointTrace* getOrCreate();
-
-	static cv::Point2f applyHomography(cv::Mat homography, cv::Point2f point);
-	static cv::Mat concatenateHomography(cv::Mat homography1, cv::Mat homography2);
 };
 
 #endif /* EXTENDEDPOINT_H_ */

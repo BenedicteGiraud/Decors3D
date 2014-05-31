@@ -7,6 +7,7 @@
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
+#include "Tools.h"
 
 #include "SceneTraceClassifierProcessor.h"
 
@@ -43,9 +44,9 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 				for(ExtendedPoint* point : trace->points) {
 					if(last != NULL) {
 						for(; homographiesIndex < point->frame->index; it++, homographiesIndex++) {
-							homography = ExtendedPoint::concatenateHomography(homography,*it);
+							homography = Tools::concatenateHomography(homography,*it);
 						}
-						Point2f projectedPoint = ExtendedPoint::applyHomography(homography,last->coordinates);
+						Point2f projectedPoint = Tools::applyHomography(homography,last->coordinates);
 						double n = norm(projectedPoint - point->coordinates);
 						distance += n*n;
 					}

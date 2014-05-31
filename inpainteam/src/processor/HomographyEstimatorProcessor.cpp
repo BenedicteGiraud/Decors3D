@@ -5,13 +5,14 @@
  *      Author: tr
  */
 
-#include "HomographyEstimatorProcessor.h"
-
 #include <cv.h>
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
 #include "entities/PointTrace.h"
+#include "Tools.h"
+
+#include "HomographyEstimatorProcessor.h"
 
 using namespace cv;
 using namespace std;
@@ -75,7 +76,7 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 
 		if(video->homographiesToBeginning.size() > 0) {
 			Mat homographyToBeginning = video->homographiesToBeginning.back();
-			video->homographiesToBeginning.push_back(ExtendedPoint::concatenateHomography(homographyToBeginning, homography));
+			video->homographiesToBeginning.push_back(Tools::concatenateHomography(homographyToBeginning, homography));
 		}
 		else {
 			video->homographiesToBeginning.push_back(homography);
