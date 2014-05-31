@@ -15,6 +15,7 @@ private:
 	double factor;
 public:
 	ResizeAnnotator();
+	ResizeAnnotator(double factor);
 	virtual ~ResizeAnnotator();
 
 	void setFactor(double factor);

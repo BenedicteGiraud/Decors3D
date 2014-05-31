@@ -15,6 +15,10 @@ ResizeAnnotator::ResizeAnnotator() {
 	factor = 1;
 }
 
+ResizeAnnotator::ResizeAnnotator(double factor) {
+	this->factor = factor;
+}
+
 ResizeAnnotator::~ResizeAnnotator() {
 
 }

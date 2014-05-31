@@ -39,6 +39,27 @@ using namespace cv;
  * - move processor classes to subfolders (except interfaces)
  */
 
+FrameProcessor* getAnnotationProcessor() {
+	PipelineProcessor* pipeline = new PipelineProcessor();
+	pipeline->add(new TraceAnnotator());
+	pipeline->add(new HomographyAnnotator());
+	pipeline->add(new ResizeAnnotator(3));
+	return pipeline;
+}
+
+void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
+	Video annotatedOutput;
+	PipelineProcessor outputPipeline;
+	outputPipeline.add(processor);
+	OutputProcessor outputProcessor;
+	outputProcessor.setOutput(&annotatedOutput);
+	outputPipeline.add(&outputProcessor);
+
+	video->applyFrameProcessor(outputPipeline);
+
+	annotatedOutput.write(filename);
+}
+
 int main(int argc, char* argv[]) {
 	if( argc < 3) {
 		cout << "Missing arguments: ";
@@ -52,52 +73,28 @@ int main(int argc, char* argv[]) {
 	VideoPlayer player = video.getPlayer();
 
 	// configure video player
-	ResizeAnnotator resize;
-	resize.setFactor(3);
-
-	TraceAnnotator traceAnnotator;
-	HomographyAnnotator homographyAnnotator;
-
-	PipelineProcessor pipeline;
-	pipeline.add(&traceAnnotator);
-	pipeline.add(&homographyAnnotator);
-
-	pipeline.add(&resize);
-	player.setFramesAnnotator(&pipeline);
+	FrameProcessor* annotationProcessor = getAnnotationProcessor();
+	player.setFramesAnnotator(annotationProcessor);
 	player.setFramesPerSecond(15);
 
 	// configure processor pipeline
-	/*KeyPointProcessor keypointProcessor;
-	video.applyFrameProcessor(keypointProcessor);*/
-
-	/*KeyPointTraceProcessor keypointTraceProcessor;
-	video.applyDoubleFrameProcessor(keypointTraceProcessor);*/
 	FlowTraceProcessor flowTraceProcessor;
 	video.applyDoubleFrameProcessor(flowTraceProcessor);
 
-	SceneTraceClassifierProcessor SceneTraceClassifierProcessor;
-	video.applyVideoProcessor(SceneTraceClassifierProcessor);
+	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
+	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
 	player.play();
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
-	video.applyVideoProcessor(SceneTraceClassifierProcessor);
+	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
 	player.play();
 
 	// write to file
-	Video annotatedOutput;
-	PipelineProcessor outputPipeline;
-	outputPipeline.add(&pipeline);
-	OutputProcessor outputProcessor;
-	outputProcessor.setOutput(&annotatedOutput);
-	outputPipeline.add(&outputProcessor);
-
-	video.applyFrameProcessor(outputPipeline);
-
-	annotatedOutput.write(outputDirectory + "/annotatedOutput.avi");
+	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
 
 	//video.write(outputDirectory + "/output.avi");
 
