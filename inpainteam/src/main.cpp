@@ -26,6 +26,7 @@ using namespace cv;
  * TODO:
  * - use optical flow to create traces
  * - hashmap frame index -> ExtendedPoint for PointTrace
+ * - list of traces for frame / store as hashmap ?
  * - add high precision coordinates to points
  * - interpolate traces based on neighboring traces
  * - evaluate methods for combining traces

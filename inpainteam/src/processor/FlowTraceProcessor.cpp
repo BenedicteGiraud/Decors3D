@@ -14,6 +14,7 @@
 #include "entities/Frame.h"
 #include "entities/PointTrace.h"
 #include "entities/ExtendedPoint.h"
+#include "Tools.h"
 
 #include "FlowTraceProcessor.h"
 
@@ -66,10 +67,11 @@ void extractDescriptorSURF(Frame* frame, Point2f pt, int delta, Mat &descriptor)
 	descriptor = c.reshape(0, 1);
 }*/
 
-void extractDescriptors(Frame* frame, vector<Point2f> grid, vector<unsigned char> &status, int delta) {
+void extractDescriptors(Frame* frame,
+		vector<Point2f> grid, Mat &descriptors,
+		vector<unsigned char> &status, int delta) {
 	if(delta < 1) delta = 1;
 	// extract descriptors, remove points if no descriptor was calculated
-	Mat descriptors;
 	int i=-1;
 	for(Point2f pt : grid) {
 		i++;
@@ -80,15 +82,8 @@ void extractDescriptors(Frame* frame, vector<Point2f> grid, vector<unsigned char
 			status.at(i) = 0;
 			continue;
 		}
-		if(descriptors.rows == 0) {
-			descriptors = singleDescriptor;
-		}
-		else {
-			vconcat(descriptors, singleDescriptor, descriptors);
-		}
+		Tools::verticalConcatenateMatrices(descriptors, singleDescriptor, descriptors);
 	}
-
-	frame->rawDescriptors = descriptors;
 }
 
 vector<Point2f> sampleGrid(Frame* frame, vector<unsigned char> &status, int delta) {
@@ -103,8 +98,7 @@ vector<Point2f> sampleGrid(Frame* frame, vector<unsigned char> &status, int delt
 	return grid;
 }
 
-vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> points, int delta) {
-	vector<unsigned char> status;
+vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> points, vector<unsigned char> &status, int delta) {
 	vector<Point2f> grid = sampleGrid(frame, status, delta);
 
 	vector<Point2f> result;
@@ -118,6 +112,7 @@ vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> points, int delta) {
 
 		if(minDist >= delta/2) {
 			result.push_back(gridpoint);
+			status.push_back(1);
 		}
 	}
 
@@ -158,6 +153,13 @@ void addPointsToTraces(Video* video, Frame* frame,
 		vector<Point2f> &points, vector<PointTrace*> &traces,
 		vector<unsigned char> &status,
 		bool (*checkAddPointToTrace)(PointTrace*, Point2f, Mat)) {
+
+	cout << "Debug: addPointsToTraces," <<
+			" frame: " << frame->index <<
+			" points: " << points.size() <<
+			" traces: " << traces.size() <<
+			" status: " << status.size() <<
+			" raw desc: " << frame->rawDescriptors.rows << endl;
 
 	bool create = false;
 	if(traces.size() == 0) {
@@ -235,7 +237,9 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	if(video->pointTraces.size() == 0) {
 		vector<unsigned char> status;
 		grid1 = sampleGrid(frame1, status, delta);
-		extractDescriptors(frame1, grid1, status, descriptorScale);
+		Mat descriptors;
+		extractDescriptors(frame1, grid1, descriptors, status, descriptorScale);
+		Tools::verticalConcatenateMatrices(frame1->rawDescriptors, descriptors, frame1->rawDescriptors);
 		addPointsToTraces(video, frame1, grid1, traces, status, NULL);
 	}
 	else {
@@ -268,7 +272,17 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			status, // whether flow is valid for each point
 			err); // indicates quality of each point?
 
-	extractDescriptors(frame2, grid2, status, descriptorScale);
+	// TODO: filter with err
+	cout << " status " << status.size() << " err " << err.size() << endl;
+	for(int i=0; i<status.size(); i++) {
+		cout << " " << err.at(i);
+		if(err.at(i) > 5) status.at(i) = 0;
+	}
+	cout << endl;
+
+	Mat descriptors;
+	extractDescriptors(frame2, grid2, descriptors, status, descriptorScale);
+	Tools::verticalConcatenateMatrices(frame2->rawDescriptors, descriptors, frame2->rawDescriptors);
 	if(frame2->rawDescriptors.rows == 0) {
 		return;
 	}
@@ -282,12 +296,11 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	// add points to traces, if they match
 	addPointsToTraces(video, frame2, grid2, traces, status, checkAddPointToTrace);
 
-	cout << "resampling start" << endl;
-	vector<Point2f> additionalPoints = resampleGrid(frame2, grid2, delta);
-	cout << "resampling end, found " << additionalPoints << " additional points " << endl;
+	vector<unsigned char> additionalPointsStatus;
+	Mat additionalDescriptors;
+	vector<Point2f> additionalPoints = resampleGrid(frame2, grid2, additionalPointsStatus, delta);
+	extractDescriptors(frame2, additionalPoints, additionalDescriptors, additionalPointsStatus, descriptorScale);
+	Tools::verticalConcatenateMatrices(frame2->rawDescriptors, additionalDescriptors, frame2->rawDescriptors);
 	vector<PointTrace*> dummyTraces;
-	vector<unsigned char> dummyStatus;
-	cout << "add start" << endl;
-	addPointsToTraces(video, frame2, additionalPoints, dummyTraces, dummyStatus, NULL);
-	cout << "add end" << endl;
+	addPointsToTraces(video, frame2, additionalPoints, dummyTraces, additionalPointsStatus, NULL);
 }

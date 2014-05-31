@@ -15,7 +15,7 @@ public:
 	Tools();
 	virtual ~Tools();
 
-	inline static void verticalConcatenateMatrices(cv::Mat input, cv::Mat add, cv::Mat output) {
+	inline static void verticalConcatenateMatrices(cv::Mat& input, cv::Mat& add, cv::Mat& output) {
 		if(input.rows == 0) {
 			output = add;
 		}
