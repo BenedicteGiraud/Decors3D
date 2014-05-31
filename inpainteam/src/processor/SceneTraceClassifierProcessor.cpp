@@ -29,7 +29,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	for(auto trace : video->pointTraces) {
 		i++;
 
-		if(trace->points.size() >= 4) {
+		if(trace->points.size() >= 7) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -51,7 +51,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 					}
 					last = point;
 				}
-				threshold = 0.5;
+				threshold = 1.5;
 				cout << "distance A " << distance/ trace->points.size() << endl;
 			}
 			else {

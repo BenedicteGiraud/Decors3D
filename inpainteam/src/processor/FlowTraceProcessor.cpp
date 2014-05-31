@@ -276,7 +276,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	cout << " status " << status.size() << " err " << err.size() << endl;
 	for(int i=0; i<status.size(); i++) {
 		cout << " " << err.at(i);
-		if(err.at(i) > 5) status.at(i) = 0;
+		if(err.at(i) > 6) status.at(i) = 0;
 	}
 	cout << endl;
 
@@ -298,7 +298,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 	vector<unsigned char> additionalPointsStatus;
 	Mat additionalDescriptors;
-	vector<Point2f> additionalPoints = resampleGrid(frame2, grid2, additionalPointsStatus, delta);
+	vector<Point2f> additionalPoints = resampleGrid(frame2, grid2, additionalPointsStatus, delta/1.25);
 	extractDescriptors(frame2, additionalPoints, additionalDescriptors, additionalPointsStatus, descriptorScale);
 	Tools::verticalConcatenateMatrices(frame2->rawDescriptors, additionalDescriptors, frame2->rawDescriptors);
 	vector<PointTrace*> dummyTraces;

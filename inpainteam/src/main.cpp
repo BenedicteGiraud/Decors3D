@@ -24,15 +24,16 @@ using namespace cv;
 
 /*
  * TODO:
- * - use optical flow to create traces
- * - hashmap frame index -> ExtendedPoint for PointTrace
- * - list of traces for frame / store as hashmap ?
- * - add high precision coordinates to points
- * - interpolate traces based on neighboring traces
+ * - interpolate result pixels based on neighboring traces
  * - evaluate methods for combining traces
  *
  * - use homography estimation to improve flow trace
  * - kalman filter to make homography more stable?
+ *
+ * optimization:
+ * - hashmap frame index -> ExtendedPoint for PointTrace
+ * - list of traces for frame / store as hashmap ?
+ * - use k-nearest-neighbors algorithm (e.g. http://docs.opencv.org/modules/flann/doc/flann_fast_approximate_nearest_neighbor_search.html)
  *
  *  cleanup:
  * - add delete statements to destructors
