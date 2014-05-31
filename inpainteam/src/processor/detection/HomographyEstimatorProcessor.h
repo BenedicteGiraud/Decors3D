@@ -8,7 +8,7 @@
 #ifndef HOMOGRAPHYESTIMATORPROCESSOR_H_
 #define HOMOGRAPHYESTIMATORPROCESSOR_H_
 
-#include "DoubleFrameProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
 
 class Video;
 class Frame;

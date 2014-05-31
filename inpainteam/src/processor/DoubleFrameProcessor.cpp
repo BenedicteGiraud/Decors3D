@@ -5,7 +5,7 @@
  *      Author: tr
  */
 
-#include "DoubleFrameProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
 
 DoubleFrameProcessor::DoubleFrameProcessor() {
 

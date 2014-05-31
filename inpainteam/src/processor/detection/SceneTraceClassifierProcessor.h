@@ -8,7 +8,7 @@
 #ifndef SceneTraceClassifierProcessor_H_
 #define SceneTraceClassifierProcessor_H_
 
-#include "VideoProcessor.h"
+#include "processor/VideoProcessor.h"
 
 class Video;
 class Frame;

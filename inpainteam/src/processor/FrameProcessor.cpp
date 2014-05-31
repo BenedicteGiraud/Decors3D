@@ -5,7 +5,7 @@
  *      Author: tr
  */
 
-#include "FrameProcessor.h"
+#include "processor/FrameProcessor.h"
 
 FrameProcessor::FrameProcessor() {
 

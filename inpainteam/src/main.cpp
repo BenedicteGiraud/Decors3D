@@ -5,19 +5,19 @@
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
-#include "processor/annotator/TraceAnnotator.h"
-#include "processor/annotator/ResizeAnnotator.h"
-#include "processor/annotator/HomographyAnnotator.h"
+#include "processor/annotation/TraceAnnotator.h"
+#include "processor/annotation/ResizeAnnotator.h"
+#include "processor/annotation/HomographyAnnotator.h"
 
 #include "processor/PipelineProcessor.h"
 #include "processor/DoubleFrameProcessor.h"
 #include "processor/OutputProcessor.h"
 
-#include "processor/KeyPointProcessor.h"
-#include "processor/KeyPointTraceProcessor.h"
-#include "processor/FlowTraceProcessor.h"
-#include "processor/SceneTraceClassifierProcessor.h"
-#include "processor/HomographyEstimatorProcessor.h"
+#include "processor/detection/KeyPointProcessor.h"
+#include "processor/detection/KeyPointTraceProcessor.h"
+#include "processor/detection/FlowTraceProcessor.h"
+#include "processor/detection/SceneTraceClassifierProcessor.h"
+#include "processor/detection/HomographyEstimatorProcessor.h"
 
 using namespace std;
 using namespace cv;

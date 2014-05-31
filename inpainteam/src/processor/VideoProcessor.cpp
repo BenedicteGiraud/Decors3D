@@ -5,7 +5,7 @@
  *      Author: tr
  */
 
-#include "VideoProcessor.h"
+#include "processor/VideoProcessor.h"
 
 VideoProcessor::VideoProcessor() {
 
