@@ -99,20 +99,32 @@ vector<Point2f> sampleGrid(Frame* frame, vector<unsigned char> &status, int delt
 }
 
 vector<Point2f> resampleGrid(Frame* frame, vector<Point2f> points, vector<unsigned char> &status, int delta) {
-	vector<Point2f> grid = sampleGrid(frame, status, delta);
+	int offsetX = delta/2;
+	int offsetY = delta/2;
+
+	int csize = frame->image.cols / delta;
+	int rsize = frame->image.rows / delta;
+	vector<bool> hasNeighboringPoint(csize*rsize);
+	hasNeighboringPoint.resize(csize*rsize, false);
+	cout << "hNP size " << hasNeighboringPoint.size() << endl;
+	for(Point2f point : points) {
+		// determine next grid point
+		int x = round((point.x-offsetX) / delta);
+		x = (x < 0) ? 0 : ((x >= csize) ? (csize - 1) : x);
+		int y = round((point.y-offsetY) / delta);
+		y = (y < 0) ? 0 : ((y >= rsize) ? (rsize - 1) : y);
+
+		hasNeighboringPoint[y * csize + x] = true;
+	}
 
 	vector<Point2f> result;
-	for(Point2f gridpoint : grid) {
-		// check whether to add
-		double minDist = FLT_MAX;
-		for(Point2f point : points) {
-			double dist = norm(gridpoint - point);
-			if(dist < minDist) minDist = dist;
-		}
-
-		if(minDist >= delta/2) {
-			result.push_back(gridpoint);
-			status.push_back(1);
+	int i=0;
+	for(int y=0; y<rsize; y++) {
+		for(int x=0; x<csize; x++) {
+			if(!hasNeighboringPoint[i++]) {
+				result.push_back(Point2f(x*delta+offsetX, y*delta + offsetY));
+				status.push_back(1);
+			}
 		}
 	}
 
