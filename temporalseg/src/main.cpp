@@ -1,5 +1,7 @@
 //Theophile Dalens 2014
 
+#include <stdio.h>
+
 #include <iostream>
 #include <iomanip>
 #include <opencv2\highgui\highgui.hpp>
@@ -8,64 +10,62 @@
 using namespace std;
 using namespace cv;
 
-int main(int, char**)
+int main(int argc, char *argv[])
 {
-	//---------parameters
+	if (argc != 3)
+	{
+		printf("usage: %s filename output", argv[0]);
+		return -1;
+	}
 
-	//filepath to the movie
-	//VideoCapture movie("F:/The.Lord.of.the.Rings.The.Fellowship.of.the.Ring.2001.EXTENDED.MULTi.1080p.BluRay.X264-LOST/the.lord.of.the.rings.the.fellowship.of.the.ring.2001.extended.multi.1080p.bluray.x264.mkv");
-	VideoCapture movie("C:/4a/Telecom/SI381/data/Fellowship31-32.m4v");
+	VideoCapture movie(argv[1]);
+    //VideoCapture movie("C:/Users/Amine/Documents/Projet SI381/Enter The Void/Enter The Void.avi");
 	//VideoCapture movie("C:/series/house of cards/House.of.Cards.S01E01.720p.WEBrip.AAC2.0.x264-NTb.www.TuSerie.COM.mkv");
 	//VideoCapture movie("C:/series/pilot.mp4");
 	//VideoCapture movie("C:/series/The Walking Dead - 3x16 - Welcome to the Tombs.mp4");
-	
-	//The prefix of the output files. Directory MUST exist.
-	string outputPath = "C:/4a/Telecom/SI381/keyframes/HDFellowship";
 
-	//The suffix of the output files. Changes the type of image
-	string outputExt = ".jpg";
+	//The prefix of the output files. Directory MUST exist.
+	string outputPath = argv[2];
 
 	//start of the movie
-	double minute = 0., sec=0.;
-	
+	double minute = 30., sec=30.;
+
+	float hRange[] = {0.f, 180.f};
+	float sRange[] = {0.f, 256.f};
+	float vRange[] = {0.f, 256.f};
+	const float* ranges[] = {hRange, sRange, vRange};
+  //  void *__gxx_personality_v0=NULL;
+
 	//number of bins for the 3D HSV histogram
-	int hSize = 8, sSize=4, vSize=4;
-	int sizes[] = {hSize, sSize, vSize};
+	int hSize = 8, rSize=4, vSize=4;
+	int sizes[] = {hSize, rSize, vSize};
 	int channels[] = {0, 1, 2};
 
 	//ratio of histogram intersection that says if two consecutive frames belong to same shot
 	double histRatio = 0.71;
 
 	//ratio of histogram intersection that says if two frames describe same point of view
-	double histKeyRatio = 0.76;
-
-	//------------code
+	double histKeyRatio = 0.84;
 
 	if(!movie.isOpened())
 		return -1;
 
 	movie.set(CV_CAP_PROP_POS_MSEC,1000.*(minute*60.+sec));
-	
+
 	//the current frame
 	Mat frame;
-	
+
 	//the current frame in HSV
 	Mat hsvframe;
 
 	//The current histogram
 	Mat hist;
-	
+
 	//The previous histogram
 	Mat hist_prev;
 
 	//The histogram of the last key frame
 	Mat histKey;
-	
-	//The ranges of the histogramss
-	float hRange[] = {0.f, 180.f};
-	float sRange[] = {0.f, 256.f};
-	float vRange[] = {0.f, 256.f};
-	const float* ranges[] = {hRange, sRange, vRange};
 
 	movie >> frame;
 	cvtColor(frame, hsvframe, CV_BGR2HSV);
@@ -77,12 +77,12 @@ int main(int, char**)
 	int key = 0;
 	cout << "shot " << shotNumber << "\tkey " << key << endl;
 	stringstream imPath;
-	imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+	imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << ".bmp";
 	imwrite(imPath.str(), frame);
 	double histThresh = histRatio * frame.rows * frame.cols;
 	double histKeyThresh = histKeyRatio * frame.rows * frame.cols;
 	hist.copyTo(histKey);
-	
+
 
 
 	while(!frame.empty())
@@ -99,9 +99,9 @@ int main(int, char**)
 			key=0;
 			cout << "shot " << shotNumber << "\tkey " << key << endl;
 			hist.copyTo(histKey);
-			if(waitKey()==27) break;
+			//if(waitKey()==27) break;
 			stringstream imPath;
-			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << ".bmp";
 			imwrite(imPath.str(), frame);
 		}
 		else
@@ -114,7 +114,7 @@ int main(int, char**)
 				hist.copyTo(histKey);
 				//if(waitKey()==27) break;
 			stringstream imPath;
-			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << outputExt;
+			imPath << outputPath << setw(2) << setfill('0') << shotNumber << "-" << setw(2) << setfill('0') << key << ".bmp";
 			imwrite(imPath.str(), frame);
 			}
 		}
