@@ -1,5 +1,7 @@
 //Theophile Dalens 2014
 
+#include <stdio.h>
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -9,19 +11,22 @@
 using namespace std;
 using namespace cv;
 
-int main(int, char**)
+int main(int argc, char *argv[])
 {
-	//---------parameters
+	if (argc != 3)
+	{
+		printf("usage: %s filename output", argv[0]);
+		return -1;
+	}
 
-	//filepath to the movie
-	VideoCapture movie("G:/films/LotR/Fellowship.mkv");
-	//VideoCapture movie("C:/4a/Telecom/SI381/data/Fellowship31-32.m4v");
+	VideoCapture movie(argv[1]);
+    //VideoCapture movie("C:/Users/Amine/Documents/Projet SI381/Enter The Void/Enter The Void.avi");
 	//VideoCapture movie("C:/series/house of cards/House.of.Cards.S01E01.720p.WEBrip.AAC2.0.x264-NTb.www.TuSerie.COM.mkv");
 	//VideoCapture movie("C:/series/pilot.mp4");
 	//VideoCapture movie("C:/series/The Walking Dead - 3x16 - Welcome to the Tombs.mp4");
-	
+
 	//The prefix of the output files. Directory MUST exist.
-	string outputPath = "C:/4a/Telecom/SI381/keyframes/fellowship end/status-";
+	string outputPath = argv[2];
 
 	//The suffix of the output files. Changes the type of image
 	string outputExt = ".jpg";
@@ -31,7 +36,10 @@ int main(int, char**)
 
 	//length of the movie
 	double lenmin = 5., lensec = 30.;
-	
+	float vRange[] = {0.f, 256.f};
+	const float* ranges[] = {hRange, sRange, vRange};
+  //  void *__gxx_personality_v0=NULL;
+
 	//number of bins for the 3D HSV histogram
 	int hSize = 8, sSize=4, vSize=4; int sizes[] = {hSize, sSize, vSize};
 
@@ -55,18 +63,19 @@ int main(int, char**)
 
 	//the current frame
 	Mat frame;
-	
+
 	//the current frame in HSV
 	Mat hsvframe;
 
 	//The current histogram
 	Mat hist;
-	
+
 	//The previous histogram
 	Mat hist_prev;
 
 	//The histogram of the last key frame
 	Mat histKey;
+
 	
 	//The ranges of the histogramss
 	float hRange[] = {0.f, 180.f};
@@ -94,6 +103,9 @@ int main(int, char**)
 
 	double endFrame = (60*lenmin+lensec)*movie.get(CV_CAP_PROP_FPS)+fr;
 	while(!frame.empty() && (fr++ < endFrame))
+
+
+	while(!frame.empty())
 	{
 		hist.copyTo(hist_prev);
 		imshow("movie", frame);
@@ -112,6 +124,17 @@ int main(int, char**)
 			imwrite(imPath.str(), frame);
 			info << shotNumber << " " << key << " " << fr++ << endl;
 
+		}
+		else
+		{
+			double comp2=compareHist(histKey, hist, CV_COMP_INTERSECT);
+			if(comp2<histKeyThresh)
+			{
+				key++;
+				cout << "shot " << shotNumber << "\tkey " << key << endl;
+				hist.copyTo(histKey);
+				//if(waitKey()==27) break;
+			stringstream imPath;
 		}
 		else
 		{
