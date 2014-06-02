@@ -30,6 +30,7 @@ ExtendedPoint* PointTrace::filter(Frame* frame) {
 	}
 }
 
+// TODO use unordered map Frame -> ExtendedPoint
 KeyPoint* PointTrace::filterKeyPoint(Frame* frame) {
 	ExtendedPoint* ep = filter(frame);
 	if(ep != NULL) {
@@ -40,6 +41,7 @@ KeyPoint* PointTrace::filterKeyPoint(Frame* frame) {
 	}
 }
 
+// TODO: use unordered map Frame -> ExtendedPoint
 void PointTrace::addOrReplacePoint(ExtendedPoint* point) {
 	ExtendedPoint* old = filter(point->frame);
 	if(old != NULL) {
@@ -48,6 +50,7 @@ void PointTrace::addOrReplacePoint(ExtendedPoint* point) {
 	this->points.insert(pair<Frame*, ExtendedPoint*>(point->frame, point));
 }
 
+// TODO: use map int -> ExtendedPoint
 ExtendedPoint* PointTrace::firstPoint() {
 	auto it = points.begin();
 	if(it != points.end()) {
@@ -58,6 +61,7 @@ ExtendedPoint* PointTrace::firstPoint() {
 	}
 }
 
+// TODO: use int -> ExtendedPoint
 ExtendedPoint* PointTrace::lastPoint() {
 	auto it = points.rbegin();
 	if(it != points.rend()) {

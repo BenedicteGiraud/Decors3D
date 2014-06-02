@@ -18,6 +18,7 @@
 #include "processor/detection/FlowTraceProcessor.h"
 #include "processor/detection/SceneTraceClassifierProcessor.h"
 #include "processor/detection/HomographyEstimatorProcessor.h"
+#include "processor/optimization/TraceKalmanFilterProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -91,12 +92,14 @@ int main(int argc, char* argv[]) {
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
-	video.applyVideoProcessor(sceneTraceClassifierProcessor);
+	video.applyVideoProcessor(sceneTraceClassifierProcessor); //*/
+	TraceKalmanFilterProcessor kalmanFilter;
+	video.applyDoubleFrameProcessor(kalmanFilter);
 
 	player.play();
 
 	// write to file
-	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
+	//annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
 
 	//video.write(outputDirectory + "/output.avi");
 

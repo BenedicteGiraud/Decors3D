@@ -26,6 +26,8 @@ public:
 
 	std::map<Frame*, ExtendedPoint*> points;
 
+	KalmanFilter kalmanFilter;
+
 	ExtendedPoint* filter(Frame* frame);
 	vector<ExtendedPoint*> filterAll(Frame* frame);
 
