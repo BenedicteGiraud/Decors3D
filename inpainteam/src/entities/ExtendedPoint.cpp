@@ -33,7 +33,7 @@ ExtendedPoint::~ExtendedPoint() {
 PointTrace* ExtendedPoint::getOrCreate() {
 	if(this->trace == NULL) {
 		this->trace = new PointTrace(this->frame->video);
-		this->trace->points.push_back(this);
+		this->trace->addOrReplacePoint(this);
 		this->frame->video->pointTraces.push_back(this->trace);
 	}
 	return this->trace;

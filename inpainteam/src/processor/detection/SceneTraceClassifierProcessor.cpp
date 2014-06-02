@@ -41,27 +41,27 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 				int homographiesIndex = 0;
 				vector<Mat>::iterator it = video->homographiesToLastFrame.begin(), end = it;
-				for(ExtendedPoint* point : trace->points) {
+				for(pair<Frame*, ExtendedPoint*> point : trace->points) {
 					if(last != NULL) {
-						for(; homographiesIndex < point->frame->index; it++, homographiesIndex++) {
+						for(; homographiesIndex < point.second->frame->index; it++, homographiesIndex++) {
 							homography = Tools::concatenateHomography(homography,*it);
 						}
 						Point2f projectedPoint = Tools::applyHomography(homography,last->coordinates);
-						double n = norm(projectedPoint - point->coordinates);
+						double n = norm(projectedPoint - point.second->coordinates);
 						distance += n*n;
 					}
-					last = point;
+					last = point.second;
 				}
 				threshold = 1.5;
 				cout << "distance A " << distance/ trace->points.size() << endl;
 			}
 			else {
-				for(ExtendedPoint* point : trace->points) {
+				for(pair<Frame*, ExtendedPoint*> point : trace->points) {
 					if(last != NULL) {
-						double n = norm(last->coordinates - point->coordinates);
+						double n = norm(last->coordinates - point.second->coordinates);
 						distance += n*n;
 					}
-					last = point;
+					last = point.second;
 				}
 				cout << "distance B " << distance/ trace->points.size() << endl;
 				threshold = 0.10;

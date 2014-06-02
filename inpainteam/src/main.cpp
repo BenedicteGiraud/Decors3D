@@ -26,7 +26,7 @@ using namespace cv;
  * TODO:
  * - interpolate result pixels based on neighboring traces
  * - evaluate methods for combining traces
- *
+ * - use fundamental matrix instead of homography
  * - use homography estimation to improve flow trace
  * - kalman filter to make homography more stable?
  *

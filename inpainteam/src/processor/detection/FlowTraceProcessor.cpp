@@ -211,7 +211,7 @@ void addPointsToTraces(Video* video, Frame* frame,
 			trace = *itTrace;
 			itTrace++;
 		}
-		trace->points.push_back(ep);
+		trace->addOrReplacePoint(ep);
 	}
 
 	if(!create && itTrace != traces.end()) {
@@ -221,7 +221,7 @@ void addPointsToTraces(Video* video, Frame* frame,
 }
 
 bool checkAddPointToTrace(PointTrace* trace, Point2f point, Mat descriptor) {
-	ExtendedPoint* lastEp = trace->points.front();
+	ExtendedPoint* lastEp = trace->firstPoint();
 	if(lastEp == NULL) {
 		return false;
 	}

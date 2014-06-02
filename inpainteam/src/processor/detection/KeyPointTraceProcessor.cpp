@@ -44,7 +44,7 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 		double distance = norm(p1 - p2);
 		if(distance < searchDistance) {
 			PointTrace* trace = ep1->getOrCreate();
-			trace->points.push_back(ep2);
+			trace->addOrReplacePoint(ep2);
 			ep2->trace = trace;
 		}
 	}
@@ -59,7 +59,7 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 		for(auto trace = video->pointTraces.begin(); trace != video->pointTraces.end(); trace++) {
 			// search for corresponding trace
 			if((*trace)->points.size() < 1) continue;
-			ExtendedPoint* last = (*trace)->points.back();
+			ExtendedPoint* last = (*trace)->lastPoint();
 
 			double distance = norm(last->keypoint.pt - (*it)->keypoint.pt);
 			if(distance < minDistance) {
@@ -69,7 +69,7 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 		}
 
 		if(minDistance < searchDistance) {
-			bestTrace->points.push_back(*it);
+			bestTrace->addOrReplacePoint(*it);
 			(*it)->trace = bestTrace;
 			found = true;
 			break;

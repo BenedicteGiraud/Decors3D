@@ -24,13 +24,17 @@ public:
 	Scalar color;
 	Video* video;
 
-	vector<ExtendedPoint*> points;
+	std::map<Frame*, ExtendedPoint*> points;
 
 	ExtendedPoint* filter(Frame* frame);
 	vector<ExtendedPoint*> filterAll(Frame* frame);
 
-	KeyPoint* filterKeyPoints(Frame* frame);
+	KeyPoint* filterKeyPoint(Frame* frame);
 	vector<KeyPoint> filterAllKeyPoints(Frame* frame);
+
+	void addOrReplacePoint(ExtendedPoint* point);
+	ExtendedPoint* firstPoint();
+	ExtendedPoint* lastPoint();
 };
 
 #endif /* POINTTRACE_H_ */

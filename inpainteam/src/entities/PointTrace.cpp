@@ -9,6 +9,8 @@
 #include "entities/Frame.h"
 #include "PointTrace.h"
 
+using namespace std;
+
 PointTrace::PointTrace(Video* video) {
 	color = Scalar(255*rand(), 255*rand(), 255*rand());
 	this->video = video;
@@ -18,44 +20,50 @@ PointTrace::~PointTrace() {
 
 }
 
-
-vector<ExtendedPoint*> PointTrace::filterAll(Frame* frame) {
-	vector<ExtendedPoint*> result;
-	for(auto point : points) {
-		if(point->frame == frame) {
-			result.push_back(point);
-		}
-	}
-	return result;
-}
-
 ExtendedPoint* PointTrace::filter(Frame* frame) {
-	for(auto point : points) {
-		if(point->frame == frame) {
-			return point;
-		}
+	auto it = this->points.find(frame);
+	if(it != this->points.end()) {
+		return it->second;
 	}
-
-	return NULL;
+	else {
+		return NULL;
+	}
 }
 
-
-vector<KeyPoint> PointTrace::filterAllKeyPoints(Frame* frame) {
-	vector<KeyPoint> result;
-	for(auto point : points) {
-		if(point->frame == frame) {
-			result.push_back(point->keypoint);
-		}
+KeyPoint* PointTrace::filterKeyPoint(Frame* frame) {
+	ExtendedPoint* ep = filter(frame);
+	if(ep != NULL) {
+		return &ep->keypoint;
 	}
-	return result;
+	else {
+		return NULL;
+	}
 }
 
-KeyPoint* PointTrace::filterKeyPoints(Frame* frame) {
-	for(auto point : points) {
-		if(point->frame == frame) {
-			return &point->keypoint;
-		}
+void PointTrace::addOrReplacePoint(ExtendedPoint* point) {
+	ExtendedPoint* old = filter(point->frame);
+	if(old != NULL) {
+		old->trace = NULL;
 	}
+	this->points.insert(pair<Frame*, ExtendedPoint*>(point->frame, point));
+}
 
-	return NULL;
+ExtendedPoint* PointTrace::firstPoint() {
+	auto it = points.begin();
+	if(it != points.end()) {
+		return it->second;
+	}
+	else {
+		return NULL;
+	}
+}
+
+ExtendedPoint* PointTrace::lastPoint() {
+	auto it = points.rbegin();
+	if(it != points.rend()) {
+		return it->second;
+	}
+	else {
+		return NULL;
+	}
 }
