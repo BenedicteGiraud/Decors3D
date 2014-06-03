@@ -30,7 +30,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	for(auto trace : video->pointTraces) {
 		i++;
 
-		if(trace->points.size() >= 7) {
+		if(trace->points.size() >= 3) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -41,7 +41,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 				int homographiesIndex = 0;
 				vector<Mat>::iterator it = video->homographiesToLastFrame.begin(), end = it;
-				for(pair<Frame*, ExtendedPoint*> point : trace->points) {
+				for(pair<int, ExtendedPoint*> point : trace->points) {
 					if(last != NULL) {
 						for(; homographiesIndex < point.second->frame->index; it++, homographiesIndex++) {
 							homography = Tools::concatenateHomography(homography,*it);
@@ -56,7 +56,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 				cout << "distance A " << distance/ trace->points.size() << endl;
 			}
 			else {
-				for(pair<Frame*, ExtendedPoint*> point : trace->points) {
+				for(pair<int, ExtendedPoint*> point : trace->points) {
 					if(last != NULL) {
 						double n = norm(last->coordinates - point.second->coordinates);
 						distance += n*n;
@@ -69,9 +69,11 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 			if(distance / trace->points.size() < threshold) {
 				video->sceneTraces.push_back(trace);
+				trace->type = PointTrace::scene;
 			}
 			else {
 				video->objectTraces.push_back(trace);
+				trace->type = PointTrace::object;
 			}
 
 		}

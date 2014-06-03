@@ -14,6 +14,7 @@ using namespace std;
 PointTrace::PointTrace(Video* video) {
 	color = Scalar(255*rand(), 255*rand(), 255*rand());
 	this->video = video;
+	type = Type::unknown;
 }
 
 PointTrace::~PointTrace() {
@@ -21,7 +22,7 @@ PointTrace::~PointTrace() {
 }
 
 ExtendedPoint* PointTrace::filter(Frame* frame) {
-	auto it = this->points.find(frame);
+	auto it = this->points.find(frame->index);
 	if(it != this->points.end()) {
 		return it->second;
 	}
@@ -47,7 +48,8 @@ void PointTrace::addOrReplacePoint(ExtendedPoint* point) {
 	if(old != NULL) {
 		old->trace = NULL;
 	}
-	this->points.insert(pair<Frame*, ExtendedPoint*>(point->frame, point));
+	point->trace = this;
+	this->points.insert(pair<int, ExtendedPoint*>(point->frame->index, point));
 }
 
 // TODO: use map int -> ExtendedPoint

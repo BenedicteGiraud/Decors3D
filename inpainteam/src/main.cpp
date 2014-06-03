@@ -19,6 +19,7 @@
 #include "processor/detection/SceneTraceClassifierProcessor.h"
 #include "processor/detection/HomographyEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
+#include "processor/reconstruction/TraceInterpolationProcessor.h"
 
 using namespace std;
 using namespace cv;
@@ -87,19 +88,28 @@ int main(int argc, char* argv[]) {
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
-	player.play();
+	//player.play();
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
-	video.applyVideoProcessor(sceneTraceClassifierProcessor); //*/
+	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 	TraceKalmanFilterProcessor kalmanFilter;
 	video.applyDoubleFrameProcessor(kalmanFilter);
 
 	player.play();
 
+	TraceInterpolationProcessor tip;
+	video.applyFrameProcessor(tip);
+
+	Mat inpaintedImg = tip.getImage();
+
 	// write to file
-	//annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
+	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
+	namedWindow("test", WINDOW_NORMAL);
+	imshow("test", inpaintedImg);
+	waitKey();
+
 
 	//video.write(outputDirectory + "/output.avi");
 

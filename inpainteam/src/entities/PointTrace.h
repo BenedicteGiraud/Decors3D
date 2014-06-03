@@ -24,7 +24,9 @@ public:
 	Scalar color;
 	Video* video;
 
-	std::map<Frame*, ExtendedPoint*> points;
+	std::map<int, ExtendedPoint*> points;
+	enum Type { scene, object, unknown};
+	Type type;
 
 	KalmanFilter kalmanFilter;
 
