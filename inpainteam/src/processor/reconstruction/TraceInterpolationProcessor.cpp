@@ -36,6 +36,7 @@ void TraceInterpolationProcessor::processStart(Video *video) {
 	result = Mat::zeros(frame->image.size(), CV_32FC3);
 	count = Mat(frame->image.size(), CV_32F, Scalar(0));
 
+	debugVideo = new Video();
 }
 
 char dNeighbor[8][2] = {{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}};
@@ -57,8 +58,17 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	// fill up working list
 
 	queue<WorkingItem*> workingitems;
+	WorkingItem::nextid = 0;
 
-	cout << "dbg A frame " << frame->index << endl;
+	unsigned int value = UINT_MAX;
+	Mat distanceMat(image->rows, image->cols, DataType<unsigned int>::type);
+	for(int row=0; row<image->rows; row++) {
+		unsigned int* ptr = distanceMat.ptr<unsigned int>(row,0);
+		for(int col=0; col<image->rows; col++) {
+			*ptr++ = value;
+		}
+	}
+
 	for(ExtendedPoint* ep : frame->keypoints) {
 		if(ep == NULL || ep->trace == NULL) continue;
 		WorkingItem *item = new WorkingItem;
@@ -66,38 +76,34 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		item->row = ep->coordinates.y;
 		item->trace = ep->trace;
 		item->center = ep;
-		cout << " added " << item->id << ": (" << item->col << "," << item->row << ") center " << item->center << endl;
 		workingitems.push(item);
+		distanceMat.at<unsigned int>(item->row, item->col) = 0;
 	}
-
-	unsigned int value = 0;
-	Mat done(image->rows, image->cols, DataType<unsigned int>::type, Scalar(value));
 
 	cout << "dbg B frame " << frame->index << endl;
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
-		cout << "working list size " << workingitems.size() << endl;
-		cout << "acessing " << work->center
-				<< " because of working point " << work << ", " << work->id << ": "
-				<< "(" << work->col << "," << work->row << ")"
-				<< " center " << work->center << " trace " << work->trace << endl;
-		if(work->id >= WorkingItem::nextid) {
-			cout << "WTF???" << endl;
-		}
 		int distanceX = work->col-(work->center->coordinates.x);
 		int distanceY = work->row-(work->center->coordinates.y);
-		unsigned distance = distanceX*distanceX + distanceY+distanceY;
-		if(distance > 7*7) {
-			cout << "deleted A " << work << endl;
+		unsigned distance = distanceX*distanceX + distanceY*distanceY;
+		if(distanceMat.at<unsigned int>(work->row, work->col) < distance) {
 			delete work;
 			continue;
 		}
+		if(distance > 10*10) {
+			delete work;
+			continue;
+		}
+		if(distanceMat.at<unsigned int>(work->row, work->col) > distance) {
+			distanceMat.at<unsigned int>(work->row, work->col) = distance;
+		}
 
-		result.ptr<float>(work->row, work->col)[0] += image->ptr<uchar>(work->row,work->col)[0] / 255.0;
-		result.ptr<float>(work->row, work->col)[1] += image->ptr<uchar>(work->row, work->col)[1] / 255.0;
-		result.ptr<float>(work->row, work->col)[2] += image->ptr<uchar>(work->row, work->col)[2] / 255.0;
-		count.at<float>(work->row, work->col) += 1;
-		done.at<unsigned int>(work->row, work->col) = 1;
+		if(work->trace->type == PointTrace::scene) {
+			result.ptr<float>(work->row, work->col)[0] += image->ptr<uchar>(work->row,work->col)[0] / 255.0;
+			result.ptr<float>(work->row, work->col)[1] += image->ptr<uchar>(work->row, work->col)[1] / 255.0;
+			result.ptr<float>(work->row, work->col)[2] += image->ptr<uchar>(work->row, work->col)[2] / 255.0;
+			count.at<float>(work->row, work->col) += 1;
+		}
 
 		// Maybe optimize with several dNeighbor arrays, check before adding to queue
 		for(int i=0; i<8; i++) {
@@ -106,22 +112,26 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 
 			if(nrow < 0 || ncol < 0) continue;
 			if(nrow >= image->rows || ncol >= image->cols) continue;
-			if(done.at<unsigned int>(nrow, ncol) == 1) continue;
+			int distanceX = ncol-(work->center->coordinates.x);
+			int distanceY = nrow-(work->center->coordinates.y);
+			unsigned distance = distanceX*distanceX + distanceY+distanceY;
+			if(distanceMat.at<unsigned int>(nrow, ncol) <= distance) continue;
 
 			WorkingItem *newitem = new WorkingItem;
 			newitem->col = ncol;
 			newitem->row = nrow;
 			newitem->center = work->center;
 			newitem->trace = work->trace;
-			cout << "workingpoint " << work << ", " << work->id << ": (" << work->col << "," << work->row << ") center " << work->center
-					<< " added " << newitem << ", " << newitem->id << ": (" << newitem->col << "," << newitem->row << ") center " << newitem->center << endl;
 			workingitems.push(newitem);
-			done.at<unsigned int>(nrow, ncol) = 1;
+			distanceMat.at<unsigned int>(nrow, ncol) = distance;
 		}
-		cout << "deleted B " << work << endl;
 		delete work;
+
+		if(WorkingItem::nextid > 2*image->rows*image->cols) {
+			return;
+		}
 	}
-	cout << "dbg C frame " << frame->index << endl;
+	debugVideo->frames.push_back(new Frame(getImage(), video, debugVideo->frames.size()));
 }
 
 Mat TraceInterpolationProcessor::getImage() {

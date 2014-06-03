@@ -24,6 +24,7 @@ public:
 	TraceInterpolationProcessor();
 	virtual ~TraceInterpolationProcessor();
 
+	Video* debugVideo;
 	cv::Mat result;
 	cv::Mat count;
 

@@ -285,12 +285,9 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			err); // indicates quality of each point?
 
 	// TODO: filter with err
-	cout << " status " << status.size() << " err " << err.size() << endl;
 	for(int i=0; i<status.size(); i++) {
-		cout << " " << err.at(i);
 		if(err.at(i) > 6) status.at(i) = 0;
 	}
-	cout << endl;
 
 	Mat descriptors;
 	extractDescriptors(frame2, grid2, descriptors, status, descriptorScale);

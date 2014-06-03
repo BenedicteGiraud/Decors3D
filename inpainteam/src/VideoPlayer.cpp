@@ -50,7 +50,10 @@ void VideoPlayer::play() {
 	}
 	bool pause = false;
 
-	annotator->processStart(video);
+	if(annotator != NULL) {
+		annotator->processStart(video);
+	}
+	namedWindow("Video", WINDOW_NORMAL);
 
 	auto it = video->frames.begin();
 	while(true) {
@@ -95,5 +98,7 @@ void VideoPlayer::play() {
 
 		if(!pause) it++;
 	}
-	annotator->processEnd(video);
+	if(annotator != NULL) {
+		annotator->processEnd(video);
+	}
 }

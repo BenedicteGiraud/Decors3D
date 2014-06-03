@@ -88,27 +88,29 @@ int main(int argc, char* argv[]) {
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
-	//player.play();
+	player.play();
 
-	HomographyEstimatorProcessor homographyEstimator;
+	/*HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 	TraceKalmanFilterProcessor kalmanFilter;
 	video.applyDoubleFrameProcessor(kalmanFilter);
 
-	player.play();
+	//player.play();
 
 	TraceInterpolationProcessor tip;
 	video.applyFrameProcessor(tip);
 
-	Mat inpaintedImg = tip.getImage();
+	//Mat inpaintedImg = tip.getImage();
+	Video* inp = tip.debugVideo;
+	//inp->play();
 
 	// write to file
 	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
-	namedWindow("test", WINDOW_NORMAL);
+	/*namedWindow("test", WINDOW_NORMAL);
 	imshow("test", inpaintedImg);
-	waitKey();
+	waitKey();*/
 
 
 	//video.write(outputDirectory + "/output.avi");
