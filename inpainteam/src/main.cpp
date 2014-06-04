@@ -90,16 +90,16 @@ int main(int argc, char* argv[]) {
 
 	player.play();
 
-	/*HomographyEstimatorProcessor homographyEstimator;
+	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 	TraceKalmanFilterProcessor kalmanFilter;
 	video.applyDoubleFrameProcessor(kalmanFilter);
 
-	//player.play();
+	player.play();
 
-	TraceInterpolationProcessor tip;
+	/*TraceInterpolationProcessor tip;
 	video.applyFrameProcessor(tip);
 
 	//Mat inpaintedImg = tip.getImage();

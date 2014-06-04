@@ -241,7 +241,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 	frame2->keypoints.clear();
 	frame2->rawKeypoints.clear();
 
-	int delta = 10;
+	int delta = max(1,(int)floor(sqrt(min(frame1->image.cols, frame1->image.rows))-2));
 	int descriptorScale = delta/2;
 	// initial grid
 	vector<Point2f> grid1;
@@ -286,7 +286,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 	// TODO: filter with err
 	for(int i=0; i<status.size(); i++) {
-		if(err.at(i) > 6) status.at(i) = 0;
+		if(err.at(i) > 2) status.at(i) = 0;
 	}
 
 	Mat descriptors;
