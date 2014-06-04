@@ -23,7 +23,6 @@ TraceAnnotator::~TraceAnnotator() {
 }
 
 void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
-	Mat annotatedImage;
 	int i = 0;
 	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	for(auto trace : video->sceneTraces) {

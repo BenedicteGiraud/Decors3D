@@ -12,7 +12,11 @@
 using namespace std;
 
 PointTrace::PointTrace(Video* video) {
-	color = Scalar(255*rand(), 255*rand(), 255*rand());
+	int r = 0.5+0.5*rand();
+	int g = 0.5+0.5*rand();
+	int b = 0.5+0.5*rand();
+	colorFloat = Scalar(r / RAND_MAX, g / RAND_MAX, b / RAND_MAX);
+	color = Scalar(255*r, 255*g, 255*b);
 	this->video = video;
 	type = Type::unknown;
 }

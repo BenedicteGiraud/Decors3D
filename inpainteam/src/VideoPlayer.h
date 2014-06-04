@@ -26,6 +26,7 @@ public:
 	void setFramesAnnotator(FrameProcessor *annotator);
 
 	void play();
+	void playWithAnnotationData(Video *annotationData);
 };
 
 #endif /* VIDEOPLAYER_H_ */

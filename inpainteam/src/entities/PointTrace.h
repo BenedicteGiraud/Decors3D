@@ -21,6 +21,7 @@ public:
 	PointTrace(Video* video);
 	virtual ~PointTrace();
 
+	Scalar colorFloat;
 	Scalar color;
 	Video* video;
 

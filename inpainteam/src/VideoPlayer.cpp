@@ -45,6 +45,10 @@ void VideoPlayer::setFramesAnnotator(FrameProcessor* annotator) {
  * @param framesPerSecond
  */
 void VideoPlayer::play() {
+	playWithAnnotationData(video);
+}
+
+void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 	int delay = 1000 / framesPerSecond;
 	if(framesPerSecond > 0 && delay < 0) {
 		delay = 1;
@@ -52,15 +56,17 @@ void VideoPlayer::play() {
 	bool pause = false;
 
 	if(annotator != NULL) {
-		annotator->processStart(video);
+		annotator->processStart(annotationData);
 	}
 	namedWindow("Video", WINDOW_NORMAL);
 
 	auto it = video->frames.begin();
+	auto annotationIt = annotationData->frames.begin();
 	while(true) {
 		if(!pause) {
 			if(it == video->frames.end()) {
 				it = video->frames.begin();
+				annotationIt = annotationData->frames.begin();
 			}
 		}
 
@@ -68,7 +74,7 @@ void VideoPlayer::play() {
 		if(annotator != NULL) {
 			image = image.clone();
 			// TODO: implement processor callback
-			annotator->processFrame(video, *it, &image, ProcessorCallback::getDefault());
+			annotator->processFrame(annotationData, *annotationIt, &image, ProcessorCallback::getDefault());
 		}
 
 		imshow("Video" , image);
@@ -82,14 +88,22 @@ void VideoPlayer::play() {
 
 			case 65361: // left
 				pause = true;
-				if(it == video->frames.begin()) it = video->frames.end();
+				if(it == video->frames.begin()) {
+					it = video->frames.end();
+					annotationIt = annotationData->frames.end();
+				}
 				it--;
+				annotationIt--;
 				break;
 
 			case 65363: // right
 				pause = true;
 				it++;
-				if(it == video->frames.end()) it = video->frames.begin();
+				annotationIt++;
+				if(it == video->frames.end()) {
+					it = video->frames.begin();
+					annotationIt = annotationData->frames.begin();
+				}
 				break;
 
 			default:
@@ -98,9 +112,12 @@ void VideoPlayer::play() {
 			}
 		}
 
-		if(!pause) it++;
+		if(!pause) {
+			it++;
+			annotationIt++;
+		}
 	}
 	if(annotator != NULL) {
-		annotator->processEnd(video);
+		annotator->processEnd(annotationData);
 	}
 }

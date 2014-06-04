@@ -28,7 +28,7 @@ void ResizeAnnotator::setFactor(double factor) {
 }
 
 void ResizeAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
-	resize(*image, *image, Size(), factor, factor, INTER_LINEAR);
+	resize(*image, *image, Size(), factor, factor, INTER_NEAREST);
 }
 
 Point2f ResizeAnnotator::getOutputImageCoordinates(Point2f inputCoordinates) {

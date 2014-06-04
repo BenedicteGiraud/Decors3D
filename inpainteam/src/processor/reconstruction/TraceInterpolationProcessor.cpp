@@ -31,10 +31,15 @@ TraceInterpolationProcessor::~TraceInterpolationProcessor() {
 
 }
 
+typedef unsigned int CountType;
+typedef unsigned int DistanceType;
+typedef unsigned int InternType;
+typedef uchar ImageType;
+
 void TraceInterpolationProcessor::processStart(Video *video) {
 	Frame* frame = video->frames.front();
-	result = Mat::zeros(frame->image.size(), CV_32FC3);
-	count = Mat(frame->image.size(), CV_32F, Scalar(0));
+	summedInterpolation = Mat_<Vec<InternType, 3>>(frame->image.size(), Vec<InternType, 3>(0,0,0));
+	count = Mat_<Vec<CountType, 1>>(frame->image.size(), 0);
 
 	debugVideo = new Video();
 }
@@ -60,11 +65,11 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	queue<WorkingItem*> workingitems;
 	WorkingItem::nextid = 0;
 
-	unsigned int value = UINT_MAX;
-	Mat distanceMat(image->rows, image->cols, DataType<unsigned int>::type);
+	DistanceType value = UINT_MAX;
+	Mat distanceMat(image->rows, image->cols, DataType<DistanceType>::type);
 	for(int row=0; row<image->rows; row++) {
-		unsigned int* ptr = distanceMat.ptr<unsigned int>(row,0);
-		for(int col=0; col<image->rows; col++) {
+		DistanceType* ptr = distanceMat.ptr<DistanceType>(row,0);
+		for(int col=0; col<image->cols; col++) {
 			*ptr++ = value;
 		}
 	}
@@ -77,7 +82,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		item->trace = ep->trace;
 		item->center = ep;
 		workingitems.push(item);
-		distanceMat.at<unsigned int>(item->row, item->col) = 0;
+		distanceMat.at<DistanceType>(item->row, item->col) = 0;
 	}
 
 	cout << "dbg B frame " << frame->index << endl;
@@ -86,23 +91,23 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		int distanceX = work->col-(work->center->coordinates.x);
 		int distanceY = work->row-(work->center->coordinates.y);
 		unsigned distance = distanceX*distanceX + distanceY*distanceY;
-		if(distanceMat.at<unsigned int>(work->row, work->col) < distance) {
+		if(distanceMat.at<DistanceType>(work->row, work->col) < distance) {
 			delete work;
 			continue;
 		}
-		if(distance > 10*10) {
+		if(distance > 40*40) {
 			delete work;
 			continue;
 		}
-		if(distanceMat.at<unsigned int>(work->row, work->col) > distance) {
-			distanceMat.at<unsigned int>(work->row, work->col) = distance;
+		if(distanceMat.at<DistanceType>(work->row, work->col) > distance) {
+			distanceMat.at<DistanceType>(work->row, work->col) = distance;
 		}
 
 		if(work->trace->type == PointTrace::scene) {
-			result.ptr<float>(work->row, work->col)[0] += image->ptr<uchar>(work->row,work->col)[0] / 255.0;
-			result.ptr<float>(work->row, work->col)[1] += image->ptr<uchar>(work->row, work->col)[1] / 255.0;
-			result.ptr<float>(work->row, work->col)[2] += image->ptr<uchar>(work->row, work->col)[2] / 255.0;
-			count.at<float>(work->row, work->col) += 1;
+			summedInterpolation.ptr<InternType>(work->row, work->col)[0] += image->ptr<ImageType>(work->row,work->col)[0];
+			summedInterpolation.ptr<InternType>(work->row, work->col)[1] += image->ptr<ImageType>(work->row, work->col)[1];
+			summedInterpolation.ptr<InternType>(work->row, work->col)[2] += image->ptr<ImageType>(work->row, work->col)[2];
+			count.at<CountType>(work->row, work->col) += 1;
 		}
 
 		// Maybe optimize with several dNeighbor arrays, check before adding to queue
@@ -115,7 +120,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			int distanceX = ncol-(work->center->coordinates.x);
 			int distanceY = nrow-(work->center->coordinates.y);
 			unsigned distance = distanceX*distanceX + distanceY+distanceY;
-			if(distanceMat.at<unsigned int>(nrow, ncol) <= distance) continue;
+			if(distanceMat.at<DistanceType>(nrow, ncol) <= distance) continue;
 
 			WorkingItem *newitem = new WorkingItem;
 			newitem->col = ncol;
@@ -123,42 +128,55 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			newitem->center = work->center;
 			newitem->trace = work->trace;
 			workingitems.push(newitem);
-			distanceMat.at<unsigned int>(nrow, ncol) = distance;
+			distanceMat.at<DistanceType>(nrow, ncol) = distance;
 		}
 		delete work;
 
 		if(WorkingItem::nextid > 2*image->rows*image->cols) {
+			cout << " sth is wrong ..." << endl;
+			exit(0);
 			return;
 		}
 	}
+
 	debugVideo->frames.push_back(new Frame(getImage(), video, debugVideo->frames.size()));
 }
 
 Mat TraceInterpolationProcessor::getImage() {
-	Mat result = this->result.clone();
+	Mat normedResult = Mat::zeros(summedInterpolation.size(), CV_8UC3);
 
-	for(int row=0; row<result.rows; row++) {
-		float* ptr = result.ptr<float>(row);
-		float* countptr = count.ptr<float>(row);
-		for(int col=0; col<result.cols; col++) {
-			for(int channel=0; channel<result.channels(); channel++) {
-				*ptr = *ptr / *countptr;
+	for(int row=0; row<summedInterpolation.rows; row++) {
+		ImageType* ptr = normedResult.ptr<ImageType>(row);
+		CountType* countptr = count.ptr<CountType>(row);
+		InternType* summedInterpolationPtr = summedInterpolation.ptr<InternType>(row);
+		for(int col=0; col<summedInterpolation.cols; col++) {
+			for(int channel=0; channel<summedInterpolation.channels(); channel++) {
+				if(*countptr != 0) {
+					ImageType value = *summedInterpolationPtr / *countptr;
+					cout << "pixel value " << (int)value << endl;
+					*ptr = value;
+				}
+				else {
+					*ptr = 0;
+				}
 				ptr++;
+				summedInterpolationPtr++;
 			}
 			countptr++;
 		}
 	}
 
-	return result;
+	return normedResult;
 }
 
 
 Mat TraceInterpolationProcessor::getCountImage() {
-	Mat result = this->count.clone();
-	int max = INT_MIN;
+	// TODO: rewrite
+	Mat result = Mat::zeros(count.size(), CV_8U);
+	long max = LONG_MIN;
 	for(int row=0; row<result.rows; row++) {
 		for(int col=0; col<result.cols; col++) {
-			if(result.at<float>(row,col) > max) max = result.at<float>(row,col);
+			if(count.at<CountType>(row,col) > max) max = count.at<CountType>(row,col);
 		}
 	}
 
@@ -166,7 +184,7 @@ Mat TraceInterpolationProcessor::getCountImage() {
 
 	for(int row=0; row<result.rows; row++) {
 		for(int col=0; col<result.cols; col++) {
-			result.at<float>(row,col) = result.at<float>(row,col) / max;
+			result.at<ImageType>(row,col) = 255 * count.at<CountType>(row,col) / max;
 		}
 	}
 	return result;

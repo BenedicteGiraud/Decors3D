@@ -46,7 +46,7 @@ using namespace cv;
 FrameProcessor* getAnnotationProcessor() {
 	PipelineProcessor* pipeline = new PipelineProcessor();
 
-	pipeline->add(new ResizeAnnotator(5));
+	pipeline->add(new ResizeAnnotator(7));
 	pipeline->add(new TraceAnnotator());
 	//pipeline->add(new HomographyAnnotator());
 	return pipeline;
@@ -94,18 +94,31 @@ int main(int argc, char* argv[]) {
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
-	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 	TraceKalmanFilterProcessor kalmanFilter;
 	video.applyDoubleFrameProcessor(kalmanFilter);
 
+	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 	player.play();
 
-	/*TraceInterpolationProcessor tip;
+	cout << "trace types "
+			<< " unknown " << PointTrace::unknown
+			<< " scene " << PointTrace::scene
+			<< " object " << PointTrace::object << endl;
+	for(PointTrace* trace : video.pointTraces) {
+		cout << "trace " << trace->type << endl;
+	}
+
+
+	TraceInterpolationProcessor tip;
 	video.applyFrameProcessor(tip);
+	//player.play();
 
 	//Mat inpaintedImg = tip.getImage();
 	Video* inp = tip.debugVideo;
 	//inp->play();
+	VideoPlayer inpPlayer = inp->getPlayer();
+	inpPlayer.setFramesAnnotator(annotationProcessor);
+	inpPlayer.playWithAnnotationData(&video);
 
 	// write to file
 	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
@@ -114,7 +127,7 @@ int main(int argc, char* argv[]) {
 	waitKey();*/
 
 
-	//video.write(outputDirectory + "/output.avi");
+	inp->write(outputDirectory + "/output.avi");
 
 	return 0;
 }

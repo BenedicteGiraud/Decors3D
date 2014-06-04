@@ -25,7 +25,7 @@ public:
 	virtual ~TraceInterpolationProcessor();
 
 	Video* debugVideo;
-	cv::Mat result;
+	cv::Mat summedInterpolation;
 	cv::Mat count;
 
 	virtual void processStart(Video *video);

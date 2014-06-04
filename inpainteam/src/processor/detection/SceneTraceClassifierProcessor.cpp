@@ -30,7 +30,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	for(auto trace : video->pointTraces) {
 		i++;
 
-		if(trace->points.size() >= 3) {
+		if(trace->points.size() >= 2) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -68,12 +68,12 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 			}
 
 			if(distance / trace->points.size() < threshold) {
-				video->sceneTraces.push_back(trace);
 				trace->type = PointTrace::scene;
+				video->sceneTraces.push_back(trace);
 			}
 			else {
-				video->objectTraces.push_back(trace);
 				trace->type = PointTrace::object;
+				video->objectTraces.push_back(trace);
 			}
 
 		}
