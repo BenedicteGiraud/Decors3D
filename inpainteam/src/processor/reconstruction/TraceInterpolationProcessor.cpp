@@ -24,7 +24,7 @@ using namespace cv;
 using namespace std;
 
 TraceInterpolationProcessor::TraceInterpolationProcessor() {
-
+	debugVideo = NULL;
 }
 
 TraceInterpolationProcessor::~TraceInterpolationProcessor() {
@@ -95,10 +95,10 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			delete work;
 			continue;
 		}
-		if(distance > 40*40) {
+		/*if(distance > 40*40) {
 			delete work;
 			continue;
-		}
+		}*/
 		if(distanceMat.at<DistanceType>(work->row, work->col) > distance) {
 			distanceMat.at<DistanceType>(work->row, work->col) = distance;
 		}
@@ -153,7 +153,6 @@ Mat TraceInterpolationProcessor::getImage() {
 			for(int channel=0; channel<summedInterpolation.channels(); channel++) {
 				if(*countptr != 0) {
 					ImageType value = *summedInterpolationPtr / *countptr;
-					cout << "pixel value " << (int)value << endl;
 					*ptr = value;
 				}
 				else {

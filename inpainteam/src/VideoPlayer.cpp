@@ -82,6 +82,10 @@ void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 		int key = waitKey(delay);
 		if(key >= 0) {
 			switch(key) {
+			case 'q':
+				exit(0);
+				break;
+
 			case ' ':
 				pause = !pause;
 				break;

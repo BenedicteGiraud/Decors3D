@@ -10,6 +10,7 @@
 #include "TraceAnnotator.h"
 #include "entities/ExtendedPoint.h"
 #include "entities/Video.h"
+#include "entities/Frame.h"
 
 using namespace cv;
 using namespace std;
@@ -23,20 +24,27 @@ TraceAnnotator::~TraceAnnotator() {
 }
 
 void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
-	int i = 0;
+	int index = frame->index;
 	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	for(auto trace : video->sceneTraces) {
 		//if(i++ > 30) break;
-		ExtendedPoint* point = trace->filter(frame);
+		ExtendedPoint* point = trace->filter(index);
 		if(point != NULL) {
-			Point2f p = callback->getOutputImageCoordinates(point->coordinates);
+			Point p = callback->getOutputImageCoordinates(point->coordinates);
 			circle(*image, p, 4, trace->color);
+
+			ExtendedPoint* nextPoint = trace->filter(index+1);
+			if(nextPoint != NULL) {
+				if(nextPoint->coordinates != point->coordinates) {
+					Point p2 = callback->getOutputImageCoordinates(nextPoint->coordinates);
+					line(*image, p, p2, 1);
+				}
+			}
 		}
 	}
 
-	i=0;
 	for(auto trace : video->objectTraces) {
-		ExtendedPoint* point = trace->filter(frame);
+		ExtendedPoint* point = trace->filter(index);
 		if(point != NULL) {
 			Point2f p = callback->getOutputImageCoordinates(point->coordinates);
 			Point p1 = p, p2 = p;
@@ -44,6 +52,14 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, Pr
 			p1.x -= diff; p1.y -= diff;
 			p2.x += diff; p2.y += diff;
 			rectangle(*image, p1, p2, trace->color);
+
+			ExtendedPoint* nextPoint = trace->filter(index+1);
+			if(nextPoint != NULL) {
+				if(nextPoint->coordinates != point->coordinates) {
+					Point p2 = callback->getOutputImageCoordinates(nextPoint->coordinates);
+					line(*image, p, p2, 1);
+				}
+			}
 		}
 	}
 }

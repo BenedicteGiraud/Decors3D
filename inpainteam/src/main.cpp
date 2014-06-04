@@ -43,12 +43,15 @@ using namespace cv;
  * - move processor classes to subfolders (except interfaces)
  */
 
-FrameProcessor* getAnnotationProcessor() {
+FrameProcessor* getAnnotationProcessor(Video *video) {
 	PipelineProcessor* pipeline = new PipelineProcessor();
 
-	pipeline->add(new ResizeAnnotator(7));
+	int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
+	if(size < 150) {
+		pipeline->add(new ResizeAnnotator(150.0/size));
+	}
 	pipeline->add(new TraceAnnotator());
-	//pipeline->add(new HomographyAnnotator());
+	pipeline->add(new HomographyAnnotator());
 	return pipeline;
 }
 
@@ -78,7 +81,7 @@ int main(int argc, char* argv[]) {
 	VideoPlayer player = video.getPlayer();
 
 	// configure video player
-	FrameProcessor* annotationProcessor = getAnnotationProcessor();
+	FrameProcessor* annotationProcessor = getAnnotationProcessor(&video);
 	player.setFramesAnnotator(annotationProcessor);
 	player.setFramesPerSecond(15);
 
@@ -89,25 +92,16 @@ int main(int argc, char* argv[]) {
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
-	player.play();
+	//player.play();
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
 
 	TraceKalmanFilterProcessor kalmanFilter;
-	video.applyDoubleFrameProcessor(kalmanFilter);
+	//video.applyDoubleFrameProcessor(kalmanFilter);
 
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
-	player.play();
-
-	cout << "trace types "
-			<< " unknown " << PointTrace::unknown
-			<< " scene " << PointTrace::scene
-			<< " object " << PointTrace::object << endl;
-	for(PointTrace* trace : video.pointTraces) {
-		cout << "trace " << trace->type << endl;
-	}
-
+	//player.play();
 
 	TraceInterpolationProcessor tip;
 	video.applyFrameProcessor(tip);
@@ -127,7 +121,7 @@ int main(int argc, char* argv[]) {
 	waitKey();*/
 
 
-	inp->write(outputDirectory + "/output.avi");
+	//inp->write(outputDirectory + "/output.avi");
 
 	return 0;
 }

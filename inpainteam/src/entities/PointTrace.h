@@ -32,6 +32,7 @@ public:
 	KalmanFilter kalmanFilter;
 
 	ExtendedPoint* filter(Frame* frame);
+	ExtendedPoint* filter(int index);
 	vector<ExtendedPoint*> filterAll(Frame* frame);
 
 	KeyPoint* filterKeyPoint(Frame* frame);

@@ -286,7 +286,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 	// TODO: filter with err
 	for(int i=0; i<status.size(); i++) {
-		if(err.at(i) > 2) status.at(i) = 0;
+		if(err.at(i) > 30) status.at(i) = 0;
 	}
 
 	Mat descriptors;

@@ -25,14 +25,18 @@ PointTrace::~PointTrace() {
 
 }
 
-ExtendedPoint* PointTrace::filter(Frame* frame) {
-	auto it = this->points.find(frame->index);
+ExtendedPoint* PointTrace::filter(int index) {
+	auto it = this->points.find(index);
 	if(it != this->points.end()) {
 		return it->second;
 	}
 	else {
 		return NULL;
 	}
+}
+
+ExtendedPoint* PointTrace::filter(Frame* frame) {
+	return filter(frame->index);
 }
 
 // TODO use unordered map Frame -> ExtendedPoint

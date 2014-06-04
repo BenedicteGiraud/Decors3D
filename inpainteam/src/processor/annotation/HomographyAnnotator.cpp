@@ -40,15 +40,19 @@ void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* imag
 		perspectiveTransform(this->points, transformedPoints, video->homographiesToBeginning.at(frame->index-1));
 	}
 
-	Point2f last; bool first = true;
+	Point2f first, last; bool firstRun = true;
 	for(auto point : transformedPoints) {
 		cout << " " << point;
-		if(!first) {
+		point = callback->getOutputImageCoordinates(point);
+		if(!firstRun) {
 			line(*image, point, last, Scalar(0,0,0));
 		}
+		else {
+			first = point;
+		}
 		last = point;
-		first = false;
+		firstRun = false;
 	}
 	cout << endl;
-	line(*image, last, transformedPoints.front(), Scalar(0,0,0));
+	line(*image, last, first, Scalar(0,0,0));
 }
