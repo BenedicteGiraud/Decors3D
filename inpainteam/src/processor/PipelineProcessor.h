@@ -18,6 +18,7 @@ class PipelineProcessor : public FrameProcessor {
 private:
 	double factor;
 	vector<FrameProcessor*> annotators;
+	vector<ProcessorCallback*> callbacks;
 
 public:
 	PipelineProcessor();
@@ -25,10 +26,21 @@ public:
 
 	void add(FrameProcessor *processor);
 
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 
 	virtual void processStart(Video* video);
 	virtual void processEnd(Video* video);
+};
+
+class PipelineProcessorCallback : public ProcessorCallback {
+private:
+	friend PipelineProcessor;
+	ProcessorCallback* preceedingProcessorCallback;
+	ProcessorCallback* callback;
+
+public:
+	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
+	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
 };
 
 #endif /* PipelineProcessor_H_ */

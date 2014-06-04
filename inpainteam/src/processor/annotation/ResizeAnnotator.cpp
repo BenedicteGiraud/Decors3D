@@ -27,6 +27,20 @@ void ResizeAnnotator::setFactor(double factor) {
 	this->factor = factor;
 }
 
-void ResizeAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
+void ResizeAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	resize(*image, *image, Size(), factor, factor, INTER_LINEAR);
+}
+
+Point2f ResizeAnnotator::getOutputImageCoordinates(Point2f inputCoordinates) {
+	Point2f result = inputCoordinates;
+	result.x *= factor;
+	result.y *= factor;
+	return result;
+}
+
+Point2f ResizeAnnotator::getInputImageCoordinates(Point2f outputCoordinates) {
+	Point2f result = outputCoordinates;
+	result.x /= factor;
+	result.y /= factor;
+	return result;
 }

@@ -5,6 +5,8 @@
 #include "processor/DoubleFrameProcessor.h"
 #include "processor/FrameProcessor.h"
 
+#include "processor/ProcessorCallback.h"
+
 #include "entities/Video.h"
 #include "entities/Frame.h"
 
@@ -78,7 +80,7 @@ void Video::applyVideoProcessor(VideoProcessor &processor) {
 void Video::applyFrameProcessor(FrameProcessor &processor) {
 	processor.processStart(this);
 	for(auto it = frames.begin(); it != frames.end(); it++) {
-		processor.processFrame(this, (*it), &(*it)->image);
+		processor.processFrame(this, (*it), &(*it)->image, ProcessorCallback::getDefault());
 	}
 	processor.processEnd(this);
 }

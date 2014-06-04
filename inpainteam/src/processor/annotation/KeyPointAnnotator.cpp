@@ -21,7 +21,7 @@ KeyPointAnnotator::~KeyPointAnnotator() {
 
 }
 
-void KeyPointAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
+void KeyPointAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	Mat annotatedImage;
 	auto it = frame->keypoints.begin();
 	for(; it != frame->keypoints.end(); it++) {

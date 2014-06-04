@@ -15,7 +15,7 @@ public:
 	TraceAnnotator();
 	virtual ~TraceAnnotator();
 
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 };
 
 #endif /* TraceAnnotator_H_ */

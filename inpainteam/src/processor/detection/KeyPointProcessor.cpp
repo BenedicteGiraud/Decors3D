@@ -46,7 +46,7 @@ void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
 	}
 }
 
-void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image) {
+void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, ProcessorCallback* callback) {
 	if(frame->keypoints.size() == 0) {
 		vector<KeyPoint> keypoints;
 		SurfFeatureDetector surf(

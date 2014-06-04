@@ -13,6 +13,7 @@
 #include "VideoPlayer.h"
 
 #include "processor/FrameProcessor.h"
+#include "processor/ProcessorCallback.h"
 
 using namespace std;
 using namespace cv;
@@ -66,7 +67,8 @@ void VideoPlayer::play() {
 		Mat image = (*it)->image;
 		if(annotator != NULL) {
 			image = image.clone();
-			annotator->processFrame(video, *it, &image);
+			// TODO: implement processor callback
+			annotator->processFrame(video, *it, &image, ProcessorCallback::getDefault());
 		}
 
 		imshow("Video" , image);

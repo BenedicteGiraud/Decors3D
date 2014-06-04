@@ -28,6 +28,6 @@ void OutputProcessor::setOutput(Video* video) {
 	index = 0;
 }
 
-void OutputProcessor::processFrame(Video* video, Frame* frame, cv::Mat* image) {
+void OutputProcessor::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	output->frames.push_back(new Frame(image->clone(), output, index++));
 }

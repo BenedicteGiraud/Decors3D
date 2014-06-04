@@ -21,7 +21,7 @@ public:
 
 	void setOutput(Video* output);
 
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 };
 
 #endif /* OutputProcessor_H_ */

@@ -34,7 +34,7 @@ void HomographyAnnotator::processStart(Video* video) {
 	this->points.push_back(Point2f(x1, y2));
 }
 
-void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image) {
+void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	vector<Point2f> transformedPoints = this->points;
 	if(frame->index-1 < video->homographiesToBeginning.size()) {
 		perspectiveTransform(this->points, transformedPoints, video->homographiesToBeginning.at(frame->index-1));

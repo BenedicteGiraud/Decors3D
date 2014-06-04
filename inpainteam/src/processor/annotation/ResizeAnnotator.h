@@ -20,7 +20,10 @@ public:
 
 	void setFactor(double factor);
 
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
+
+	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
+	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
 };
 
 #endif /* RESIZEAnnotator_H_ */

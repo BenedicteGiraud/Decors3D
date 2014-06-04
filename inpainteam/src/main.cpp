@@ -45,9 +45,10 @@ using namespace cv;
 
 FrameProcessor* getAnnotationProcessor() {
 	PipelineProcessor* pipeline = new PipelineProcessor();
+
+	pipeline->add(new ResizeAnnotator(5));
 	pipeline->add(new TraceAnnotator());
-	pipeline->add(new HomographyAnnotator());
-	pipeline->add(new ResizeAnnotator(3));
+	//pipeline->add(new HomographyAnnotator());
 	return pipeline;
 }
 

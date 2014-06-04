@@ -52,7 +52,7 @@ struct WorkingItem {
 } ;
 int WorkingItem::nextid = 0;
 
-void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::Mat* image) {
+void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	Mat points(video->pointTraces.size(), 2, CV_32F);
 
 	// fill up working list

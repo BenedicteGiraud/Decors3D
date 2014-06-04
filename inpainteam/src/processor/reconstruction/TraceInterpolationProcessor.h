@@ -29,7 +29,7 @@ public:
 	cv::Mat count;
 
 	virtual void processStart(Video *video);
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 
 	cv::Mat getImage();
 	cv::Mat getCountImage();

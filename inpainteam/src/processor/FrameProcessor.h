@@ -10,10 +10,14 @@
 
 #include <cv.h>
 
+#include "processor/ProcessorCallback.h"
+
 class Video;
 class Frame;
 
-class FrameProcessor {
+class ProcessorCallback;
+
+class FrameProcessor : public ProcessorCallback {
 public:
 	FrameProcessor();
 	virtual ~FrameProcessor();
@@ -24,10 +28,13 @@ public:
 	 * @param frame
 	 * @param image original frame or annotated frame of the visualization chain
 	 */
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image) = 0;
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) = 0;
 
 	virtual void processStart(Video* video);
 	virtual void processEnd(Video* video);
+
+	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
+	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
 };
 
 #endif /* FRAMEPROCESSOR_H_ */

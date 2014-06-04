@@ -15,7 +15,7 @@ public:
 	KeyPointAnnotator();
 	virtual ~KeyPointAnnotator();
 
-	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 };
 
 #endif /* KEYPOINTAnnotator_H_ */

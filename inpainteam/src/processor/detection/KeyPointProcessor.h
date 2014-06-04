@@ -15,7 +15,7 @@ public:
 	KeyPointProcessor();
 	virtual ~KeyPointProcessor();
 
-	void processFrame(Video* video, Frame* frame, cv::Mat* image);
+	void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 };
 
 #endif /* KEYPOINTPROCESSOR_H_ */
