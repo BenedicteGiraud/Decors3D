@@ -7,6 +7,8 @@
 #include "entities/Frame.h"
 
 #include "visualization/VideoPlayer.h"
+#include "visualization/AnnotationVideoProvider.h"
+#include "visualization/CombinationVideoProvider.h"
 
 #include "processor/annotation/TraceAnnotator.h"
 #include "processor/annotation/ResizeAnnotator.h"
@@ -46,16 +48,19 @@ using namespace cv;
  * - move processor classes to subfolders (except interfaces)
  */
 
-
-
-FrameProcessor* getAnnotationProcessor(Video *video) {
-	PipelineProcessor* pipeline = new PipelineProcessor();
-
+FrameProcessor* getResizeProcessor(Video *video) {
 	int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
 	int destinationSize = 300;
 	if(size < destinationSize) {
-		pipeline->add(new ResizeAnnotator(((double)destinationSize)/size));
+		return new ResizeAnnotator(((double)destinationSize)/size);
 	}
+	return NULL;
+}
+
+FrameProcessor* getAnnotationProcessor(Video *video) {
+	PipelineProcessor* pipeline = new PipelineProcessor();
+	FrameProcessor *resize = getResizeProcessor(video);
+	pipeline->add(resize);
 	pipeline->add(new TraceAnnotator());
 	pipeline->add(new HomographyAnnotator());
 	return pipeline;
@@ -71,7 +76,7 @@ void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
 
 	video->applyFrameProcessor(outputPipeline);
 
-	annotatedOutput.write(filename);
+	annotatedOutput.write(filename, 5);
 }
 
 int main(int argc, char* argv[]) {
@@ -98,7 +103,7 @@ int main(int argc, char* argv[]) {
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
-	player.play();
+	//player.play();
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
@@ -115,13 +120,25 @@ int main(int argc, char* argv[]) {
 
 	//Mat inpaintedImg = tip.getImage();
 	Video* inp = tip.debugVideo;
-	inp->play();
-	VideoPlayer inpPlayer = inp->getPlayer();
+	//inp->play();
+	VideoPlayer inpPlayer;
+	CombinationVideoProvider videoprovider;
+	FrameProcessor *resize = getResizeProcessor(&video);
+	videoprovider.addProvider(new AnnotationVideoProvider(&video, resize, NULL), 0,0);
+	Mat image = videoprovider.getImage();
+	int height = image.rows;
+	int width = image.cols;
+	videoprovider.addProvider(new AnnotationVideoProvider(inp, annotationProcessor, &video), 0,height);
+	videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), width,height);
+	inpPlayer.setVideoProvider(&videoprovider);
+	inpPlayer.play();
 	//inpPlayer.setFramesAnnotator(annotationProcessor);
 	//inpPlayer.playWithAnnotationData(&video);
 
 	// write to file
-	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");
+	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedVideo.avi");
+	annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
+	inp->write(outputDirectory + "/inpainting.avi", 5);
 	/*namedWindow("test", WINDOW_NORMAL);
 	imshow("test", inpaintedImg);
 	waitKey();*/

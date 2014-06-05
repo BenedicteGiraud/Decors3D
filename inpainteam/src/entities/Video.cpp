@@ -43,6 +43,14 @@ Video::Video(string filename)
  * @param filename
  */
 void Video::write(string filename) {
+	write(filename, framesPerSecond);
+}
+
+/**
+ * Saves the video to a file using the XVID codec.
+ * @param filename
+ */
+void Video::write(string filename, double framesPerSecond) {
 	int outputCodec = CV_FOURCC('X', 'V', 'I', 'D');
 
 	VideoWriter outputVideo;

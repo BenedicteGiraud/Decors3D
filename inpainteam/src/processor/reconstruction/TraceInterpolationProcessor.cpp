@@ -79,6 +79,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		WorkingItem *item = new WorkingItem;
 		item->col = ep->coordinates.x;
 		item->row = ep->coordinates.y;
+		if(item->col < 0 || item->row < 0 || item->col >= image->cols || item->row >= image->rows) continue;
 		item->center = ep;
 		workingitems.push(item);
 		distanceMat.at<DistanceType>(item->row, item->col) = 0;
@@ -87,6 +88,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	cout << "dbg B frame " << frame->index << endl;
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
+		if(work == NULL) continue;
 		int distanceX = work->col-(work->center->coordinates.x);
 		int distanceY = work->row-(work->center->coordinates.y);
 		unsigned distance = distanceX*distanceX + distanceY*distanceY;

@@ -15,7 +15,7 @@ class FrameTrace;
 class Video
 {
 private:
-	int framesPerSecond;
+	double framesPerSecond;
 
 public:
 	std::vector<Frame*> frames;
@@ -30,6 +30,7 @@ public:
 	Video();
 	Video(std::string filename);
 	void write(std::string filename);
+	void write(std::string filename, double framesPerSecond);
 
 	void play();
 	VideoPlayer getPlayer();

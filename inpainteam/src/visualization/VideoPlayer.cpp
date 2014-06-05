@@ -35,6 +35,11 @@ void VideoPlayer::setVideo(Video* video) {
 	this->provider = new AnnotationVideoProvider(video);
 }
 
+void VideoPlayer::setVideoProvider(VideoProvider* provider) {
+	// TODO: deal with memory leak
+	this->provider = provider;
+}
+
 void VideoPlayer::setFramesPerSecond(int framesPerSecond) {
 	this->framesPerSecond = framesPerSecond;
 }
@@ -89,9 +94,13 @@ void VideoPlayer::play() {
 				provider->seekRelative(+1);
 				break;
 
+			case 10:
+			case 27:
+				goto FINISH;
+				break;
+
 			default:
-				cout << "VideoPlayer: received key code " << key << ", exiting" << endl;
-				return;
+				cout << "VideoPlayer: received key code " << key << ", don't know what to do" << endl;
 			}
 		}
 
@@ -99,5 +108,6 @@ void VideoPlayer::play() {
 			provider->seekRelative(+1);
 		}
 	}
+FINISH:
 	provider->finish();
 }

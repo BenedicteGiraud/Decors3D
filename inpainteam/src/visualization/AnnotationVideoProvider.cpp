@@ -15,7 +15,12 @@ AnnotationVideoProvider::AnnotationVideoProvider(Video* video, FrameProcessor* a
 	index = 0;
 	this->video = video;
 	this->annotator = annotator;
-	this->annotationData = annotationData;
+	if(annotationData == NULL) {
+		this->annotationData = video;
+	}
+	else {
+		this->annotationData = annotationData;
+	}
 }
 
 AnnotationVideoProvider::~AnnotationVideoProvider() {
