@@ -52,7 +52,7 @@ struct WorkingItem {
 	int id = nextid++;
 	int col;
 	int row;
-	PointTrace* trace;
+	//PointTrace* trace;
 	ExtendedPoint* center;
 } ;
 int WorkingItem::nextid = 0;
@@ -79,7 +79,6 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		WorkingItem *item = new WorkingItem;
 		item->col = ep->coordinates.x;
 		item->row = ep->coordinates.y;
-		item->trace = ep->trace;
 		item->center = ep;
 		workingitems.push(item);
 		distanceMat.at<DistanceType>(item->row, item->col) = 0;
@@ -103,7 +102,11 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			distanceMat.at<DistanceType>(work->row, work->col) = distance;
 		}
 
-		if(work->trace->type == PointTrace::scene) {
+		if(work->center->trace == NULL) {
+			cout << "weird stuff happened: trace of point is empty, but it should contain sth" << endl;
+			continue;
+		}
+		if(work->center->trace->type == PointTrace::scene) {
 			summedInterpolation.ptr<InternType>(work->row, work->col)[0] += image->ptr<ImageType>(work->row,work->col)[0];
 			summedInterpolation.ptr<InternType>(work->row, work->col)[1] += image->ptr<ImageType>(work->row, work->col)[1];
 			summedInterpolation.ptr<InternType>(work->row, work->col)[2] += image->ptr<ImageType>(work->row, work->col)[2];
@@ -126,7 +129,6 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			newitem->col = ncol;
 			newitem->row = nrow;
 			newitem->center = work->center;
-			newitem->trace = work->trace;
 			workingitems.push(newitem);
 			distanceMat.at<DistanceType>(nrow, ncol) = distance;
 		}

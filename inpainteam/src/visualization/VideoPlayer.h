@@ -10,9 +10,12 @@
 
 class Video;
 class FrameProcessor;
+class EventCallback;
 
 class VideoPlayer {
 private:
+	friend EventCallback;
+
 	int framesPerSecond;
 	FrameProcessor *annotator;
 	Video *video;

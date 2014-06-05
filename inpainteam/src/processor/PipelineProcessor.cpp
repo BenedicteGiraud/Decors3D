@@ -59,6 +59,14 @@ void PipelineProcessor::processEnd(Video* video) {
 	}
 }
 
+Point2f PipelineProcessor::getOutputImageCoordinates(Point2f inputCoordinates) {
+	return callbacks.back()->getOutputImageCoordinates(inputCoordinates);
+}
+
+Point2f PipelineProcessor::getInputImageCoordinates(Point2f outputCoordinates) {
+	return callbacks.back()->getInputImageCoordinates(outputCoordinates);
+}
+
 Point2f PipelineProcessorCallback::getOutputImageCoordinates(Point2f inputCoordinates) {
 	return callback->getOutputImageCoordinates(preceedingProcessorCallback->getOutputImageCoordinates(inputCoordinates));
 }

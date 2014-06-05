@@ -11,6 +11,7 @@
 #include "entities/Video.h"
 #include "entities/Frame.h"
 #include "VideoPlayer.h"
+#include "visualization/EventCallback.h"
 
 #include "processor/FrameProcessor.h"
 #include "processor/ProcessorCallback.h"
@@ -58,7 +59,10 @@ void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 	if(annotator != NULL) {
 		annotator->processStart(annotationData);
 	}
-	namedWindow("Video", WINDOW_NORMAL);
+	string windowName = "Video";
+	namedWindow(windowName, WINDOW_NORMAL);
+	EventCallback callback(this);
+	callback.setMouseCallback(windowName);
 
 	auto it = video->frames.begin();
 	auto annotationIt = annotationData->frames.begin();
@@ -79,7 +83,13 @@ void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 
 		imshow("Video" , image);
 
-		int key = waitKey(delay);
+		int key;
+		if(pause) {
+			key = waitKey(0);
+		}
+		else {
+			key = waitKey(delay);
+		}
 		if(key >= 0) {
 			switch(key) {
 			case 'q':

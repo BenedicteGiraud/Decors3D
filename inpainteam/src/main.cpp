@@ -5,6 +5,9 @@
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
+
+#include "visualization/VideoPlayer.h"
+
 #include "processor/annotation/TraceAnnotator.h"
 #include "processor/annotation/ResizeAnnotator.h"
 #include "processor/annotation/HomographyAnnotator.h"
@@ -43,12 +46,15 @@ using namespace cv;
  * - move processor classes to subfolders (except interfaces)
  */
 
+
+
 FrameProcessor* getAnnotationProcessor(Video *video) {
 	PipelineProcessor* pipeline = new PipelineProcessor();
 
 	int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
-	if(size < 150) {
-		pipeline->add(new ResizeAnnotator(150.0/size));
+	int destinationSize = 300;
+	if(size < destinationSize) {
+		pipeline->add(new ResizeAnnotator(((double)destinationSize)/size));
 	}
 	pipeline->add(new TraceAnnotator());
 	pipeline->add(new HomographyAnnotator());

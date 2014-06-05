@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "entities/PointTrace.h"
-#include "VideoPlayer.h"
+#include "visualization/VideoPlayer.h"
 
 class VideoPlayer;
 class VideoProcessor;
