@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 
 	// configure video player
 	FrameProcessor* annotationProcessor = getAnnotationProcessor(&video);
-	player.setFramesAnnotator(annotationProcessor);
+	//player.setFramesAnnotator(annotationProcessor);
 	player.setFramesPerSecond(15);
 
 	// configure processor pipeline
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
 
-	//player.play();
+	player.play();
 
 	HomographyEstimatorProcessor homographyEstimator;
 	video.applyDoubleFrameProcessor(homographyEstimator);
@@ -115,10 +115,10 @@ int main(int argc, char* argv[]) {
 
 	//Mat inpaintedImg = tip.getImage();
 	Video* inp = tip.debugVideo;
-	//inp->play();
+	inp->play();
 	VideoPlayer inpPlayer = inp->getPlayer();
-	inpPlayer.setFramesAnnotator(annotationProcessor);
-	inpPlayer.playWithAnnotationData(&video);
+	//inpPlayer.setFramesAnnotator(annotationProcessor);
+	//inpPlayer.playWithAnnotationData(&video);
 
 	// write to file
 	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedOutput.avi");

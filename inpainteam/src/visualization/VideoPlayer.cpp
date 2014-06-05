@@ -10,19 +10,20 @@
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
-#include "VideoPlayer.h"
-#include "visualization/EventCallback.h"
 
 #include "processor/FrameProcessor.h"
 #include "processor/ProcessorCallback.h"
+
+#include "visualization/VideoProvider.h"
+#include "visualization/AnnotationVideoProvider.h"
+#include "VideoPlayer.h"
 
 using namespace std;
 using namespace cv;
 
 VideoPlayer::VideoPlayer() {
-	video = NULL;
 	framesPerSecond = 24;
-	annotator = NULL;
+	provider = NULL;
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -30,15 +31,16 @@ VideoPlayer::~VideoPlayer() {
 }
 
 void VideoPlayer::setVideo(Video* video) {
-	this->video = video;
+	// TODO: deal with memory leak
+	this->provider = new AnnotationVideoProvider(video);
 }
 
 void VideoPlayer::setFramesPerSecond(int framesPerSecond) {
 	this->framesPerSecond = framesPerSecond;
 }
 
-void VideoPlayer::setFramesAnnotator(FrameProcessor* annotator) {
-	this->annotator = annotator;
+void mouseCallbackFunction(int event, int x, int y, int flags, void* userdata) {
+	((VideoProvider*)userdata)->mouseEventCallback(event, x, y, flags);
 }
 
 /**
@@ -46,42 +48,19 @@ void VideoPlayer::setFramesAnnotator(FrameProcessor* annotator) {
  * @param framesPerSecond
  */
 void VideoPlayer::play() {
-	playWithAnnotationData(video);
-}
-
-void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 	int delay = 1000 / framesPerSecond;
 	if(framesPerSecond > 0 && delay < 0) {
 		delay = 1;
 	}
 	bool pause = false;
 
-	if(annotator != NULL) {
-		annotator->processStart(annotationData);
-	}
+	provider->start();
 	string windowName = "Video";
 	namedWindow(windowName, WINDOW_NORMAL);
-	EventCallback callback(this);
-	callback.setMouseCallback(windowName);
+	setMouseCallback(windowName, mouseCallbackFunction, provider);
 
-	auto it = video->frames.begin();
-	auto annotationIt = annotationData->frames.begin();
 	while(true) {
-		if(!pause) {
-			if(it == video->frames.end()) {
-				it = video->frames.begin();
-				annotationIt = annotationData->frames.begin();
-			}
-		}
-
-		Mat image = (*it)->image;
-		if(annotator != NULL) {
-			image = image.clone();
-			// TODO: implement processor callback
-			annotator->processFrame(annotationData, *annotationIt, &image, ProcessorCallback::getDefault());
-		}
-
-		imshow("Video" , image);
+		imshow("Video" , provider->getImage());
 
 		int key;
 		if(pause) {
@@ -102,22 +81,12 @@ void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 
 			case 65361: // left
 				pause = true;
-				if(it == video->frames.begin()) {
-					it = video->frames.end();
-					annotationIt = annotationData->frames.end();
-				}
-				it--;
-				annotationIt--;
+				provider->seekRelative(-1);
 				break;
 
 			case 65363: // right
 				pause = true;
-				it++;
-				annotationIt++;
-				if(it == video->frames.end()) {
-					it = video->frames.begin();
-					annotationIt = annotationData->frames.begin();
-				}
+				provider->seekRelative(+1);
 				break;
 
 			default:
@@ -127,11 +96,8 @@ void VideoPlayer::playWithAnnotationData(Video* annotationData) {
 		}
 
 		if(!pause) {
-			it++;
-			annotationIt++;
+			provider->seekRelative(+1);
 		}
 	}
-	if(annotator != NULL) {
-		annotator->processEnd(annotationData);
-	}
+	provider->finish();
 }

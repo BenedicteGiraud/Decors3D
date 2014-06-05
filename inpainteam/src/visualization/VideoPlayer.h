@@ -10,26 +10,22 @@
 
 class Video;
 class FrameProcessor;
-class EventCallback;
+class VideoProvider;
 
 class VideoPlayer {
 private:
-	friend EventCallback;
-
 	int framesPerSecond;
-	FrameProcessor *annotator;
-	Video *video;
+	VideoProvider *provider;
 
 public:
 	VideoPlayer();
 	virtual ~VideoPlayer();
 
 	void setVideo(Video *video);
+	void setVideoProvider(VideoProvider *provider);
 	void setFramesPerSecond(int framesPerSecond);
-	void setFramesAnnotator(FrameProcessor *annotator);
 
 	void play();
-	void playWithAnnotationData(Video *annotationData);
 };
 
 #endif /* VIDEOPLAYER_H_ */

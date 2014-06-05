@@ -233,7 +233,7 @@ bool checkAddPointToTrace(PointTrace* trace, Point2f point, Mat descriptor) {
 		//scaled.at<float>(0, col) /= maxDiffDescriptor.at<float>(0, col);
 	}
 	double ratio = norm(scaled);
-	return(ratio < 0.70);
+	return(ratio < 0.990);
 }
 
 void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
@@ -286,7 +286,7 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 
 	// TODO: filter with err
 	for(int i=0; i<status.size(); i++) {
-		if(err.at(i) > 30) status.at(i) = 0;
+		//if(err.at(i) > 30) status.at(i) = 0;
 	}
 
 	Mat descriptors;
