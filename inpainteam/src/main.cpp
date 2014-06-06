@@ -128,6 +128,7 @@ int main(int argc, char* argv[]) {
 	Mat image = videoprovider.getImage();
 	int height = image.rows;
 	int width = image.cols;
+	videoprovider.addProvider(new AnnotationVideoProvider(&video, annotationProcessor, &video), width,0);
 	videoprovider.addProvider(new AnnotationVideoProvider(inp, annotationProcessor, &video), 0,height);
 	videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), width,height);
 	inpPlayer.setVideoProvider(&videoprovider);
