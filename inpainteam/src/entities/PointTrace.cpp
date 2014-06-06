@@ -19,6 +19,8 @@ PointTrace::PointTrace(Video* video) {
 	color = Scalar(255*r, 255*g, 255*b);
 	this->video = video;
 	type = Type::unknown;
+	first = NULL;
+	last = NULL;
 }
 
 PointTrace::~PointTrace() {
@@ -58,26 +60,21 @@ void PointTrace::addOrReplacePoint(ExtendedPoint* point) {
 	}
 	point->trace = this;
 	this->points.insert(pair<int, ExtendedPoint*>(point->frame->index, point));
+
+	if(first == NULL || point->frame->index < first->frame->index) {
+		first = point;
+	}
+	if(last == NULL || point->frame->index > last->frame->index) {
+		last = point;
+	}
 }
 
 // TODO: use map int -> ExtendedPoint
 ExtendedPoint* PointTrace::firstPoint() {
-	auto it = points.begin();
-	if(it != points.end()) {
-		return it->second;
-	}
-	else {
-		return NULL;
-	}
+	return first;
 }
 
 // TODO: use int -> ExtendedPoint
 ExtendedPoint* PointTrace::lastPoint() {
-	auto it = points.rbegin();
-	if(it != points.rend()) {
-		return it->second;
-	}
-	else {
-		return NULL;
-	}
+	return last;
 }

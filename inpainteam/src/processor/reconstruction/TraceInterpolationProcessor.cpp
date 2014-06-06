@@ -54,6 +54,8 @@ struct WorkingItem {
 	int row;
 	//PointTrace* trace;
 	ExtendedPoint* center;
+	int centerX;
+	int centerY;
 } ;
 int WorkingItem::nextid = 0;
 
@@ -81,6 +83,8 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		item->row = ep->coordinates.y;
 		if(item->col < 0 || item->row < 0 || item->col >= image->cols || item->row >= image->rows) continue;
 		item->center = ep;
+		item->centerX = ep->coordinates.x;
+		item->centerY = ep->coordinates.y;
 		workingitems.push(item);
 		distanceMat.at<DistanceType>(item->row, item->col) = 0;
 	}
@@ -89,8 +93,8 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
-		int distanceX = work->col-(work->center->coordinates.x);
-		int distanceY = work->row-(work->center->coordinates.y);
+		int distanceX = work->col-(work->centerX);
+		int distanceY = work->row-(work->centerY);
 		unsigned distance = distanceX*distanceX + distanceY*distanceY;
 		if(distanceMat.at<DistanceType>(work->row, work->col) < distance) {
 			delete work;
@@ -109,9 +113,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			continue;
 		}
 		if(work->center->trace->type == PointTrace::scene) {
-			summedInterpolation.ptr<InternType>(work->row, work->col)[0] += image->ptr<ImageType>(work->row,work->col)[0];
-			summedInterpolation.ptr<InternType>(work->row, work->col)[1] += image->ptr<ImageType>(work->row, work->col)[1];
-			summedInterpolation.ptr<InternType>(work->row, work->col)[2] += image->ptr<ImageType>(work->row, work->col)[2];
+			summedInterpolation.at<Vec<InternType, 3>>(work->row, work->col) += image->at<Vec<ImageType, 3>>(work->row,work->col);
 			count.at<CountType>(work->row, work->col) += 1;
 		}
 
@@ -122,8 +124,8 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 
 			if(nrow < 0 || ncol < 0) continue;
 			if(nrow >= image->rows || ncol >= image->cols) continue;
-			int distanceX = ncol-(work->center->coordinates.x);
-			int distanceY = nrow-(work->center->coordinates.y);
+			int distanceX = ncol-(work->centerX);
+			int distanceY = nrow-(work->centerY);
 			unsigned distance = distanceX*distanceX + distanceY+distanceY;
 			if(distanceMat.at<DistanceType>(nrow, ncol) <= distance) continue;
 
@@ -131,6 +133,8 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			newitem->col = ncol;
 			newitem->row = nrow;
 			newitem->center = work->center;
+			newitem->centerX = work->centerX;
+			newitem->centerY = work->centerY;
 			workingitems.push(newitem);
 			distanceMat.at<DistanceType>(nrow, ncol) = distance;
 		}

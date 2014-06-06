@@ -9,6 +9,7 @@
 #define POINTTRACE_H_
 
 #include <cv.h>
+#include <unordered_map>
 
 using namespace cv;
 
@@ -25,7 +26,9 @@ public:
 	Scalar color;
 	Video* video;
 
-	std::map<int, ExtendedPoint*> points;
+	ExtendedPoint *first;
+	ExtendedPoint *last;
+	std::unordered_map<int, ExtendedPoint*> points;
 	enum Type { scene, object, unknown};
 	Type type;
 
