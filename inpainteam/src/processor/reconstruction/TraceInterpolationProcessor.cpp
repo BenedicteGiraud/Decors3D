@@ -56,6 +56,7 @@ struct WorkingItem {
 	ExtendedPoint* center;
 	int centerX;
 	int centerY;
+	unsigned distance;
 } ;
 int WorkingItem::nextid = 0;
 
@@ -85,6 +86,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		item->center = ep;
 		item->centerX = ep->coordinates.x;
 		item->centerY = ep->coordinates.y;
+		item->distance = 0;
 		workingitems.push(item);
 		distanceMat.at<DistanceType>(item->row, item->col) = 0;
 	}
@@ -93,9 +95,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
-		int distanceX = work->col-(work->centerX);
-		int distanceY = work->row-(work->centerY);
-		unsigned distance = distanceX*distanceX + distanceY*distanceY;
+		unsigned distance = work->distance;
 		if(distanceMat.at<DistanceType>(work->row, work->col) < distance) {
 			delete work;
 			continue;
@@ -126,7 +126,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			if(nrow >= image->rows || ncol >= image->cols) continue;
 			int distanceX = ncol-(work->centerX);
 			int distanceY = nrow-(work->centerY);
-			unsigned distance = distanceX*distanceX + distanceY+distanceY;
+			unsigned distance = distanceX*distanceX + distanceY*distanceY;
 			if(distanceMat.at<DistanceType>(nrow, ncol) <= distance) continue;
 
 			WorkingItem *newitem = new WorkingItem;
@@ -135,6 +135,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			newitem->center = work->center;
 			newitem->centerX = work->centerX;
 			newitem->centerY = work->centerY;
+			newitem->distance = distance;
 			workingitems.push(newitem);
 			distanceMat.at<DistanceType>(nrow, ncol) = distance;
 		}

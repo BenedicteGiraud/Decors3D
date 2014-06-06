@@ -97,8 +97,12 @@ int main(int argc, char* argv[]) {
 	player.setFramesPerSecond(15);
 
 	// configure processor pipeline
-	FlowTraceProcessor flowTraceProcessor;
-	video.applyDoubleFrameProcessor(flowTraceProcessor);
+	/*FlowTraceProcessor flowTraceProcessor;
+	video.applyDoubleFrameProcessor(flowTraceProcessor);*/
+	KeyPointProcessor keypoints;
+	KeyPointTraceProcessor keypointTrace;
+	video.applyFrameProcessor(keypoints);
+	video.applyDoubleFrameProcessor(keypointTrace);
 
 	SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
 	video.applyVideoProcessor(sceneTraceClassifierProcessor);
