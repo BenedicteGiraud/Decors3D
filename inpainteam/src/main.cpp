@@ -137,19 +137,11 @@ int main(int argc, char* argv[]) {
 	videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), width,height);
 	inpPlayer.setVideoProvider(&videoprovider);
 	inpPlayer.play();
-	//inpPlayer.setFramesAnnotator(annotationProcessor);
-	//inpPlayer.playWithAnnotationData(&video);
 
 	// write to file
 	annotateToFile(&video, annotationProcessor, outputDirectory + "/annotatedVideo.avi");
 	annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
 	inp->write(outputDirectory + "/inpainting.avi", 5);
-	/*namedWindow("test", WINDOW_NORMAL);
-	imshow("test", inpaintedImg);
-	waitKey();*/
-
-
-	//inp->write(outputDirectory + "/output.avi");
 
 	return 0;
 }
