@@ -6,3 +6,6 @@ bin/*
 .cproject
 .project
 .settings
+
+
+CMakeFiles
