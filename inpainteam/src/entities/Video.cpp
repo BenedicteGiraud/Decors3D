@@ -65,6 +65,17 @@ void Video::write(string filename, double framesPerSecond) {
 	}
 }
 
+
+Video& Video::operator<<(const Mat& image){
+    Frame * frame = new Frame(image, this, frames.back()->index);
+    frames.push_back(frame);
+
+    return *this;
+}
+
+
+
+
 /**
  *Plays video until the user presses a key.
  */

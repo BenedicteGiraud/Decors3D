@@ -4,12 +4,15 @@
  *  Created on: 2014/06/05
  *      Author: tr
  */
+#include <iostream>
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
 #include "processor/FrameProcessor.h"
 
 #include "AnnotationVideoProvider.h"
+
+using namespace std;
 
 AnnotationVideoProvider::AnnotationVideoProvider(Video* video, FrameProcessor* annotator, Video* annotationData) {
 	index = 0;
@@ -45,6 +48,10 @@ void AnnotationVideoProvider::seekRelative(int shift) {
 }
 
 Mat AnnotationVideoProvider::getImage() {
+    if (index >= video->frames.size()) {
+        cout << "warning: AnnotationVideoProvider::getImage() VIDEO HAS NO FRAMES" << endl;
+        return Mat();
+    }
 	Mat image = video->frames[index]->image;
 	if(annotator != NULL) {
 		image = image.clone();

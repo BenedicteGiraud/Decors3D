@@ -2,6 +2,7 @@
 
 #include "entities/Video.h"
 #include "ApplicationInpainting.h"
+#include "Segmentation.h"
 
 using namespace std;
 using namespace cv;
@@ -17,7 +18,8 @@ using namespace cv;
  * optimization:
  * - hashmap frame index -> ExtendedPoint for PointTrace
  * - list of traces for frame / store as hashmap ?
- * - use k-nearest-neighbors algorithm (e.g. http://docs.opencv.org/modules/flann/doc/flann_fast_approximate_nearest_neighbor_search.html)
+ * - use k-nearest-neighbors algorithm (e.g. http://docs.opencv.org/modules/flann/doc/
+ * flann_fast_approximate_nearest_neighbor_search.html)
  *
  *  cleanup:
  * - add delete statements to destructors
@@ -47,7 +49,15 @@ int main(int argc, char* argv[]) {
 
 	Video video(inputFilename);
 
-    ApplicationInpainting::videoTreatment(&video, outputDirectory);
+    Segmentation seg(inputFilename);
+    vector<Video*> listOfSequence;
+    Video* nextSeq;
+    while( (nextSeq = seg.nextSequence()) != NULL) {
+        nextSeq->play();
+        listOfSequence.push_back(nextSeq);
+    }
+
+    // ApplicationInpainting::videoTreatment(&video, outputDirectory);
 
 
 

@@ -31,6 +31,7 @@ public:
 	Video(std::string filename);
 	void write(std::string filename);
 	void write(std::string filename, double framesPerSecond);
+    Video& operator<<(const Mat& image);
 
 	void play();
 	VideoPlayer getPlayer();
