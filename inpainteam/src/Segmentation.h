@@ -30,6 +30,8 @@ public:
     //The next histogram
     Mat nextHist;
 
+    bool movieEndReached;
+
     Segmentation(std::string filename,
                 double seconde_ = 0.,
                 float histRatio_ = 0.75);

@@ -67,7 +67,11 @@ void Video::write(string filename, double framesPerSecond) {
 
 
 Video& Video::operator<<(const Mat& image){
-    Frame * frame = new Frame(image, this, frames.back()->index);
+	int index = 0;
+	if(frames.size() > 0) {
+		index = frames.back()->index;
+	}
+    Frame * frame = new Frame(image, this, index);
     frames.push_back(frame);
 
     return *this;

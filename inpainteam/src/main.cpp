@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 	string inputFilename = argv[1];
 	string outputDirectory = argv[2];
 
-	Video video(inputFilename);
+	//Video video(inputFilename);
 
     Segmentation seg(inputFilename);
     vector<Video*> listOfSequence;
