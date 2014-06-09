@@ -24,6 +24,7 @@
 #include "processor/detection/SceneTraceClassifierProcessor.h"
 #include "processor/detection/HomographyEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
+#include "processor/optimization/MovementReprojection.h"
 #include "processor/reconstruction/TraceInterpolationProcessor.h"
 
 
@@ -106,9 +107,11 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
 
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
+    MovementReprojection movementReprojection;
+    video->applyVideoProcessor(movementReprojection);
 
     //player.play();
-
+/**
     HomographyEstimatorProcessor homographyEstimator;
     video->applyDoubleFrameProcessor(homographyEstimator);
 
@@ -117,7 +120,7 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
 
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
     //player.play();
-
+*/
     TraceInterpolationProcessor tip;
     video->applyFrameProcessor(tip);
     //player.play();
