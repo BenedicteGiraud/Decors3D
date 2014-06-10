@@ -112,17 +112,14 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;
 
-    for(int i=0; i<1; i++) {
-		//video->applyDoubleFrameProcessor(homographyEstimator);
-		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
-		video->applyDoubleFrameProcessor(fundamentalMatEstimator);
+    for(int i=0; i<2; i++) {
+		video->applyDoubleFrameProcessor(homographyEstimator);
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
+		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
+		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
 
     }
     player.play();
-
-    /*video->applyVideoProcessor(sceneTraceClassifierProcessor);
-    //player.play();
 
     TraceInterpolationProcessor tip;
     video->applyFrameProcessor(tip);
@@ -150,10 +147,4 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
     annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
     inp->write(outputDirectory + "/inpainting.avi", 5);
-    /*namedWindow("test", WINDOW_NORMAL);
-imshow("test", inpaintedImg);
-waitKey();*/
-
-
-    //inp->write(outputDirectory + "/output.avi");
 }

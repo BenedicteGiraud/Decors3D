@@ -70,6 +70,12 @@ public:
 				0, 1, 0,
 				0, 0, 1);
 	}
+
+	/**
+	 *
+	 * @param list of floats between 0 and 1
+	 */
+	cv::Mat showNormalizedHistogram(string window, vector<float> data, int height=0);
 };
 
 #endif /* TOOLS_H_ */

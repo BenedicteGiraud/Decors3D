@@ -52,7 +52,7 @@ void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
 void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, ProcessorCallback* callback) {
 	if(frame->keypoints.size() == 0) {
 		vector<KeyPoint> keypoints;
-		SurfFeatureDetector surf(
+		/*SurfFeatureDetector surf(
 				2, // hessianThreshold
 				1, // nOctaves
 				1, // nOctaveLayers
@@ -70,31 +70,40 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 				3, // blockSize
 				true, // useHarrisDetector
 				0.0001); // k*/
-		gftt.detect(frame->image, keypoints);
-		addKeypoints(frame, &keypoints);
+		/*gftt.detect(frame->image, keypoints);
+		addKeypoints(frame, &keypoints);*/
 
 
 		int blockSize = 2;
 		int apertureSize = 3;
-		double k = 0.04;
+		double k = 0.08;
 		Mat channels[3];
 		split(frame->image, channels);
 		Mat dest;
 		for(int i=0; i<3; i++) {
 			Mat tmp;
-			cornerHarris( channels[i], tmp, blockSize, apertureSize, k, BORDER_DEFAULT );
-			normalize( tmp, tmp, 0, 127, NORM_MINMAX, CV_32FC1, Mat() );
-			convertScaleAbs( tmp, tmp, 1, 0 );
-			/*imshow("window", tmp);
-			waitKey(0);*/
+			//cornerHarris( channels[i], tmp, blockSize, apertureSize, k, BORDER_DEFAULT );
+			Canny(channels[i], tmp, 150, 200, 3);
 			if(dest.rows == 0) {
 				dest = tmp;
 			}
 			else {
-				dest += tmp;
+				dest += tmp / 3;
 			}
 		}
-		imshow("window", dest);
-		waitKey(0);
+
+		Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SURF");
+		for(int row=0; row<dest.rows; row++) {
+			for(int col=0; col<dest.cols; col++) {
+				if(dest.at<uchar>(row, col) > 200) {
+					KeyPoint keypoint(col, row, 5);
+					addKeypoint(extractor, frame, keypoint);
+
+					int sizer = min(5, dest.rows-row);
+					int sizec = min(5, dest.cols-col);
+					dest(Rect(col, row, sizec, sizer)) = Scalar(0);
+				}
+			}
+		}
 	}
 }
