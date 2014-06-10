@@ -47,17 +47,17 @@ int main(int argc, char* argv[]) {
 	string inputFilename = argv[1];
 	string outputDirectory = argv[2];
 
-	//Video video(inputFilename);
+	Video video(inputFilename);
 
-    Segmentation seg(inputFilename);
+    /*Segmentation seg(inputFilename);
     vector<Video*> listOfSequence;
     Video* nextSeq;
     while( (nextSeq = seg.nextSequence()) != NULL) {
         nextSeq->play();
         listOfSequence.push_back(nextSeq);
-    }
+    }*/
 
-    // ApplicationInpainting::videoTreatment(&video, outputDirectory);
+    ApplicationInpainting::videoTreatment(&video, outputDirectory);
 
 
 

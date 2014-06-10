@@ -49,38 +49,35 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 		points2.push_back(ep2->coordinates);
 	}
 
+	Mat homographyToBeginning;
+	if(frame1->homographyToBeginning.rows > 0) {
+		homographyToBeginning = frame1->homographyToBeginning;
+	}
+	else {
+		homographyToBeginning = Tools::getIdentityHomography();
+	}
+
 	// TODO: use scene / object information
 	if(points1.size() < 4 || points2.size() < 4) {
 		cout << "No points for frame " << frame1->index << " and " << frame2->index << endl;
-		Mat homographyToLastFrame;
-		Mat homographyToBeginning;
-		if(video->homographiesToLastFrame.size() > 0) {
-			homographyToLastFrame = video->homographiesToLastFrame.back();
-			homographyToBeginning = video->homographiesToBeginning.back();
+
+		if(frame1->homographyToLastFrame.rows == 0) {
+			frame2->homographyToLastFrame = Tools::getIdentityHomography();
 		}
 		else {
-			homographyToLastFrame = (Mat_<double>(3,3)
-					<< 1, 0, 0,
-					0 , 1, 0);
-			homographyToBeginning = homographyToLastFrame;
+			frame2->homographyToLastFrame = frame1->homographyToLastFrame;
 		}
-		video->homographiesToLastFrame.push_back(homographyToLastFrame);
-		video->homographiesToBeginning.push_back(homographyToBeginning);
 	}
 	else {
 		cout << "Estimating homography with "
 				<< points1.size() << " and " << points2.size() << " points"
 				<< " in " << traces->size() << " traces " << endl;
 		Mat homography = findHomography(points1, points2, CV_RANSAC, 1);
-		video->homographiesToLastFrame.push_back(homography);
-
-		if(video->homographiesToBeginning.size() > 0) {
-			Mat homographyToBeginning = video->homographiesToBeginning.back();
-			video->homographiesToBeginning.push_back(Tools::concatenateHomography(homographyToBeginning, homography));
-		}
-		else {
-			video->homographiesToBeginning.push_back(homography);
-		}
+		frame2->homographyToLastFrame = homography;
 	}
+	frame2->homographyToBeginning = Tools::concatenateHomography(homographyToBeginning, frame2->homographyToLastFrame);
 
+	cout << "frame " << frame2->index << " homographies:" << cout;
+	cout <<" last: " << frame2->homographyToLastFrame << endl;
+	cout << " beginning: " << frame2->homographyToBeginning << endl;
 }

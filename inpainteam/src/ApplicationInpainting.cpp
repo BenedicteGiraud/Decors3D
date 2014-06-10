@@ -89,11 +89,11 @@ void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
 
 
 void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory){
-    VideoPlayer player = video->getPlayer();
-
     // configure video player
+    VideoPlayer player = video->getPlayer();
     FrameProcessor* annotationProcessor = getAnnotationProcessor(video);
-    //player.setFramesAnnotator(annotationProcessor);
+    AnnotationVideoProvider annotationProvider(video, annotationProcessor);
+    player.setVideoProvider(&annotationProvider);
     player.setFramesPerSecond(15);
 
     // configure processor pipeline
@@ -104,18 +104,18 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     video->applyFrameProcessor(keypoints);
     video->applyDoubleFrameProcessor(keypointTrace);
 
-    SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
-    video->applyVideoProcessor(sceneTraceClassifierProcessor);
-
-    //player.play();
+    TraceKalmanFilterProcessor kalmanFilter;
+    //video->applyDoubleFrameProcessor(kalmanFilter);
 
     HomographyEstimatorProcessor homographyEstimator;
     video->applyDoubleFrameProcessor(homographyEstimator);
 
-    TraceKalmanFilterProcessor kalmanFilter;
-    //video->applyDoubleFrameProcessor(kalmanFilter);
-
+    SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
+
+    player.play();
+
+    /*video->applyVideoProcessor(sceneTraceClassifierProcessor);
     //player.play();
 
     TraceInterpolationProcessor tip;

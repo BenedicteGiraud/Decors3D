@@ -66,7 +66,7 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 				4, // minDistance
 				3, // blockSize
 				true, // useHarrisDetector
-				0.1); // k*/
+				0.0001); // k*/
 		gftt.detect(frame->image, keypoints);
 		addKeypoints(frame, &keypoints);
 

@@ -36,36 +36,26 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 			double threshold;
 			ExtendedPoint* last = NULL;
 
-			if(video->homographiesToLastFrame.size() != 0) {
-				Mat homography = Mat::eye(3, 3, CV_64F);
+			Mat homography = Mat::eye(3, 3, CV_32F);
 
-				int homographiesIndex = 0;
-				vector<Mat>::iterator it = video->homographiesToLastFrame.begin(), end = it;
-				for(pair<int, ExtendedPoint*> point : trace->points) {
-					if(last != NULL) {
-						for(; homographiesIndex < point.second->frame->index; it++, homographiesIndex++) {
-							homography = Tools::concatenateHomography(homography,*it);
-						}
-						Point2f projectedPoint = Tools::applyHomography(homography,last->coordinates);
-						double n = norm(projectedPoint - point.second->coordinates);
-						distance += n*n;
+			int homographiesIndex = 0;
+			for(pair<int, ExtendedPoint*> point : trace->points) {
+				if(last != NULL) {
+					bool homographyIsValid = video->getHomography(last->frame, point.second->frame, homography);
+					Point2f destPoint;
+					if(homographyIsValid) {
+						destPoint = Tools::applyHomography(homography,last->coordinates);
 					}
-					last = point.second;
-				}
-				threshold = 1.5;
-				cout << "distance A " << distance/ trace->points.size() << endl;
-			}
-			else {
-				for(pair<int, ExtendedPoint*> point : trace->points) {
-					if(last != NULL) {
-						double n = norm(last->coordinates - point.second->coordinates);
-						distance += n*n;
+					else {
+						destPoint = last->coordinates;
 					}
-					last = point.second;
+					double n = norm(destPoint - point.second->coordinates);
+					distance += n*n;
 				}
-				cout << "distance B " << distance/ trace->points.size() << endl;
-				threshold = 0.10;
+				last = point.second;
 			}
+			threshold = 1.5;
+			cout << "distance A " << distance/ trace->points.size() << endl;
 
 			if(distance / trace->points.size() < threshold) {
 				trace->type = PointTrace::scene;

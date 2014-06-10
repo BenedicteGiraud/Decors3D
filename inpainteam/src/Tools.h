@@ -63,6 +63,13 @@ public:
 
 		return h1 * h2;
 	}
+
+	inline static cv::Mat getIdentityHomography() {
+		return (Mat_<double>(3,3)
+				<< 1, 0, 0,
+				0, 1, 0,
+				0, 0, 1);
+	}
 };
 
 #endif /* TOOLS_H_ */

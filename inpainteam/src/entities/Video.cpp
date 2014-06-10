@@ -10,6 +10,8 @@
 #include "entities/Video.h"
 #include "entities/Frame.h"
 
+#include "Tools.h"
+
 
 using namespace std;
 using namespace cv;
@@ -117,4 +119,29 @@ void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
 		last = *it; it++;
 	}
 	processor.processEnd(this, last);
+}
+
+bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
+	if(from->homographyToLastFrame.rows == 0) return false;
+	if(to->homographyToLastFrame.rows == 0) return false;
+
+	if(to->index - from->index == 1) {
+		homography = to->homographyToLastFrame;
+	}
+	else if(from->index - to->index == 1) {
+		homography = to->homographyToLastFrame.inv(DECOMP_SVD);
+	}
+
+	int minIndex = min(from->index, to->index);
+	int maxIndex = max(from->index, to->index);
+	Mat result = Tools::getIdentityHomography();
+	for(Frame* frame : frames) {
+		if(frame->index > maxIndex) break;
+		if(frame->index <= minIndex) continue;
+
+		if(frame->homographyToLastFrame.rows == 0) return false;
+		result = Tools::concatenateHomography(result, frame->homographyToLastFrame);
+	}
+	homography=result;
+	return true;
 }
