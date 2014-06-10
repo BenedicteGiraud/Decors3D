@@ -108,10 +108,12 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     //video->applyDoubleFrameProcessor(kalmanFilter);
 
     HomographyEstimatorProcessor homographyEstimator;
-    video->applyDoubleFrameProcessor(homographyEstimator);
-
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
-    video->applyVideoProcessor(sceneTraceClassifierProcessor);
+
+    for(int i=0; i<2; i++) {
+		video->applyDoubleFrameProcessor(homographyEstimator);
+		video->applyVideoProcessor(sceneTraceClassifierProcessor);
+    }
 
     player.play();
 

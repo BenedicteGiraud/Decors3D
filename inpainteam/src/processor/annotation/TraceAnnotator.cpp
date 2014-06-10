@@ -28,35 +28,32 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, Pr
 	int index = frame->index;
 	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	// draw points of scene traces
-	for(auto trace : video->sceneTraces) {
+
+	int size = 2;
+	for(auto trace : video->pointTraces) {
 		//if(i++ > 30) break;
 		ExtendedPoint* point = trace->filter(index);
-		if(point != NULL) {
+		if(point != NULL && point->trace != NULL) {
 			processed.push_back(point);
 			Point p = callback->getOutputImageCoordinates(point->coordinates);
-			circle(*image, p, 4, trace->color);
 
-			ExtendedPoint* nextPoint = trace->filter(index+1);
-			if(nextPoint != NULL) {
-				if(nextPoint->coordinates != point->coordinates) {
-					Point p2 = callback->getOutputImageCoordinates(nextPoint->coordinates);
-					line(*image, p, p2, 1);
-				}
+			if(point->trace->type == PointTrace::scene) {
+				circle(*image, p, size*2, trace->color);
 			}
-		}
-	}
-
-	// draw points of object traces
-	for(auto trace : video->objectTraces) {
-		ExtendedPoint* point = trace->filter(index);
-		if(point != NULL) {
-			processed.push_back(point);
-			Point2f p = callback->getOutputImageCoordinates(point->coordinates);
-			Point p1 = p, p2 = p;
-			int diff = 2;
-			p1.x -= diff; p1.y -= diff;
-			p2.x += diff; p2.y += diff;
-			rectangle(*image, p1, p2, trace->color);
+			else if(point->trace->type == PointTrace::object) {
+				Point p1 = p, p2 = p;
+				p1.x -= size; p1.y -= size;
+				p2.x += size; p2.y += size;
+				rectangle(*image, p1, p2, trace->color);
+			}
+			else {
+				Point p1 = p, p2 = p;
+				p1.y += size; p2.y -= size;
+				line(*image, p1, p2, trace->color);
+				p1 = p, p2 = p;
+				p1.x += size; p2.x -= size;
+				line(*image, p1, p2, trace->color);
+			}
 
 			ExtendedPoint* nextPoint = trace->filter(index+1);
 			if(nextPoint != NULL) {

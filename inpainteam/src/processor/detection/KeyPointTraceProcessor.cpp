@@ -29,12 +29,16 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 	int searchDistance = 10;
 	// calculate matches between frame
 
-	BFMatcher matcher;
+	if(frame1->rawDescriptors.rows == 0 || frame2->rawDescriptors.rows == 0) return;
+
+	BFMatcher matcher; //(NORM_HAMMING);
 	vector<vector<DMatch>> matches;
 	matcher.radiusMatch(frame1->rawDescriptors, frame2->rawDescriptors, matches, searchDistance, Mat(), true);
 
 	for(vector<DMatch> matchList : matches) {
+		if(matchList.size() == 0) continue;
 		DMatch match = matchList.front();
+
 		ExtendedPoint* ep1 = frame1->keypoints.at(match.queryIdx);
 		ExtendedPoint* ep2 = frame2->keypoints.at(match.trainIdx);
 

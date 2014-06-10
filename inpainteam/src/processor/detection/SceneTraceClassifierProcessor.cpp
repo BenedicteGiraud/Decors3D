@@ -5,6 +5,10 @@
  *      Author: tr
  */
 
+#include <cmath>
+#include <cv.h>
+#include <highgui.h>
+
 #include "entities/Video.h"
 #include "entities/Frame.h"
 #include "Tools.h"
@@ -27,10 +31,11 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	video->objectTraces.clear();
 
 	int i = -1;
+	multimap<double, PointTrace*> distances;
 	for(auto trace : video->pointTraces) {
 		i++;
 
-		if(trace->points.size() >= 2) {
+		if(trace->points.size() >= 4) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -54,18 +59,90 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 				}
 				last = point.second;
 			}
-			threshold = 1.5;
-			cout << "distance A " << distance/ trace->points.size() << endl;
 
-			if(distance / trace->points.size() < threshold) {
-				trace->type = PointTrace::scene;
-				video->sceneTraces.push_back(trace);
-			}
-			else {
-				trace->type = PointTrace::object;
-				video->objectTraces.push_back(trace);
-			}
+			double normalized = distance/ trace->points.size();
+			cout << "distance A " << normalized << endl;
 
+			distances.insert(pair<double, PointTrace*>(normalized, trace));
+		}
+	}
+
+	if(distances.size() < 4) return;
+
+	cout << "distance histogram: ";
+	for(auto d : distances) {
+		cout << d.first << ", ";
+	}
+	cout << endl;
+
+	double minDist = (distances.begin()->first);
+	double maxDist = (distances.rbegin()->first);
+	double maxDistQuantil = maxDist;
+	auto it = distances.rbegin();
+	int count = 0;
+	for(; it != distances.rend(); it++) {
+		count ++;
+		maxDistQuantil = it->first;
+		if(count >= distances.size() * 0.05) {
+			break;
+		}
+	}
+
+	double median;
+	count = 0;
+	for(auto d : distances) {
+		median = d.first;
+		if(count >= distances.size() * 0.5) {
+			break;
+		}
+	}
+
+	int width = 200; int height = 100;
+	Mat histogramImage(height, width, CV_8UC3, Scalar(255,255,255));
+	vector<int> histogramm;
+	int countMax = 0; int indexMax = 0;
+	double diff = (maxDistQuantil-minDist) / width;
+	for(int i=0; i<width; i++) {
+		double rangeMin = minDist + i*diff;
+		double rangeMax = rangeMin + diff;
+
+		int count = distance(distances.lower_bound(rangeMin), distances.upper_bound(rangeMax));
+		histogramm.push_back(count);
+
+		if(count > countMax) {
+			countMax = count;
+			indexMax = i;
+		}
+	}
+	double valueMax = minDist + indexMax*diff;
+
+	int medianI = (median - minDist)/diff;
+	for(int i=0; i<width; i++) {
+		double ratio = (double)histogramm[i] / countMax;
+		int lineHeight = (int)(ratio * height);
+		line(histogramImage, Point(i,0), Point(i, lineHeight), Scalar(127,0,0));
+	}
+
+	double ratio = (double)histogramm[indexMax] / countMax;
+	int lineHeight = (int)(ratio * height);
+	line(histogramImage, Point(indexMax,0), Point(indexMax, lineHeight), Scalar(0,255,255));
+
+	//string windowName = "scene trace classifier histogram";
+	//namedWindow(windowName, WINDOW_NORMAL);
+	//imshow(windowName, histogramImage);
+	//waitKey(0);
+
+	for(auto d : distances) {
+		if(d.first < valueMax - 50*diff) continue;
+		if(d.first < valueMax + 100*diff) {
+			d.second->type = PointTrace::scene;
+			video->sceneTraces.push_back(d.second);
+			cout <<" scene " << d.first << endl;
+		}
+		else if(d.first > valueMax + 110*diff) {
+			d.second->type = PointTrace::object;
+			video->objectTraces.push_back(d.second);
+			cout << " object " << d.first << endl;
 		}
 	}
 }

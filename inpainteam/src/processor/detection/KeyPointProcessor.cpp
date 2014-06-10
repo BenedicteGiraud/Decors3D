@@ -15,6 +15,8 @@
 #include "entities/Video.h"
 #include "entities/Frame.h"
 
+#include "Tools.h"
+
 using namespace std;
 
 KeyPointProcessor::KeyPointProcessor() {
@@ -25,24 +27,24 @@ KeyPointProcessor::~KeyPointProcessor() {
 
 }
 
-void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
-	for(auto keypoint : *keypoints) {
-		frame->keypoints.push_back(new ExtendedPoint(keypoint, frame));
-	}
-
-	SurfDescriptorExtractor extractor;
+void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint) {
+	vector<KeyPoint> keypoints;
+	keypoints.push_back(keypoint);
 	Mat descriptors;
-	extractor.compute(frame->image, *keypoints, descriptors);
-	if(frame->rawDescriptors.rows == 0) {
-		frame->rawDescriptors = descriptors;
-		return;
+	extractor->compute(frame->image, keypoints, descriptors);
+
+	if(descriptors.rows != 0) {
+		ExtendedPoint *ep = new ExtendedPoint(keypoint, frame);
+		frame->keypoints.push_back(ep);
+		ep->descriptor = descriptors;
+		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptors, frame->rawDescriptors);
 	}
+}
 
-	vconcat(frame->rawDescriptors, descriptors, frame->rawDescriptors);
-
-	int i=0;
-	for(auto keypoint : frame->keypoints) {
-		keypoint->descriptor = frame->rawDescriptors.row(i++);
+void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints) {
+	Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SURF");
+	for(auto keypoint : *keypoints) {
+		addKeypoint(extractor, frame, keypoint);
 	}
 }
 
@@ -51,18 +53,18 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 		vector<KeyPoint> keypoints;
 		SurfFeatureDetector surf(
 				2, // hessianThreshold
-				4, // nOctaves
-				8, // nOctaveLayers
+				1, // nOctaves
+				1, // nOctaveLayers
 				true, // extended
 				false // upright
 				);
 		surf.detect(frame->image, keypoints);
-		addKeypoints(frame, &keypoints); //*/
+		addKeypoints(frame, &keypoints); //
 
 		keypoints.clear();
 		GFTTDetector gftt(
 				10000, // maxCorners
-				0.01, // qualityLevel
+				0.001, // qualityLevel
 				4, // minDistance
 				3, // blockSize
 				true, // useHarrisDetector
