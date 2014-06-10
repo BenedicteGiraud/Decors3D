@@ -23,6 +23,7 @@
 #include "processor/detection/FlowTraceProcessor.h"
 #include "processor/detection/SceneTraceClassifierProcessor.h"
 #include "processor/detection/HomographyEstimatorProcessor.h"
+#include "processor/detection/FundamentalMatrixEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
 #include "processor/reconstruction/TraceInterpolationProcessor.h"
 
@@ -109,12 +110,15 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
 
     HomographyEstimatorProcessor homographyEstimator;
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
+    FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;
 
-    for(int i=0; i<2; i++) {
-		video->applyDoubleFrameProcessor(homographyEstimator);
+    for(int i=0; i<1; i++) {
+		//video->applyDoubleFrameProcessor(homographyEstimator);
+		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
+		video->applyDoubleFrameProcessor(fundamentalMatEstimator);
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
-    }
 
+    }
     player.play();
 
     /*video->applyVideoProcessor(sceneTraceClassifierProcessor);

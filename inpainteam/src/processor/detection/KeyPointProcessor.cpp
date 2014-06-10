@@ -18,6 +18,7 @@
 #include "Tools.h"
 
 using namespace std;
+using namespace cv;
 
 KeyPointProcessor::KeyPointProcessor() {
 
@@ -72,5 +73,28 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 		gftt.detect(frame->image, keypoints);
 		addKeypoints(frame, &keypoints);
 
+
+		int blockSize = 2;
+		int apertureSize = 3;
+		double k = 0.04;
+		Mat channels[3];
+		split(frame->image, channels);
+		Mat dest;
+		for(int i=0; i<3; i++) {
+			Mat tmp;
+			cornerHarris( channels[i], tmp, blockSize, apertureSize, k, BORDER_DEFAULT );
+			normalize( tmp, tmp, 0, 127, NORM_MINMAX, CV_32FC1, Mat() );
+			convertScaleAbs( tmp, tmp, 1, 0 );
+			/*imshow("window", tmp);
+			waitKey(0);*/
+			if(dest.rows == 0) {
+				dest = tmp;
+			}
+			else {
+				dest += tmp;
+			}
+		}
+		imshow("window", dest);
+		waitKey(0);
 	}
 }
