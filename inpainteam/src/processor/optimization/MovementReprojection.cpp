@@ -19,8 +19,8 @@ MovementReprojection::~MovementReprojection(){
 
 void MovementReprojection::process(Video *video){
 
-    video->sceneTraces.clear();
+    /*video->sceneTraces.clear();
     video->objectTraces.clear();
     video->pointTraces.clear();
-
+*/
 }

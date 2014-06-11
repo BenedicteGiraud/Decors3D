@@ -4,12 +4,14 @@
 #include "processor/FrameProcessor.h"
 #include <cv.h>
 
+class ProcessorCallback;
+
 class ClassKeyPointsWithNeighbor : public FrameProcessor
 {
 public:
     ClassKeyPointsWithNeighbor();
 
-    void processFrame(Video* video, Frame* frame, Mat* image, ProcessorCallback* callback);
+    void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 
 };
 

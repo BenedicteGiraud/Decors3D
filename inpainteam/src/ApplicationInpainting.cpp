@@ -25,6 +25,7 @@
 #include "processor/detection/HomographyEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
 #include "processor/optimization/MovementReprojection.h"
+#include "processor/optimization/ClassKeyPointsWithNeighbor.h"
 #include "processor/reconstruction/TraceInterpolationProcessor.h"
 
 
@@ -111,6 +112,9 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     video->applyVideoProcessor(movementReprojection);
 
     //player.play();
+
+    ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
+    video->applyFrameProcessor(classKeyPointsWithNeighbor);
 /**
     HomographyEstimatorProcessor homographyEstimator;
     video->applyDoubleFrameProcessor(homographyEstimator);
