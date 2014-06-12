@@ -26,8 +26,8 @@ public:
 	virtual void start();
 	virtual void finish();
 
-	virtual void seek(int index);
-	virtual void seekRelative(int shift);
+	virtual bool seek(int index);
+	virtual bool seekRelative(int shift);
 
 	virtual Mat getImage();
 };

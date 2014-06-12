@@ -38,28 +38,29 @@ using namespace cv;
  * @return
  */
 int main(int argc, char* argv[]) {
-    // Check that the number of arguments is good or specify how many the user have to enter
-    if( argc != 3) {
-        cout << "Invalid arguments: ";
-        cout << argv[0] << " [input] [output folder]\n";
+	// Check that the number of arguments is good or specify how many the user have to enter
+	if( argc != 3) {
+		cout << "Invalid arguments: ";
+		cout << argv[0] << " [input] [output folder]\n";
 		return -1;
 	}
 	string inputFilename = argv[1];
 	string outputDirectory = argv[2];
 
+	VideoPlayer player;
+	player.setOutputDirectory(outputDirectory);
+
+	/*Segmentation seg(inputFilename, 860);
+	vector<Video*> listOfSequence;
+	Video* nextSeq;
+	while( (nextSeq = seg.nextSequence()) != NULL) {
+		player.setVideo(nextSeq);
+		player.play();
+		listOfSequence.push_back(nextSeq);
+	}*/
+
 	Video video(inputFilename);
-
-    /*Segmentation seg(inputFilename);
-    vector<Video*> listOfSequence;
-    Video* nextSeq;
-    while( (nextSeq = seg.nextSequence()) != NULL) {
-        nextSeq->play();
-        listOfSequence.push_back(nextSeq);
-    }*/
-
-    ApplicationInpainting::videoTreatment(&video, outputDirectory);
-
-
+	ApplicationInpainting::videoTreatment(&video, outputDirectory);
 
 	return 0;
 }

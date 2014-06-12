@@ -30,21 +30,27 @@ AnnotationVideoProvider::~AnnotationVideoProvider() {
 
 }
 
-void AnnotationVideoProvider::seek(int index) {
+bool AnnotationVideoProvider::seek(int index) {
 	if(this->video->frames.size() == 0) {
 		this->index = 0;
+		return false;
 	}
 	else {
-		while(index < 0) {
+		/*while(index < 0) {
 			// q&d
 			index += this->video->frames.size();
 		}
-		this->index = index % this->video->frames.size();
+		this->index = index % this->video->frames.size();*/
+		if(this->video->frames.size() <= index || index < 0) {
+			return false;
+		}
+		this->index = index;
+		return true;
 	}
 }
 
-void AnnotationVideoProvider::seekRelative(int shift) {
-	this->seek(this->index + shift);
+bool AnnotationVideoProvider::seekRelative(int shift) {
+	return this->seek(this->index + shift);
 }
 
 Mat AnnotationVideoProvider::getImage() {

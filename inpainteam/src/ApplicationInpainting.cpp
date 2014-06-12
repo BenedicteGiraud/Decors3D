@@ -96,6 +96,7 @@ void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory)
     AnnotationVideoProvider annotationProvider(video, annotationProcessor);
     player.setVideoProvider(&annotationProvider);
     player.setFramesPerSecond(15);
+    player.setOutputDirectory(outputDirectory);
 
     // configure processor pipeline
     /*FlowTraceProcessor flowTraceProcessor;

@@ -15,8 +15,8 @@ public:
 	VideoProvider();
 	virtual ~VideoProvider();
 
-	virtual void seek(int index) = 0;
-	virtual void seekRelative(int index) = 0;
+	virtual bool seek(int index) = 0;
+	virtual bool seekRelative(int index) = 0;
 
 	virtual void start() = 0;
 	virtual cv::Mat getImage() = 0;

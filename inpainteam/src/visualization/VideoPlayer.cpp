@@ -44,9 +44,15 @@ void VideoPlayer::setFramesPerSecond(int framesPerSecond) {
 	this->framesPerSecond = framesPerSecond;
 }
 
+void VideoPlayer::setOutputDirectory(string outputDirectory) {
+	this->outputDirectory = outputDirectory;
+}
+
 void mouseCallbackFunction(int event, int x, int y, int flags, void* userdata) {
 	((VideoProvider*)userdata)->mouseEventCallback(event, x, y, flags);
 }
+
+int outputIndex;
 
 /**
  * Plays the video until the user presses a key, with specified frame rate
@@ -76,6 +82,17 @@ void VideoPlayer::play() {
 		}
 		if(key >= 0) {
 			switch(key) {
+			case 'h':
+				cout << "keys:" << endl;
+				cout << "q: quit" << endl;
+				cout << "space: pause" << endl;
+				cout << "w: write to file, starting from actual position" << endl;
+				cout << "esc/enter: quit player" << endl << endl;
+				cout << "left/right: previous/next frame" << endl;
+				cout << "down/up: previous/next 20 frame" << endl;
+				cout << "page down/up: previous/next 200 frame" << endl;
+				break;
+
 			case 'q':
 				exit(0);
 				break;
@@ -94,6 +111,43 @@ void VideoPlayer::play() {
 				provider->seekRelative(+1);
 				break;
 
+			case 65362: // up
+				pause = true;
+				provider->seekRelative(+20);
+				break;
+
+			case 65364: // down
+				pause = true;
+				provider->seekRelative(-20);
+				break;
+
+			case 65365: // page up
+				pause = true;
+				provider->seekRelative(-200);
+				break;
+
+			case 65366: // page down
+				pause = true;
+				provider->seekRelative(-200);
+				break;
+
+			case 65360: // home
+				provider->seek(0);
+				break;
+
+			case 'w':
+				{
+					Video output;
+					do {
+						output << provider->getImage();
+					} while (provider->seekRelative(+1) != false);
+
+					std::stringstream sstm;
+					sstm << (outputIndex++);
+					output.write(outputDirectory + "/videoPlayer" + sstm.str() + ".avi");
+				}
+				break;
+
 			case 10:
 			case 27:
 				goto FINISH;
@@ -105,7 +159,8 @@ void VideoPlayer::play() {
 		}
 
 		if(!pause) {
-			provider->seekRelative(+1);
+			bool successful = provider->seekRelative(+1);
+			if(!successful) pause = true;
 		}
 	}
 FINISH:
