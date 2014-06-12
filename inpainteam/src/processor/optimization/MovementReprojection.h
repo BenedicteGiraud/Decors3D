@@ -1,15 +1,17 @@
 #ifndef MOVEMENTREPROJECTION_H
 #define MOVEMENTREPROJECTION_H
 
-#include "processor/VideoProcessor.h"
+#include "processor/DoubleFrameProcessor.h"
 
-class MovementReprojection : public VideoProcessor
+
+class MovementReprojection : public DoubleFrameProcessor
 {
 public:
     MovementReprojection();
     virtual ~MovementReprojection();
 
-    virtual void process(Video * video);
+    virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
+
 };
 
 #endif // MOVEMENTREPROJECTION_H

@@ -39,6 +39,8 @@ public:
 	void applyVideoProcessor(VideoProcessor &processor);
 	void applyFrameProcessor(FrameProcessor &processor);
 	void applyDoubleFrameProcessor(DoubleFrameProcessor &processor);
+    void applyDoubleFrameProcessorInverse(DoubleFrameProcessor &processor);
+
 };
 
 #endif // VIDEO_H

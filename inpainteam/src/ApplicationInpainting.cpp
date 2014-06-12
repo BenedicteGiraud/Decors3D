@@ -109,12 +109,14 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
     MovementReprojection movementReprojection;
-    video->applyVideoProcessor(movementReprojection);
+//    video->applyVideoProcessor(movementReprojection);
+//    video->applyDoubleFrameProcessor(movementReprojection);
+    video->applyDoubleFrameProcessorInverse(movementReprojection);
 
     //player.play();
 
-    ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
-    video->applyFrameProcessor(classKeyPointsWithNeighbor);
+    /** ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
+    video->applyFrameProcessor(classKeyPointsWithNeighbor); */
 /**
     HomographyEstimatorProcessor homographyEstimator;
     video->applyDoubleFrameProcessor(homographyEstimator);
