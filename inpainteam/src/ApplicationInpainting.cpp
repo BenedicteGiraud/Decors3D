@@ -25,6 +25,8 @@
 #include "processor/detection/HomographyEstimatorProcessor.h"
 #include "processor/detection/FundamentalMatrixEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
+#include "processor/optimization/MovementReprojection.h"
+#include "processor/optimization/ClassKeyPointsWithNeighbor.h"
 #include "processor/reconstruction/TraceInterpolationProcessor.h"
 
 
@@ -106,11 +108,17 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     video->applyFrameProcessor(keypoints);
     video->applyDoubleFrameProcessor(keypointTrace);
 
-    TraceKalmanFilterProcessor kalmanFilter;
-    //video->applyDoubleFrameProcessor(kalmanFilter);
-
-    HomographyEstimatorProcessor homographyEstimator;
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
+    video->applyVideoProcessor(sceneTraceClassifierProcessor);
+    MovementReprojection movementReprojection;
+    video->applyVideoProcessor(movementReprojection);
+
+    //player.play();
+
+    ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
+    video->applyFrameProcessor(classKeyPointsWithNeighbor);
+    
+    HomographyEstimatorProcessor homographyEstimator;
     FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;
 
     for(int i=0; i<2; i++) {
@@ -118,9 +126,10 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
 		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
 		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
-
     }
-    player.play();
+    
+    video->applyVideoProcessor(sceneTraceClassifierProcessor);
+    //player.play();
 
     TraceInterpolationProcessor tip;
     video->applyFrameProcessor(tip);

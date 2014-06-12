@@ -147,8 +147,6 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 				true, // useHarrisDetector
 				0.0001); // k
 		gftt.detect(frame->image, keypoints);
-		cornerSubPix(frame->image, keypoints, Size( 5, 5 ), Size( -1, -1 ),
-                  TermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03 ) );
 		addKeypoints(frame, &keypoints, ExtendedPoint::GFTT); //*/
 
 		// addCannyPoints(frame);
