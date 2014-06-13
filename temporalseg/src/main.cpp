@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
 	if (argc > 7)
 	{
-		histRatio = atoi(argv[7]);
+		histRatio = atof(argv[7]);
 	}
 	else
 	{
@@ -77,13 +77,13 @@ int main(int argc, char *argv[])
 
 	if (argc > 8)
 	{
-		histKeyRatio = atoi(argv[7]);
+		histKeyRatio = atof(argv[8]);
 	}
 	else
 	{
-		histKeyRatio = 0.75;
+		histKeyRatio = 0.87;
 	}
-
+	cout << histKeyRatio;
 	//------------code
 
 	if (!movie.isOpened())
@@ -169,28 +169,16 @@ int main(int argc, char *argv[])
 				hist.copyTo(histKey);
 				//if(waitKey()==27) break;
 				stringstream imPath;
-			}
-			else
-			{
-				double comp2 = compareHist(histKey, hist, CV_COMP_INTERSECT);
-				if (comp2 < histKeyThresh)
-				{
-					key++;
-					cout << "shot " << shotNumber << "\tkey " << key << endl;
-					hist.copyTo(histKey);
-					//if(waitKey()==27) break;
-					stringstream imPath;
-					imPath << outputPath << setw(4) << setfill('0') << shotNumber << "-" << setw(4) << setfill('0') << key << outputExt;
-					imwrite(imPath.str(), frame);
-					info << shotNumber << " " << key << " " << fr++ << endl;
-				}
+				imPath << outputPath << setw(4) << setfill('0') << shotNumber << "-" << setw(4) << setfill('0') << key << outputExt;
+				imwrite(imPath.str(), frame);
+				info << shotNumber << " " << key << " " << fr++ << endl;
+
 			}
 			//cout << comp << endl;
-
-			if (waitKey(1) == 27)
-				break;
-			movie >> frame;
 		}
+		if (waitKey(1) == 27)
+			break;
+		movie >> frame;
 	}
 	return 0;
 
