@@ -28,10 +28,6 @@ KeyPointProcessor::~KeyPointProcessor() {
 
 }
 
-vector<Point2f> convertKeypointVectorToPoints(vector<KeyPoint> keypoints) {
-
-}
-
 void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint, ExtendedPoint::Detector detector) {
 	vector<KeyPoint> keypoints;
 	keypoints.push_back(keypoint);
@@ -73,8 +69,8 @@ void addCannyPoints(Frame* frame) {
 		}
 	}
 
-	imshow("test", dest);
-	waitKey(0);
+	/*imshow("test", dest);
+	waitKey(0);*/
 
 	Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SURF");
 	for(int row=0; row<dest.rows; row++) {
@@ -119,9 +115,9 @@ void addHarrisPoints(Frame* frame) {
 	dest = 100*(dest - min) / (max - min);
 	minMaxLoc(dest, &min, &max, NULL, NULL);
 	cout << "after: min " << min << " max " << max << endl;
-	namedWindow("test", WINDOW_NORMAL);
+	/*namedWindow("test", WINDOW_NORMAL);
 	imshow("test", dest);
-	waitKey(0);
+	waitKey(0);*/
 }
 
 

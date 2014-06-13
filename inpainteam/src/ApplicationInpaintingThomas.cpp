@@ -39,57 +39,9 @@ ApplicationInpaintingThomas::ApplicationInpaintingThomas()
 {
 }
 
-/**
- * @brief getResizeProcessor
- * If height < 300 : give 300 to the minimal dimension and resize the sequence with this height
- * @param video
- * @return
- */
-FrameProcessor* getResizeProcessor(Video *video) {
-    int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
-    int destinationSize = 300;
-    if(size < destinationSize) {
-        return new ResizeAnnotator(((double)destinationSize)/size);
-    }
-    return NULL;
-}
-
-/**
- * @brief getAnnotationProcessor
- * Add informations (circle, rectangles) to the frame
- * @param video
- * @return
- */
-FrameProcessor* getAnnotationProcessor(Video *video) {
-    PipelineProcessor* pipeline = new PipelineProcessor();
-    FrameProcessor *resize = getResizeProcessor(video);
-    pipeline->add(resize);
-    pipeline->add(new TraceAnnotator());
-    pipeline->add(new HomographyAnnotator());
-    return pipeline;
-}
-
-/**
- * @brief annotateToFile
- * Save the file frame + informations of the pipeline
- * @param video
- * @param processor
- * @param filename
- */
-void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
-    Video annotatedOutput;
-    PipelineProcessor outputPipeline;
-    outputPipeline.add(processor);
-    OutputProcessor outputProcessor;
-    outputProcessor.setOutput(&annotatedOutput);
-    outputPipeline.add(&outputProcessor);
-
-    video->applyFrameProcessor(outputPipeline);
-
-    annotatedOutput.write(filename, 5);
-}
-
-
+extern FrameProcessor* getResizeProcessor(Video *video);
+extern FrameProcessor* getAnnotationProcessor(Video *video);
+extern void annotateToFile(Video* video, FrameProcessor* processor, string filename);
 
 void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDirectory){
     // configure video player
@@ -108,7 +60,7 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     video->applyFrameProcessor(keypoints);
     video->applyDoubleFrameProcessor(keypointTrace);
 
-    //player.play();
+    player.play();
 
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     //MovementReprojection movementReprojection;

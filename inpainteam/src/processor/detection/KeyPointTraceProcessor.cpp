@@ -30,18 +30,19 @@ KeyPointTraceProcessor::~KeyPointTraceProcessor() {
 }
 
 bool checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
-	int searchDistance = 30;
+	int searchDistance = 10;
 	Point2f p1 = ep1->keypoint.pt;
 	Point2f p2 = ep2->keypoint.pt;
 
 	double distance = norm(p1 - p2);
-	//if(distance < searchDistance) {
+	if(distance < searchDistance) {
 		PointTrace* trace = ep1->getOrCreate();
-		if(trace->filter(ep2->frame->index) != NULL) return false;
+		//if(trace->filter(ep2->frame->index) != NULL) return false;
 		trace->addOrReplacePoint(ep2);
 		ep2->trace = trace;
 		return true;
-	//}
+	}
+	return false;
 }
 
 void matchPointsBF(Frame*  frame1, Frame* frame2) {
@@ -87,7 +88,7 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 			double descriptorDifference = norm(point1->descriptor - point2.second->descriptor);
 			if(descriptorDifference > maxDescriptorDifference) continue;
 			//cout << "(" << point1 << "," << point2.second << endl;
-			double combinedDistance = (10*(double)distance/searchDistance)+(descriptorDifference);
+			double combinedDistance = (2*(double)distance/searchDistance)+(descriptorDifference);
 			if(maxCombinedDistance < combinedDistance) maxCombinedDistance = combinedDistance;
 
 			candidates.push(QueueType(combinedDistance, ExtendedPointTuple(point1, point2.second)));
