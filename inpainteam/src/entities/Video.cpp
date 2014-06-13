@@ -145,3 +145,14 @@ bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
 	homography=result;
 	return true;
 }
+
+void Video::applyDoubleFrameProcessorInverse(DoubleFrameProcessor &processor) {
+    auto it = frames.rbegin();
+    processor.processStart(this, *it);
+    Frame* last = *it; it++;
+    while(it != frames.rend()) {
+        processor.processDoubleFrame(this, last, *it);
+        last = *it; it++;
+    }
+    processor.processEnd(this, last);
+}

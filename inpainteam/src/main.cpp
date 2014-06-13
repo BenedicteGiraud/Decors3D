@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "entities/Video.h"
+#include "ApplicationInpainting.h"
 #include "ApplicationInpaintingThomas.h"
 #include "Segmentation.h"
 
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
 	}*/
 
 	Video video(inputFilename);
-	ApplicationInpaintingThomas::videoTreatment(&video, outputDirectory);
+	ApplicationInpainting::videoTreatment(&video, outputDirectory);
 
 	return 0;
 }

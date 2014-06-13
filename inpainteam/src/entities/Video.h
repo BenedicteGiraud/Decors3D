@@ -36,6 +36,7 @@ public:
 	void applyVideoProcessor(VideoProcessor &processor);
 	void applyFrameProcessor(FrameProcessor &processor);
 	void applyDoubleFrameProcessor(DoubleFrameProcessor &processor);
+    void applyDoubleFrameProcessorInverse(DoubleFrameProcessor &processor);
 
 	bool getHomography(Frame *from, Frame *to, Mat &homography);
 };
