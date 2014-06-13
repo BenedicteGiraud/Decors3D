@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
 	if (argc > 7)
 	{
-		histRatio = atoi(argv[7]);
+		histRatio = atof(argv[7]);
 	}
 	else
 	{
@@ -77,13 +77,13 @@ int main(int argc, char *argv[])
 
 	if (argc > 8)
 	{
-		histKeyRatio = atoi(argv[7]);
+		histKeyRatio = atof(argv[8]);
 	}
 	else
 	{
-		histKeyRatio = 0.75;
+		histKeyRatio = 0.87;
 	}
-
+	cout << histKeyRatio;
 	//------------code
 
 	if (!movie.isOpened())
