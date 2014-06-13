@@ -60,6 +60,9 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 						Mat mul = p1.t() * fundamental;
 						mul *= p2;
+						if(std::isnan(distance) || std::isnan(norm(mul))) {
+							cout << "Warning: SceneTraceClassifier got NaN value " << endl;
+						}
 						distance += norm(mul);
 					}
 					else {
@@ -72,6 +75,10 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 							destPoint = last->coordinates;
 						}
 						double n = norm(destPoint - point.second->coordinates);
+
+						if(std::isnan(distance) || std::isnan(n)) {
+							cout << "Warning: SceneTraceClassifier got NaN value " << endl;
+						}
 						distance += n*n;
 					}
 				}

@@ -40,8 +40,11 @@ public:
 		Mat projected = homography * p;
 
 		Point2f result;
-		result.x = projected.at<double>(0,0) / projected.at<double>(2,0);
-		result.y = projected.at<double>(1,0) / projected.at<double>(2,0);
+		double x = projected.at<double>(0,0);
+		double y = projected.at<double>(1,0);
+		double s = projected.at<double>(2,0);
+		result.x = x / s;
+		result.y = y / s;
 
 		return result;
 	}

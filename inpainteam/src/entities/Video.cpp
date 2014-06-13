@@ -121,19 +121,20 @@ void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
 	processor.processEnd(this, last);
 }
 
+// TODO: check this function
 bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
-	if(from->homographyToLastFrame.rows == 0) return false;
-	if(to->homographyToLastFrame.rows == 0) return false;
+	bool inv = from->index > to->index;
+	if(inv) {
+		Frame* tmp = to;
+		to = from; from = tmp;
+	}
 
+	if(to->homographyToLastFrame.rows == 0) return false;
 	if(to->index - from->index == 1) {
 		homography = to->homographyToLastFrame;
 	}
-	else if(from->index - to->index == 1) {
-		homography = to->homographyToLastFrame.inv(DECOMP_SVD);
-	}
 
-	int minIndex = min(from->index, to->index);
-	int maxIndex = max(from->index, to->index);
+	int minIndex = from->index, maxIndex = to->index;
 	Mat result = Tools::getIdentityHomography();
 	for(Frame* frame : frames) {
 		if(frame->index > maxIndex) break;
@@ -142,7 +143,12 @@ bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
 		if(frame->homographyToLastFrame.rows == 0) return false;
 		result = Tools::concatenateHomography(result, frame->homographyToLastFrame);
 	}
-	homography=result;
+	if(inv) {
+		homography = result.inv(DECOMP_SVD);
+	}
+	else {
+		homography=result;
+	}
 	return true;
 }
 

@@ -37,7 +37,7 @@ bool checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
 	double distance = norm(p1 - p2);
 	if(distance < searchDistance) {
 		PointTrace* trace = ep1->getOrCreate();
-		//if(trace->filter(ep2->frame->index) != NULL) return false;
+		if(trace->filter(ep2->frame->index) != NULL) return false;
 		trace->addOrReplacePoint(ep2);
 		ep2->trace = trace;
 		return true;

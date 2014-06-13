@@ -118,7 +118,8 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			Point2f backProj(work->col, work->row);
 			Mat homography;
 			if(video->getHomography(frame, video->frames.front(), homography)) {
-				Tools::applyHomography(homography, backProj);
+				Point2f newBackProj = Tools::applyHomography(homography, backProj);
+				backProj = newBackProj;
 			}
 			Point backProjInt = backProj;
 

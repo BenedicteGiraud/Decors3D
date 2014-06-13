@@ -28,7 +28,7 @@ public:
 
 	ExtendedPoint *first;
 	ExtendedPoint *last;
-	std::unordered_map<int, ExtendedPoint*> points;
+	std::map<int, ExtendedPoint*> points;
 	enum Type { scene, object, unknown};
 	Type type;
 

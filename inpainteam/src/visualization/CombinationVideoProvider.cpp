@@ -68,9 +68,6 @@ Mat CombinationVideoProvider::getImage() {
 
 	for(SubProvider subprovider : subproviders) {
 		Mat suboutput = subprovider.provider->getImage();
-		cout << "suboutput size " << suboutput.cols << "x" << suboutput.rows << endl;
-		cout << "geometry size " << subprovider.geometry << endl;
-		cout << "output size " << output.cols << "x" << output.rows << endl;
 		suboutput.copyTo(output(subprovider.geometry));
 	}
 
