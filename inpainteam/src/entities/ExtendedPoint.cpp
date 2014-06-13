@@ -17,6 +17,7 @@ ExtendedPoint::ExtendedPoint(Point2f point, Frame* frame) {
 	this->coordinates = point;
 	this->frame = frame;
 	this->trace = NULL;
+	this->detector = unknown;
 }
 
 ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint, Frame* frame) {
@@ -24,6 +25,7 @@ ExtendedPoint::ExtendedPoint(cv::KeyPoint keypoint, Frame* frame) {
 	this->keypoint = keypoint;
 	this->frame = frame;
 	this->trace = NULL;
+	this->detector = unknown;
 }
 
 ExtendedPoint::~ExtendedPoint() {

@@ -35,15 +35,15 @@ vector<Point2f> convertKeypointVectorToPoints(vector<KeyPoint> keypoints) {
 void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint, ExtendedPoint::Detector detector) {
 	vector<KeyPoint> keypoints;
 	keypoints.push_back(keypoint);
-	Mat descriptors;
-	extractor->compute(frame->image, keypoints, descriptors);
+	Mat descriptor;
+	extractor->compute(frame->image, keypoints, descriptor);
 
-	if(descriptors.rows != 0) {
+	if(descriptor.rows != 0) {
 		ExtendedPoint *ep = new ExtendedPoint(keypoint, frame);
 		frame->keypoints.push_back(ep);
-		ep->descriptor = descriptors;
+		ep->descriptor = descriptor;
 		ep->detector = detector;
-		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptors, frame->rawDescriptors);
+		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptor, frame->rawDescriptors);
 	}
 }
 
@@ -128,7 +128,7 @@ void addHarrisPoints(Frame* frame) {
 void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, ProcessorCallback* callback) {
 	if(frame->keypoints.size() == 0) {
 		vector<KeyPoint> keypoints;
-		/*SurfFeatureDetector surf(
+		SurfFeatureDetector surf(
 				2, // hessianThreshold
 				1, // nOctaves
 				1, // nOctaveLayers

@@ -30,6 +30,7 @@ public:
 	}
 
 	inline static cv::Point2f applyHomography(cv::Mat homography, cv::Point2f point) {
+		if(homography.rows == 0) return point;
 
 		Mat p(3, 1, CV_64F);
 		p.at<double>(0,0) = point.x;

@@ -145,10 +145,10 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	int lineHeight = (int)(ratio * height);
 	line(histogramImage, Point(indexMax,0), Point(indexMax, lineHeight), Scalar(0,255,255));
 
-	string windowName = "scene trace classifier histogram";
+	/*string windowName = "scene trace classifier histogram";
 	namedWindow(windowName, WINDOW_NORMAL);
 	imshow(windowName, histogramImage);
-	waitKey(0);
+	waitKey(0);*/
 
 	for(auto d : distances) {
 		if(d.first < valueMax - 3*diff) continue;
