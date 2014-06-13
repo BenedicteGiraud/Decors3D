@@ -162,3 +162,28 @@ void Video::applyDoubleFrameProcessorInverse(DoubleFrameProcessor &processor) {
     }
     processor.processEnd(this, last);
 }
+
+map<PointTrace::Type, int> Video::getPointTraceCount() {
+	typedef pair<PointTrace::Type, int> MapType;
+	map<PointTrace::Type, int> result;
+	result.insert(MapType(PointTrace::Type::unknown, 0));
+	result.insert(MapType(PointTrace::Type::scene, 0));
+	result.insert(MapType(PointTrace::Type::object, 0));
+
+	for(PointTrace* trace : pointTraces) {
+		if(trace != NULL) {
+			result.find(trace->type)->second++;
+		}
+	}
+	return result;
+}
+
+vector<PointTrace*> Video::filterPointTraces(PointTrace::Type type) {
+	vector<PointTrace*> result;
+	for(PointTrace* trace : pointTraces) {
+		if(trace != NULL && trace->type == type) {
+			result.push_back(trace);
+		}
+	}
+	return result;
+}

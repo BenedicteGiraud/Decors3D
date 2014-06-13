@@ -14,10 +14,14 @@ class Video;
 class Frame;
 
 class HomographyEstimatorProcessor : public DoubleFrameProcessor {
+
+	vector<PointTrace*> traces;
+
 public:
 	HomographyEstimatorProcessor();
 	virtual ~HomographyEstimatorProcessor();
 
+	virtual void processStart(Video* video, Frame* firstframe);
 	virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
 };
 

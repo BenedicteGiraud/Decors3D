@@ -26,7 +26,6 @@ TraceAnnotator::~TraceAnnotator() {
 void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	vector<ExtendedPoint*> processed;
 	int index = frame->index;
-	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	// draw points of scene traces
 
 	int size = 2;
