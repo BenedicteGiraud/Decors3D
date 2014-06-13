@@ -23,6 +23,7 @@
 #include "processor/detection/FlowTraceProcessor.h"
 #include "processor/detection/SceneTraceClassifierProcessor.h"
 #include "processor/detection/HomographyEstimatorProcessor.h"
+#include "processor/detection/FundamentalMatrixEstimatorProcessor.h"
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
 #include "processor/optimization/MovementReprojection.h"
 #include "processor/optimization/ClassKeyPointsWithNeighbor.h"
@@ -91,12 +92,14 @@ void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
 
 
 void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory){
+    // configure video player
     VideoPlayer player = video->getPlayer();
 
-    // configure video player
     FrameProcessor* annotationProcessor = getAnnotationProcessor(video);
-    //player.setFramesAnnotator(annotationProcessor);
+    AnnotationVideoProvider annotationProvider(video, annotationProcessor);
+    player.setVideoProvider(&annotationProvider);
     player.setFramesPerSecond(15);
+    player.setOutputDirectory(outputDirectory);
 
     // configure processor pipeline
     /*FlowTraceProcessor flowTraceProcessor;
@@ -111,22 +114,26 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     MovementReprojection movementReprojection;
 //    video->applyVideoProcessor(movementReprojection);
 //    video->applyDoubleFrameProcessor(movementReprojection);
-    video->applyDoubleFrameProcessorInverse(movementReprojection);
+//    video->applyDoubleFrameProcessorInverse(movementReprojection);
 
     //player.play();
 
     /** ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
     video->applyFrameProcessor(classKeyPointsWithNeighbor); */
-/**
+
     HomographyEstimatorProcessor homographyEstimator;
-    video->applyDoubleFrameProcessor(homographyEstimator);
+    FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;
 
-    TraceKalmanFilterProcessor kalmanFilter;
-    //video->applyDoubleFrameProcessor(kalmanFilter);
-
+    for(int i=0; i<2; i++) {
+		video->applyDoubleFrameProcessor(homographyEstimator);
+		video->applyVideoProcessor(sceneTraceClassifierProcessor);
+		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
+		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
+    }
+    
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
     //player.play();
-*/
+
     TraceInterpolationProcessor tip;
     video->applyFrameProcessor(tip);
     //player.play();
@@ -153,10 +160,4 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
     annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
     inp->write(outputDirectory + "/inpainting.avi", 5);
-    /*namedWindow("test", WINDOW_NORMAL);
-imshow("test", inpaintedImg);
-waitKey();*/
-
-
-    //inp->write(outputDirectory + "/output.avi");
 }

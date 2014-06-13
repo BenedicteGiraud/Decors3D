@@ -28,6 +28,9 @@ public:
 	cv::Mat descriptor;
 
 	PointTrace* getOrCreate();
+
+	enum Detector { unknown, SURF, GFTT, Canny, Harris};
+	Detector detector;
 };
 
 #endif /* EXTENDEDPOINT_H_ */

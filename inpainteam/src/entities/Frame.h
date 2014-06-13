@@ -29,6 +29,13 @@ public:
 	std::vector<cv::KeyPoint> rawKeypoints;
 	cv::Mat rawDescriptors;
 
+	// homography
+	cv::Mat homographyToBeginning;
+	cv::Mat homographyToLastFrame;
+
+	// fundamental matrix
+	cv::Mat fundamentalMatrixToLastFrame;
+
 	Frame(cv::Mat image, Video* video, int index);
 	virtual ~Frame();
 

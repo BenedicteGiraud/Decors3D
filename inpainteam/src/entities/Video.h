@@ -24,9 +24,6 @@ public:
 	std::vector<PointTrace*> sceneTraces;
 	std::vector<PointTrace*> objectTraces;
 
-	std::vector<cv::Mat> homographiesToLastFrame;
-	std::vector<cv::Mat> homographiesToBeginning;
-
 	Video();
 	Video(std::string filename);
 	void write(std::string filename);
@@ -41,6 +38,7 @@ public:
 	void applyDoubleFrameProcessor(DoubleFrameProcessor &processor);
     void applyDoubleFrameProcessorInverse(DoubleFrameProcessor &processor);
 
+	bool getHomography(Frame *from, Frame *to, Mat &homography);
 };
 
 #endif // VIDEO_H

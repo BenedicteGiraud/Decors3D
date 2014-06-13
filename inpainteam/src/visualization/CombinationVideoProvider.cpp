@@ -47,15 +47,20 @@ void CombinationVideoProvider::finish() {
 	}
 }
 
-void CombinationVideoProvider::seek(int index) {
+bool CombinationVideoProvider::seek(int index) {
+	bool successful = true;
 	for(SubProvider subprovider : subproviders) {
-		subprovider.provider->seek(index);
+		successful &= subprovider.provider->seek(index);
 	}
+	return successful;
 }
-void CombinationVideoProvider::seekRelative(int shift) {
+
+bool CombinationVideoProvider::seekRelative(int shift) {
+	bool successful = true;
 	for(SubProvider subprovider : subproviders) {
-		subprovider.provider->seekRelative(shift);
+		successful &= subprovider.provider->seekRelative(shift);
 	}
+	return successful;
 }
 
 Mat CombinationVideoProvider::getImage() {

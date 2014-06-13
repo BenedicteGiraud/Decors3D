@@ -16,6 +16,7 @@ class VideoPlayer {
 private:
 	int framesPerSecond;
 	VideoProvider *provider;
+	string outputDirectory;
 
 public:
 	VideoPlayer();
@@ -24,6 +25,7 @@ public:
 	void setVideo(Video *video);
 	void setVideoProvider(VideoProvider *provider);
 	void setFramesPerSecond(int framesPerSecond);
+	void setOutputDirectory(string outputDirectory);
 
 	void play();
 };

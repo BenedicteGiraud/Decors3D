@@ -83,7 +83,7 @@ void MovementReprojection::processDoubleFrame(Video* video, Frame* frame1, Frame
             // in order to prevent the borders and coins to change value : thresh is not 0.5 but 0.8
             if (typeKeypoint == PointTrace::scene){
 
-                if (mobileRatio > 0.6) {
+                if (mobileRatio > 0.5) {
                     keyPoint->trace->type = PointTrace::object;
                 }
                 else {
