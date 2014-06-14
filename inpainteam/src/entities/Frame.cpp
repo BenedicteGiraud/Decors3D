@@ -20,7 +20,14 @@ Frame::~Frame() {
 
 }
 
-void Frame::detectKeyPoints() {
-
-
+ExtendedPoint* Frame::getNearestKeyPoint(Point2f point) {
+	double minDistance = DBL_MAX; ExtendedPoint *minPoint = NULL;
+	for(ExtendedPoint* keypoint : keypoints) {
+		double distance = norm(keypoint->coordinates - point);
+		if(distance < minDistance) {
+			minDistance = distance;
+			minPoint = keypoint;
+		}
+	}
+	return minPoint;
 }

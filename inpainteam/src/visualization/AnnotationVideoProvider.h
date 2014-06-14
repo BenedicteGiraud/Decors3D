@@ -12,6 +12,7 @@
 
 class Video;
 class FrameProcessor;
+class ProcessorCallback;
 
 class AnnotationVideoProvider : public VideoProvider {
 public:
@@ -30,6 +31,8 @@ public:
 	virtual bool seekRelative(int shift);
 
 	virtual Mat getImage();
+
+	virtual void mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback *callback);
 };
 
 #endif /* ANNOTATIONVIDEOPROVIDER_H_ */

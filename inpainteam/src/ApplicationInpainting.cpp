@@ -47,7 +47,7 @@ ApplicationInpainting::ApplicationInpainting()
  */
 FrameProcessor* getResizeProcessor(Video *video) {
     int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
-    int destinationSize = 300;
+    int destinationSize = 600;
     if(size < destinationSize) {
         return new ResizeAnnotator(((double)destinationSize)/size);
     }

@@ -31,6 +31,10 @@ Point2f ProcessorCallback::getInputImageCoordinates(cv::Point2f outputCoordinate
 	return outputCoordinates;
 }
 
+void ProcessorCallback::refreshGui() {
+
+}
+
 ProcessorCallback* ProcessorCallback::getDefault() {
 	if(ProcessorCallback::standard == NULL) {
 		ProcessorCallback::standard = new ProcessorCallback();

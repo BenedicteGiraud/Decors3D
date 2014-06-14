@@ -65,6 +65,7 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 	cout << endl << " matching points " << endl;
 	int searchDistance = min(frame1->image.rows, frame2->image.rows) / 5;
 	double maxDescriptorDifference = .55;
+	bool createNewPoints = false;
 
 	vector<ExtendedPoint*> points1 = frame1->keypoints;
 	vector<pair<Point2f, ExtendedPoint*>> points2;
@@ -77,6 +78,7 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 	for(ExtendedPoint* point : frame2->keypoints) {
 		Point2f coordinates = Tools::applyHomography(homography, point->coordinates);
 		points2.push_back(pair<Point2f, ExtendedPoint*>(coordinates, point));
+		createNewPoints = true;
 	}
 
 	double maxCombinedDistance = 0;
@@ -110,7 +112,7 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 			if(quantilDistance > maxCombinedDistance) {
 				quantilDistance = element.first;
 			}
-			if(element.first > quantilDistance+0.25*(maxCombinedDistance-quantilDistance)) break;
+			if(element.first > quantilDistance+0.5*(maxCombinedDistance-quantilDistance)) break;
 		}
 
 		//cout << "pq: " << element.first << endl;
@@ -163,5 +165,5 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 
 	matchPoints(frame1, frame2);
 
-	assignRemainingPoints(video, frame2);
+	//assignRemainingPoints(video, frame2);
 }

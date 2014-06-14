@@ -42,7 +42,6 @@ void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* imag
 
 	Point2f first, last; bool firstRun = true;
 	for(auto point : transformedPoints) {
-		cout << " " << point;
 		point = callback->getOutputImageCoordinates(point);
 		if(!firstRun) {
 			line(*image, point, last, Scalar(0,0,0));
@@ -53,6 +52,5 @@ void HomographyAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* imag
 		last = point;
 		firstRun = false;
 	}
-	cout << endl;
 	line(*image, last, first, Scalar(0,0,0));
 }
