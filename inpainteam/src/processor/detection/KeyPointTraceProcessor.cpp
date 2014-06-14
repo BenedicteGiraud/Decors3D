@@ -15,7 +15,7 @@
 
 #include "Tools.h"
 
-
+#include "KeyPointProcessor.h"
 #include "KeyPointTraceProcessor.h"
 
 using namespace cv;
@@ -64,7 +64,7 @@ void matchPointsBF(Frame*  frame1, Frame* frame2) {
 void matchPoints(Frame* frame1, Frame* frame2) {
 	cout << endl << " matching points " << endl;
 	int searchDistance = min(frame1->image.rows, frame2->image.rows) / 5;
-	double maxDescriptorDifference = .55;
+	double maxDescriptorDifference = DBL_MAX; //.55;
 	bool createNewPoints = false;
 
 	vector<ExtendedPoint*> points1 = frame1->keypoints;
@@ -87,10 +87,10 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 			// compare descriptor
 			double distance = norm(point1->coordinates - point2.first);
 			if(distance > searchDistance) continue;
-			double descriptorDifference = norm(point1->descriptor - point2.second->descriptor);
+			double descriptorDifference = KeyPointProcessor::descriptorDistance(point1->descriptor, point2.second->descriptor);
 			if(descriptorDifference > maxDescriptorDifference) continue;
 			//cout << "(" << point1 << "," << point2.second << endl;
-			double combinedDistance = (2*(double)distance/searchDistance)+(descriptorDifference);
+			double combinedDistance = (20*(double)distance/searchDistance)+(descriptorDifference);
 			if(maxCombinedDistance < combinedDistance) maxCombinedDistance = combinedDistance;
 
 			candidates.push(QueueType(combinedDistance, ExtendedPointTuple(point1, point2.second)));
@@ -108,53 +108,22 @@ void matchPoints(Frame* frame1, Frame* frame2) {
 			checkAndAddToTrace(element.second.first, element.second.second);
 		}
 		count++;
-		if(count > 0.5*candidates.size()) {
+		if(count > 0.20*candidates.size()) {
 			if(quantilDistance > maxCombinedDistance) {
 				quantilDistance = element.first;
 			}
-			if(element.first > quantilDistance+0.5*(maxCombinedDistance-quantilDistance)) break;
-		}
-
-		//cout << "pq: " << element.first << endl;
-		candidates.pop();
-	}
-
-
-}
-
-void assignRemainingPoints(Video* video, Frame* frame) {
-	int searchDistance = 10;
-	// assign remaining points to traces
-	vector<ExtendedPoint*> workingList(frame->keypoints);
-	for(auto it = workingList.begin(); it != workingList.end(); it++) {
-		if((*it)->trace != NULL) continue;
-		bool found = false;
-		int minDistance = INT_MAX;
-		PointTrace *bestTrace = NULL;
-		for(auto trace = video->pointTraces.begin(); trace != video->pointTraces.end(); trace++) {
-			// search for corresponding trace
-			if((*trace)->points.size() < 1) continue;
-			ExtendedPoint* last = (*trace)->lastPoint();
-
-			double distance = norm(last->keypoint.pt - (*it)->keypoint.pt);
-			if(distance < minDistance) {
-				minDistance = distance;
-				bestTrace = (*trace);
+			double threshold = quantilDistance+0.05*(maxCombinedDistance-quantilDistance);
+			if(element.first > threshold) {
+				cout << "KeyPointTraceProcessor: effective theshold" << threshold << endl;
+				break;
 			}
 		}
-
-		if(minDistance < searchDistance) {
-			bestTrace->addOrReplacePoint(*it);
-			(*it)->trace = bestTrace;
-			found = true;
-			break;
-		}
-
-		if(!found) {
-			// create new trace
-			//(*it)->getOrCreate();
-		}
+		candidates.pop();
 	}
+}
+
+void continueUnmatchedTraces(Video* video, Frame* frame) {
+
 }
 
 void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
@@ -165,5 +134,4 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 
 	matchPoints(frame1, frame2);
 
-	//assignRemainingPoints(video, frame2);
 }

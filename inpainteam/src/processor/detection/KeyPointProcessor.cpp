@@ -28,13 +28,54 @@ KeyPointProcessor::~KeyPointProcessor() {
 
 }
 
+double KeyPointProcessor::descriptorDistance(cv::Mat desc1, cv::Mat desc2) {
+	double scale = (double)1/desc1.cols*desc1.channels();
+	return scale*norm(desc1-desc2);
+}
+
+Ptr<DescriptorExtractor> getExtractor() {
+	return DescriptorExtractor::create("SIFT");
+}
+
+void copyPatch(Mat image, Mat &descriptor, KeyPoint keypoint, int halfSideLength) {
+
+	/*int halfSideLength = 5;
+	Mat descriptor(halfSideLength*2+1, halfSideLength*2+1, frame->image.depth());
+	int top = -keypoint.pt.y+halfSideLength,
+		bottom = -frame->image.rows+keypoint.pt.y+halfSideLength,
+		left = -keypoint.pt.x+halfSideLength,
+		right = -frame->image.cols+keypoint.pt.x+halfSideLength;
+	copyMakeBorder(frame->image, descriptor, top, bottom, left, right, BORDER_REPLICATE);*/
+
+	int size = halfSideLength * 2 + 1;
+	descriptor = Mat(1, size*size*image.channels(), CV_8U);
+	int i=0;
+	for(int row=-halfSideLength; row<=halfSideLength; row++) {
+		for(int col=-halfSideLength; col<=halfSideLength; col++) {
+			int imageRow = borderInterpolate(keypoint.pt.y+2*row, image.rows, BORDER_REPLICATE);
+			int imageCol = borderInterpolate(keypoint.pt.x+2*col, image.cols, BORDER_REPLICATE);
+			descriptor.at<Vec<uchar, 3>>(0, i) =
+					image.at<Vec<uchar,3>>(imageRow, imageCol);
+			i++;
+		}
+	}
+
+}
+
 void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint, ExtendedPoint::Detector detector) {
-	vector<KeyPoint> keypoints;
-	keypoints.push_back(keypoint);
+	//Mat descriptor;
+	//vector<KeyPoint> keypoints;
+	//keypoints.push_back(keypoint);
+	//extractor->compute(frame->image, keypoints, descriptor);
 	Mat descriptor;
-	extractor->compute(frame->image, keypoints, descriptor);
+	copyPatch(frame->image, descriptor, keypoint, 5);
 
 	if(descriptor.rows != 0) {
+		ExtendedPoint* neighbor = frame->getNearestKeyPoint(keypoint.pt);
+		if(neighbor != NULL) {
+			if(norm(neighbor->coordinates - keypoint.pt) < 1) return;
+		}
+
 		ExtendedPoint *ep = new ExtendedPoint(keypoint, frame);
 		frame->keypoints.push_back(ep);
 		ep->descriptor = descriptor;
@@ -44,7 +85,7 @@ void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint key
 }
 
 void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints, ExtendedPoint::Detector detector) {
-	Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SURF");
+	Ptr<DescriptorExtractor> extractor = getExtractor();
 	for(auto keypoint : *keypoints) {
 		addKeypoint(extractor, frame, keypoint, detector);
 	}
@@ -72,7 +113,7 @@ void addCannyPoints(Frame* frame) {
 	/*imshow("test", dest);
 	waitKey(0);*/
 
-	Ptr<DescriptorExtractor> extractor = DescriptorExtractor::create("SURF");
+	Ptr<DescriptorExtractor> extractor = getExtractor();
 	for(int row=0; row<dest.rows; row++) {
 		for(int col=0; col<dest.cols; col++) {
 			if(dest.at<uchar>(row, col) > 200) {
@@ -120,7 +161,6 @@ void addHarrisPoints(Frame* frame) {
 	waitKey(0);*/
 }
 
-
 void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, ProcessorCallback* callback) {
 	if(frame->keypoints.size() == 0) {
 		vector<KeyPoint> keypoints;
@@ -129,7 +169,7 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 				1, // nOctaves
 				1, // nOctaveLayers
 				true, // extended
-				false // upright
+				true // upright
 				);
 		surf.detect(frame->image, keypoints);
 		addKeypoints(frame, &keypoints, ExtendedPoint::SURF); //*/
@@ -137,11 +177,11 @@ void KeyPointProcessor::processFrame(Video* video, Frame* frame, Mat* image, Pro
 		keypoints.clear();
 		GFTTDetector gftt(
 				10000, // maxCorners
-				0.001, // qualityLevel
+				0.01, // qualityLevel
 				4, // minDistance
 				3, // blockSize
 				true, // useHarrisDetector
-				0.0001); // k
+				0.001); // k
 		gftt.detect(frame->image, keypoints);
 		addKeypoints(frame, &keypoints, ExtendedPoint::GFTT); //*/
 

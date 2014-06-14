@@ -19,6 +19,8 @@ public:
 	virtual ~KeyPointTraceProcessor();
 
 	virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
+
+	static double getSimilarityMeasure(ExtendedPoint *p1, ExtendedPoint *p2);
 };
 
 #endif /* KEYPOINTTRACEPROCESSOR_H_ */
