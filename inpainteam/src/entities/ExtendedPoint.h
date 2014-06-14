@@ -29,7 +29,7 @@ public:
 
 	PointTrace* getOrCreate();
 
-	enum Detector { unknown, SURF, GFTT, Canny, Harris};
+	enum Detector { unknown, SURF, GFTT, Canny, Harris, projected};
 	Detector detector;
 };
 

@@ -37,7 +37,7 @@ Ptr<DescriptorExtractor> getExtractor() {
 	return DescriptorExtractor::create("SIFT");
 }
 
-void copyPatch(Mat image, Mat &descriptor, KeyPoint keypoint, int halfSideLength) {
+void KeyPointProcessor::extractPatchDescriptor(Mat image, Mat &descriptor, Point2f point, int halfSideLength, float scale) {
 
 	/*int halfSideLength = 5;
 	Mat descriptor(halfSideLength*2+1, halfSideLength*2+1, frame->image.depth());
@@ -52,8 +52,8 @@ void copyPatch(Mat image, Mat &descriptor, KeyPoint keypoint, int halfSideLength
 	int i=0;
 	for(int row=-halfSideLength; row<=halfSideLength; row++) {
 		for(int col=-halfSideLength; col<=halfSideLength; col++) {
-			int imageRow = borderInterpolate(keypoint.pt.y+2*row, image.rows, BORDER_REPLICATE);
-			int imageCol = borderInterpolate(keypoint.pt.x+2*col, image.cols, BORDER_REPLICATE);
+			int imageRow = borderInterpolate(point.y+scale*row, image.rows, BORDER_REPLICATE);
+			int imageCol = borderInterpolate(point.x+scale*col, image.cols, BORDER_REPLICATE);
 			descriptor.at<Vec<uchar, 3>>(0, i) =
 					image.at<Vec<uchar,3>>(imageRow, imageCol);
 			i++;
@@ -62,26 +62,30 @@ void copyPatch(Mat image, Mat &descriptor, KeyPoint keypoint, int halfSideLength
 
 }
 
+void KeyPointProcessor::addKeypoint(Frame* frame, Point2f point, Mat descriptor, ExtendedPoint::Detector detector) {
+
+	if(descriptor.rows != 0) {
+		ExtendedPoint* neighbor = frame->getNearestKeyPoint(point);
+		if(neighbor != NULL) {
+			if(norm(neighbor->coordinates - point) < 1) return;
+		}
+
+		ExtendedPoint *ep = new ExtendedPoint(point, frame);
+		frame->keypoints.push_back(ep);
+		ep->descriptor = descriptor;
+		ep->detector = detector;
+		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptor, frame->rawDescriptors);
+	}
+}
+
 void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint, ExtendedPoint::Detector detector) {
 	//Mat descriptor;
 	//vector<KeyPoint> keypoints;
 	//keypoints.push_back(keypoint);
 	//extractor->compute(frame->image, keypoints, descriptor);
 	Mat descriptor;
-	copyPatch(frame->image, descriptor, keypoint, 5);
-
-	if(descriptor.rows != 0) {
-		ExtendedPoint* neighbor = frame->getNearestKeyPoint(keypoint.pt);
-		if(neighbor != NULL) {
-			if(norm(neighbor->coordinates - keypoint.pt) < 1) return;
-		}
-
-		ExtendedPoint *ep = new ExtendedPoint(keypoint, frame);
-		frame->keypoints.push_back(ep);
-		ep->descriptor = descriptor;
-		ep->detector = detector;
-		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptor, frame->rawDescriptors);
-	}
+	KeyPointProcessor::extractPatchDescriptor(frame->image, descriptor, keypoint.pt, 5, 2);
+	KeyPointProcessor::addKeypoint(frame, keypoint.pt, descriptor, detector);
 }
 
 void addKeypoints(Frame* frame, vector<KeyPoint>* keypoints, ExtendedPoint::Detector detector) {
