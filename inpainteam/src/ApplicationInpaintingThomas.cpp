@@ -107,7 +107,7 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     //inpPlayer.playWithAnnotationData(video);
 
     // write to file
-    annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
+    /*annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
     annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
     inp->write(outputDirectory + "/inpainting.avi", 5); //*/
 }

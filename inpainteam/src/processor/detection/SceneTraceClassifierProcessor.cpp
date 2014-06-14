@@ -25,11 +25,7 @@ SceneTraceClassifierProcessor::~SceneTraceClassifierProcessor() {
 
 }
 
-void SceneTraceClassifierProcessor::process(Video* video) {
-
-	video->sceneTraces.clear();
-	video->objectTraces.clear();
-
+multimap<double, PointTrace*> getHomographyErrorMap(Video* video) {
 	int i = -1;
 	multimap<double, PointTrace*> distances;
 	for(auto trace : video->pointTraces) {
@@ -91,14 +87,12 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 			distances.insert(pair<double, PointTrace*>(normalized, trace));
 		}
 	}
+	return distances;
+}
 
+void SceneTraceClassifierProcessor::process(Video* video) {
+	auto distances = getHomographyErrorMap(video);
 	if(distances.size() < 4) return;
-
-	cout << "distance histogram: ";
-	for(auto d : distances) {
-		cout << d.first << ", ";
-	}
-	cout << endl;
 
 	double minDist = (distances.begin()->first);
 	double maxDist = (distances.rbegin()->first);
@@ -161,13 +155,9 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 		if(d.first < valueMax - 3*diff) continue;
 		if(d.first < valueMax + 3*diff) {
 			d.second->type = PointTrace::scene;
-			video->sceneTraces.push_back(d.second);
-			cout <<" scene " << d.first << endl;
 		}
 		else if(d.first > valueMax + 10*diff) {
 			d.second->type = PointTrace::object;
-			video->objectTraces.push_back(d.second);
-			cout << " object " << d.first << endl;
 		}
 	}
 }
