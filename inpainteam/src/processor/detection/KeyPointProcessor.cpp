@@ -62,12 +62,12 @@ void KeyPointProcessor::extractPatchDescriptor(Mat image, Mat &descriptor, Point
 
 }
 
-void KeyPointProcessor::addKeypoint(Frame* frame, Point2f point, Mat descriptor, ExtendedPoint::Detector detector) {
+ExtendedPoint* KeyPointProcessor::addKeypoint(Frame* frame, Point2f point, Mat descriptor, ExtendedPoint::Detector detector) {
 
 	if(descriptor.rows != 0) {
 		ExtendedPoint* neighbor = frame->getNearestKeyPoint(point);
 		if(neighbor != NULL) {
-			if(norm(neighbor->coordinates - point) < 1) return;
+			if(norm(neighbor->coordinates - point) < 1) return NULL;
 		}
 
 		ExtendedPoint *ep = new ExtendedPoint(point, frame);
@@ -75,7 +75,9 @@ void KeyPointProcessor::addKeypoint(Frame* frame, Point2f point, Mat descriptor,
 		ep->descriptor = descriptor;
 		ep->detector = detector;
 		Tools::verticalConcatenateMatrices(frame->rawDescriptors, descriptor, frame->rawDescriptors);
+		return ep;
 	}
+	return NULL;
 }
 
 void addKeypoint(Ptr<DescriptorExtractor> &extractor, Frame* frame, KeyPoint keypoint, ExtendedPoint::Detector detector) {

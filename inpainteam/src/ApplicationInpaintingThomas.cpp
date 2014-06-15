@@ -54,11 +54,12 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
 
     // configure processor pipeline
     /*FlowTraceProcessor flowTraceProcessor;
-video->applyDoubleFrameProcessor(flowTraceProcessor);*/
+    video->applyDoubleFrameProcessor(flowTraceProcessor); //*/
+
     KeyPointProcessor keypoints;
     KeyPointTraceProcessor keypointTrace;
     video->applyFrameProcessor(keypoints);
-    video->applyDoubleFrameProcessor(keypointTrace);
+    video->applyDoubleFrameProcessor(keypointTrace); //*/
 
     player.play();
 
