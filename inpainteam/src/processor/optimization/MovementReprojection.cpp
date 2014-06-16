@@ -73,40 +73,38 @@ void MovementReprojection::processDoubleFrame(Video* video, Frame* frame1, Frame
         }
 
         // Add the current keypoint to the good class
-        double fixRatio = (double)fix/total;
-        double mobileRatio = (double)mobile/total;
+        double fixRatio = (double)fix/(fix+mobile);
+        double mobileRatio = (double)mobile/(fix+mobile);
 
         // (Maybe put a thresh : more than 60% in the other class -> change the value, in the other cases no)
         // make no change if there is less than 5 points selected
-        if (total>4) {
+        if (fix+mobile>4) {
 
             // in order to prevent the borders and coins to change value : thresh is not 0.5 but 0.8
             if (typeKeypoint == PointTrace::scene){
 
-                if (mobileRatio > 0.5) {
+                if (fixRatio < 0.5){
+               // if (mobileRatio > 0.5) {
                     keyPoint->trace->type = PointTrace::object;
                 }
                 else {
                     continue;
                 }
             }
-            if (typeKeypoint == PointTrace::object){
-                if (fixRatio > 0.8) {
+            /*if (typeKeypoint == PointTrace::object){
+                if (fixRatio > 0.95) {
                     keyPoint->trace->type = PointTrace::scene;
 
-                }
-                else {
-                    continue;
-                }
-            }
+
+            }*/
             // in the case the type is unkown, the thresh is 0.6 : add them to a categorie but
             else { // Type == unknown
                 if (mobileRatio>0.6) {
                     keyPoint->trace->type = PointTrace::object;
                 }
-                /** if (fixRatio>0.6) {
+                if (fixRatio>0.6) {
                     keyPoint->trace->type = PointTrace::scene;
-                }*/
+                }
                 else {
                     continue;
                 }

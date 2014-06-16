@@ -114,12 +114,12 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     MovementReprojection movementReprojection;
 //    video->applyVideoProcessor(movementReprojection);
 //    video->applyDoubleFrameProcessor(movementReprojection);
-//    video->applyDoubleFrameProcessorInverse(movementReprojection);
+    video->applyDoubleFrameProcessorInverse(movementReprojection);
 
     //player.play();
 
-    /** ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
-    video->applyFrameProcessor(classKeyPointsWithNeighbor); */
+    ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
+    video->applyFrameProcessor(classKeyPointsWithNeighbor);
 
     HomographyEstimatorProcessor homographyEstimator;
     FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;

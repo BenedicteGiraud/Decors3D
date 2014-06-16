@@ -35,7 +35,7 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	for(auto trace : video->pointTraces) {
 		i++;
 
-		if(trace->points.size() >= 4) {
+        if(trace->points.size() >= 4) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -83,6 +83,9 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 			distances.insert(pair<double, PointTrace*>(normalized, trace));
 		}
+        else {
+            trace->type = PointTrace::unknown;
+        }
 	}
 
 	if(distances.size() < 4) return;
@@ -145,10 +148,10 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	int lineHeight = (int)(ratio * height);
 	line(histogramImage, Point(indexMax,0), Point(indexMax, lineHeight), Scalar(0,255,255));
 
-	string windowName = "scene trace classifier histogram";
+    /*string windowName = "scene trace classifier histogram";
 	namedWindow(windowName, WINDOW_NORMAL);
 	imshow(windowName, histogramImage);
-	waitKey(0);
+    waitKey(0);*/
 
 	for(auto d : distances) {
 		if(d.first < valueMax - 3*diff) continue;
