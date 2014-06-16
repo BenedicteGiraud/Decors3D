@@ -5,10 +5,12 @@
  *      Author: tr
  */
 #include <iostream>
+#include <highgui.h>
 
 #include "entities/Video.h"
 #include "entities/Frame.h"
 #include "processor/FrameProcessor.h"
+#include "visualization/EventListener.h"
 
 #include "AnnotationVideoProvider.h"
 
@@ -77,5 +79,16 @@ void AnnotationVideoProvider::start() {
 void AnnotationVideoProvider::finish() {
 	if(annotator != NULL) {
 		annotator->processEnd(annotationData);
+	}
+}
+
+void AnnotationVideoProvider::mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback *callback) {
+	EventListener* listener = dynamic_cast<EventListener*>(annotator);
+	if(listener != NULL) {
+		listener->mouseEventCallback(event, x, y, flags, callback);
+	}
+	if  ( event == EVENT_LBUTTONDOWN )
+	{
+		cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
 	}
 }

@@ -20,6 +20,8 @@
 #include "entities/ExtendedPoint.h"
 #include "TraceInterpolationProcessor.h"
 
+#include "Tools.h"
+
 using namespace cv;
 using namespace std;
 
@@ -113,8 +115,19 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 			continue;
 		}
 		if(work->center->trace->type == PointTrace::scene) {
-			summedInterpolation.at<Vec<InternType, 3>>(work->row, work->col) += image->at<Vec<ImageType, 3>>(work->row,work->col);
-			count.at<CountType>(work->row, work->col) += 1;
+			Point2f backProj(work->col, work->row);
+			Mat homography;
+			if(video->getHomography(frame, video->frames.front(), homography)) {
+				Point2f newBackProj = Tools::applyHomography(homography, backProj);
+				backProj = newBackProj;
+			}
+			Point backProjInt = backProj;
+
+			if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
+					backProjInt.y < summedInterpolation.rows && backProjInt.x < summedInterpolation.cols) {
+				summedInterpolation.at<Vec<InternType, 3>>(backProjInt) += image->at<Vec<ImageType, 3>>(work->row,work->col);
+				count.at<CountType>(backProjInt) += 1;
+			}
 		}
 
 		// Maybe optimize with several dNeighbor arrays, check before adding to queue

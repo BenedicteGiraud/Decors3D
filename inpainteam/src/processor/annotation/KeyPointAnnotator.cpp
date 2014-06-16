@@ -12,6 +12,7 @@
 #include "entities/Frame.h"
 
 using namespace cv;
+using namespace std;
 
 KeyPointAnnotator::KeyPointAnnotator() {
 

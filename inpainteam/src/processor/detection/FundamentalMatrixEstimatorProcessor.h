@@ -14,10 +14,14 @@ class Video;
 class Frame;
 
 class FundamentalMatrixEstimatorProcessor : public DoubleFrameProcessor {
+private:
+	vector<PointTrace*> traces;
+
 public:
 	FundamentalMatrixEstimatorProcessor();
 	virtual ~FundamentalMatrixEstimatorProcessor();
 
+	virtual void processStart(Video* video, Frame* firstframe);
 	virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
 };
 

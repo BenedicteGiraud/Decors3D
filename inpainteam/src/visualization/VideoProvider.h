@@ -10,6 +10,8 @@
 
 #include <cv.h>
 
+class ProcessorCallback;
+
 class VideoProvider {
 public:
 	VideoProvider();
@@ -22,7 +24,7 @@ public:
 	virtual cv::Mat getImage() = 0;
 	virtual void finish() = 0;
 
-	virtual void mouseEventCallback(int event, int x, int y, int flags);
+	virtual void mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback *callback);
 };
 
 #endif /* VIDEOPROVIDER_H_ */

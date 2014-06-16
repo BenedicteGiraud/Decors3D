@@ -6,6 +6,7 @@
  */
 
 #include <cv.h>
+#include <highgui.h>
 
 #include "TraceAnnotator.h"
 #include "entities/ExtendedPoint.h"
@@ -16,20 +17,51 @@ using namespace cv;
 using namespace std;
 
 TraceAnnotator::TraceAnnotator() {
-
+	this->video = NULL;
+	this->frame = NULL;
 }
 
 TraceAnnotator::~TraceAnnotator() {
 
 }
 
+void TraceAnnotator::processStart(Video* video, Frame* firstframe) {
+	this->video = video;
+}
+
+void TraceAnnotator::printSelectionInformation(Selection &s1, Selection &s2) {
+	ExtendedPoint* point1 = s1.selectedPoint;
+	ExtendedPoint* point2 = s2.selectedPoint;
+
+	if(point1 == NULL && point2 == NULL) return;
+
+	if(point1 != NULL) {
+		cout << "P1: (" << point1->coordinates.x << "," << point1->coordinates.y << ") ";
+	}
+	if(point2 != NULL) {
+		cout << "P2: (" << point2->coordinates.x << "," << point2->coordinates.y << ") ";
+	}
+
+	if(point1 == NULL || point2 == NULL) {
+		cout << endl;
+		return;
+	}
+
+	double distance = norm(point1->coordinates - point2->coordinates);
+	cout << "distance " << distance << " ";
+	double difference = norm(point1->descriptor - point2->descriptor);
+	cout << "descriptor diff " << difference << " ";
+	cout << endl;
+}
+
 void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
+	this->frame = frame;
+	printSelectionInformation(selection1, selection2);
 	vector<ExtendedPoint*> processed;
 	int index = frame->index;
-	cout << "scene " << video->sceneTraces.size() << " object " << video->objectTraces.size() << endl;
 	// draw points of scene traces
 
-	int size = 2;
+	int size = 4;
 	for(auto trace : video->pointTraces) {
 		//if(i++ > 30) break;
 		ExtendedPoint* point = trace->filter(index);
@@ -37,22 +69,27 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, Pr
 			processed.push_back(point);
 			Point p = callback->getOutputImageCoordinates(point->coordinates);
 
+			int thickness = 1;
+			if(selection1.isSelected(point) || selection2.isSelected(point)) {
+				thickness = 2;
+			}
+
 			if(point->trace->type == PointTrace::scene) {
-				circle(*image, p, size*2, trace->color);
+				circle(*image, p, size*2, trace->color, thickness);
 			}
 			else if(point->trace->type == PointTrace::object) {
 				Point p1 = p, p2 = p;
 				p1.x -= size; p1.y -= size;
 				p2.x += size; p2.y += size;
-				rectangle(*image, p1, p2, trace->color);
+				rectangle(*image, p1, p2, trace->color, thickness);
 			}
 			else {
 				Point p1 = p, p2 = p;
 				p1.y += size; p2.y -= size;
-				line(*image, p1, p2, trace->color);
+				line(*image, p1, p2, trace->color, thickness);
 				p1 = p, p2 = p;
 				p1.x += size; p2.x -= size;
-				line(*image, p1, p2, trace->color);
+				line(*image, p1, p2, trace->color, thickness);
 			}
 
 			ExtendedPoint* nextPoint = trace->filter(index+1);
@@ -71,18 +108,43 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, Pr
 	vector<ExtendedPoint*> otherPoints(frame->keypoints.size());
 	auto end = set_difference(frame->keypoints.begin(), frame->keypoints.end(),
 			processed.begin(), processed.end(), otherPoints.begin());
-	cout << "other points " << (end-otherPoints.begin()) << endl;
+
 	for(auto it = otherPoints.begin(); it!=end; it++) {
+		int thickness = 1;
+		if(selection1.isSelected(*it) || selection2.isSelected(*it)) {
+			thickness = 2;
+		}
+
 		Point2f p = callback->getOutputImageCoordinates((*it)->coordinates);
 		Scalar color = Scalar(255,255,255);
 		Point p1 = p, p2 = p;
 		int diff = 1;
 		p1.x -= diff; p1.y -= diff;
 		p2.x += diff; p2.y += diff;
-		line(*image, p1, p2, color);
+		line(*image, p1, p2, color, thickness);
 		p1 = p, p2 = p;
 		p1.x += diff; p1.y -= diff;
 		p2.x -= diff; p2.y += diff;
-		line(*image, p1, p2, color);
+		line(*image, p1, p2, color, thickness);
+	}
+}
+
+void TraceAnnotator::mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback* callback) {
+	if(frame == NULL) return;
+	if (event == EVENT_LBUTTONDOWN) {
+		Point2f point = callback->getInputImageCoordinates(Point2f(x,y));
+		ExtendedPoint *minPoint = frame->getNearestKeyPoint(point);
+		if(minPoint != NULL) {
+			selection1 = Selection(minPoint);
+			callback->refreshGui();
+		}
+	}
+	else if(event == EVENT_RBUTTONDOWN) {
+		Point2f point = callback->getInputImageCoordinates(Point2f(x,y));
+		ExtendedPoint *minPoint = frame->getNearestKeyPoint(point);
+		if(minPoint != NULL) {
+			selection2 = Selection(minPoint);
+			callback->refreshGui();
+		}
 	}
 }

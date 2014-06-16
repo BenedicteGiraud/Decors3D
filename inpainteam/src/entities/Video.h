@@ -4,6 +4,7 @@
 #include <vector>
 #include "entities/PointTrace.h"
 #include "visualization/VideoPlayer.h"
+#include <map>
 
 class VideoPlayer;
 class VideoProcessor;
@@ -20,6 +21,9 @@ private:
 public:
 	std::vector<Frame*> frames;
 	std::vector<PointTrace*> pointTraces;
+
+	std::map<PointTrace::Type, int> getPointTraceCount();
+	std::vector<PointTrace*> filterPointTraces(PointTrace::Type type);
 
 	std::vector<PointTrace*> sceneTraces;
 	std::vector<PointTrace*> objectTraces;

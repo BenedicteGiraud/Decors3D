@@ -25,21 +25,21 @@ HomographyEstimatorProcessor::~HomographyEstimatorProcessor() {
 
 }
 
-void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
-
-	vector<PointTrace*>* traces;
-
-	if(video->sceneTraces.size() < 10) {
-		traces = (&video->pointTraces);
+void HomographyEstimatorProcessor::processStart(Video *video, Frame* firstframe) {
+	if(video->getPointTraceCount().find(PointTrace::scene)->second < 10) {
+		traces = video->pointTraces;
 	}
 	else {
-		traces = (&video->sceneTraces);
+		traces = video->filterPointTraces(PointTrace::scene);
 	}
+}
+
+void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 
 	vector<Point2f> points1;
 	vector<Point2f> points2;
 
-	for(PointTrace* trace : *traces) {
+	for(PointTrace* trace : traces) {
 		ExtendedPoint* ep1 = trace->filter(frame1);
 		ExtendedPoint* ep2 = trace->filter(frame2);
 
@@ -69,15 +69,9 @@ void HomographyEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame
 		}
 	}
 	else {
-		cout << "Estimating homography with "
-				<< points1.size() << " and " << points2.size() << " points"
-				<< " in " << traces->size() << " traces " << endl;
 		Mat homography = findHomography(points1, points2, CV_RANSAC, 1);
 		frame2->homographyToLastFrame = homography;
 	}
 	frame2->homographyToBeginning = Tools::concatenateHomography(homographyToBeginning, frame2->homographyToLastFrame);
 
-	cout << "frame " << frame2->index << " homographies:" << cout;
-	cout <<" last: " << frame2->homographyToLastFrame << endl;
-	cout << " beginning: " << frame2->homographyToBeginning << endl;
 }

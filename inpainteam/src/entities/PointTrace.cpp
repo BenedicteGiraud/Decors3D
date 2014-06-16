@@ -38,6 +38,9 @@ ExtendedPoint* PointTrace::filter(int index) {
 }
 
 ExtendedPoint* PointTrace::filter(Frame* frame) {
+	if(frame == NULL) {
+		return NULL;
+	}
 	return filter(frame->index);
 }
 

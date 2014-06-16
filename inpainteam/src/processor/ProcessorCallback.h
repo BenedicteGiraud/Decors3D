@@ -22,6 +22,8 @@ public:
 
 	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
 	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
+
+	virtual void refreshGui();
 };
 
 #endif /* PROCESSORCALLBACK_H_ */

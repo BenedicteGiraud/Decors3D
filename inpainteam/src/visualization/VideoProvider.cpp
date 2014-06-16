@@ -20,11 +20,9 @@ VideoProvider::~VideoProvider() {
 
 }
 
-void VideoProvider::mouseEventCallback(int event, int x, int y, int flags) {
+void VideoProvider::mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback *callback) {
 	if  ( event == EVENT_LBUTTONDOWN )
 	{
 		cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
-		//Point2f point(x, y);
-		//cout << "original position: " << provider->getInputImageCoordinates(point) << endl;
 	}
 }

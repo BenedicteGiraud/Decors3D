@@ -30,71 +30,22 @@
 #include "processor/reconstruction/TraceInterpolationProcessor.h"
 
 
-#include "ApplicationInpainting.h"
+#include "ApplicationInpaintingThomas.h"
 
 using namespace std;
 using namespace cv;
 
-ApplicationInpainting::ApplicationInpainting()
+ApplicationInpaintingThomas::ApplicationInpaintingThomas()
 {
 }
 
-/**
- * @brief getResizeProcessor
- * If height < 300 : give 300 to the minimal dimension and resize the sequence with this height
- * @param video
- * @return
- */
-FrameProcessor* getResizeProcessor(Video *video) {
-    int size = max(video->frames.front()->image.cols, video->frames.front()->image.rows);
-    int destinationSize = 600;
-    if(size < destinationSize) {
-        return new ResizeAnnotator(((double)destinationSize)/size);
-    }
-    return NULL;
-}
+extern FrameProcessor* getResizeProcessor(Video *video);
+extern FrameProcessor* getAnnotationProcessor(Video *video);
+extern void annotateToFile(Video* video, FrameProcessor* processor, string filename);
 
-/**
- * @brief getAnnotationProcessor
- * Add informations (circle, rectangles) to the frame
- * @param video
- * @return
- */
-FrameProcessor* getAnnotationProcessor(Video *video) {
-    PipelineProcessor* pipeline = new PipelineProcessor();
-    FrameProcessor *resize = getResizeProcessor(video);
-    pipeline->add(resize);
-    pipeline->add(new TraceAnnotator());
-    pipeline->add(new HomographyAnnotator());
-    return pipeline;
-}
-
-/**
- * @brief annotateToFile
- * Save the file frame + informations of the pipeline
- * @param video
- * @param processor
- * @param filename
- */
-void annotateToFile(Video* video, FrameProcessor* processor, string filename) {
-    Video annotatedOutput;
-    PipelineProcessor outputPipeline;
-    outputPipeline.add(processor);
-    OutputProcessor outputProcessor;
-    outputProcessor.setOutput(&annotatedOutput);
-    outputPipeline.add(&outputProcessor);
-
-    video->applyFrameProcessor(outputPipeline);
-
-    annotatedOutput.write(filename, 5);
-}
-
-
-
-void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory){
+void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDirectory){
     // configure video player
     VideoPlayer player = video->getPlayer();
-
     FrameProcessor* annotationProcessor = getAnnotationProcessor(video);
     AnnotationVideoProvider annotationProvider(video, annotationProcessor);
     player.setVideoProvider(&annotationProvider);
@@ -103,28 +54,28 @@ void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory)
 
     // configure processor pipeline
     /*FlowTraceProcessor flowTraceProcessor;
-video->applyDoubleFrameProcessor(flowTraceProcessor);*/
+    video->applyDoubleFrameProcessor(flowTraceProcessor); //*/
+
     KeyPointProcessor keypoints;
     KeyPointTraceProcessor keypointTrace;
     video->applyFrameProcessor(keypoints);
-    video->applyDoubleFrameProcessor(keypointTrace);
+    video->applyDoubleFrameProcessor(keypointTrace); //*/
+
+    player.play();
 
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
-    video->applyVideoProcessor(sceneTraceClassifierProcessor);
-    MovementReprojection movementReprojection;
-//    video->applyVideoProcessor(movementReprojection);
-//    video->applyDoubleFrameProcessor(movementReprojection);
-    video->applyDoubleFrameProcessorInverse(movementReprojection);
+    //MovementReprojection movementReprojection;
+    //video->applyVideoProcessor(movementReprojection);
 
     //player.play();
 
-    ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
-    video->applyFrameProcessor(classKeyPointsWithNeighbor);
-
+    /*ClassKeyPointsWithNeighbor classKeyPointsWithNeighbor;
+    video->applyFrameProcessor(classKeyPointsWithNeighbor);*/
+    
     HomographyEstimatorProcessor homographyEstimator;
     FundamentalMatrixEstimatorProcessor fundamentalMatEstimator;
 
-    for(int i=0; i<2; i++) {
+    for(int i=0; i<1; i++) {
 		video->applyDoubleFrameProcessor(homographyEstimator);
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
 		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
@@ -132,7 +83,7 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     }
     
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
-    //player.play();
+    player.play();
 
     TraceInterpolationProcessor tip;
     video->applyFrameProcessor(tip);
@@ -157,7 +108,7 @@ video->applyDoubleFrameProcessor(flowTraceProcessor);*/
     //inpPlayer.playWithAnnotationData(video);
 
     // write to file
-    annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
+    /*annotateToFile(video, annotationProcessor, outputDirectory + "/annotatedvideo->avi");
     annotateToFile(inp, annotationProcessor, outputDirectory + "/annotatedInpainting.avi");
-    inp->write(outputDirectory + "/inpainting.avi", 5);
+    inp->write(outputDirectory + "/inpainting.avi", 5); //*/
 }

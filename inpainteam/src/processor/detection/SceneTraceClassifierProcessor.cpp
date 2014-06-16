@@ -25,17 +25,13 @@ SceneTraceClassifierProcessor::~SceneTraceClassifierProcessor() {
 
 }
 
-void SceneTraceClassifierProcessor::process(Video* video) {
-
-	video->sceneTraces.clear();
-	video->objectTraces.clear();
-
+multimap<double, PointTrace*> getHomographyErrorMap(Video* video) {
 	int i = -1;
 	multimap<double, PointTrace*> distances;
 	for(auto trace : video->pointTraces) {
 		i++;
 
-        if(trace->points.size() >= 4) {
+		if(trace->points.size() >= 4) {
 			//if(i > 30) break;
 			double distance = 0;
 			double threshold;
@@ -60,6 +56,9 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 
 						Mat mul = p1.t() * fundamental;
 						mul *= p2;
+						if(std::isnan(distance) || std::isnan(norm(mul))) {
+							cout << "Warning: SceneTraceClassifier got NaN value " << endl;
+						}
 						distance += norm(mul);
 					}
 					else {
@@ -72,6 +71,10 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 							destPoint = last->coordinates;
 						}
 						double n = norm(destPoint - point.second->coordinates);
+
+						if(std::isnan(distance) || std::isnan(n)) {
+							cout << "Warning: SceneTraceClassifier got NaN value " << endl;
+						}
 						distance += n*n;
 					}
 				}
@@ -87,14 +90,12 @@ void SceneTraceClassifierProcessor::process(Video* video) {
             trace->type = PointTrace::unknown;
         }
 	}
+	return distances;
+}
 
+void SceneTraceClassifierProcessor::process(Video* video) {
+	auto distances = getHomographyErrorMap(video);
 	if(distances.size() < 4) return;
-
-	cout << "distance histogram: ";
-	for(auto d : distances) {
-		cout << d.first << ", ";
-	}
-	cout << endl;
 
 	double minDist = (distances.begin()->first);
 	double maxDist = (distances.rbegin()->first);
@@ -148,22 +149,18 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	int lineHeight = (int)(ratio * height);
 	line(histogramImage, Point(indexMax,0), Point(indexMax, lineHeight), Scalar(0,255,255));
 
-    /*string windowName = "scene trace classifier histogram";
+	/*string windowName = "scene trace classifier histogram";
 	namedWindow(windowName, WINDOW_NORMAL);
 	imshow(windowName, histogramImage);
-    waitKey(0);*/
+	waitKey(0);*/
 
 	for(auto d : distances) {
 		if(d.first < valueMax - 3*diff) continue;
 		if(d.first < valueMax + 3*diff) {
 			d.second->type = PointTrace::scene;
-			video->sceneTraces.push_back(d.second);
-			cout <<" scene " << d.first << endl;
 		}
 		else if(d.first > valueMax + 10*diff) {
 			d.second->type = PointTrace::object;
-			video->objectTraces.push_back(d.second);
-			cout << " object " << d.first << endl;
 		}
 	}
 }

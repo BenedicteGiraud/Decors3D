@@ -11,14 +11,17 @@
 #include <vector>
 
 #include "processor/FrameProcessor.h"
+#include "visualization/EventListener.h"
 
 using namespace std;
 
-class PipelineProcessor : public FrameProcessor {
+class PipelineProcessorCallback;
+
+class PipelineProcessor : public FrameProcessor, public EventListener {
 private:
 	double factor;
 	vector<FrameProcessor*> annotators;
-	vector<ProcessorCallback*> callbacks;
+	vector<PipelineProcessorCallback*> callbacks;
 
 public:
 	PipelineProcessor();
@@ -33,6 +36,8 @@ public:
 
 	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
 	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
+
+	virtual void mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback* callback);
 };
 
 class PipelineProcessorCallback : public ProcessorCallback {
@@ -40,10 +45,13 @@ private:
 	friend PipelineProcessor;
 	ProcessorCallback* preceedingProcessorCallback;
 	ProcessorCallback* callback;
+	bool refreshGuiCalled = false;
 
 public:
 	virtual cv::Point2f getOutputImageCoordinates(cv::Point2f inputCoordinates);
 	virtual cv::Point2f getInputImageCoordinates(cv::Point2f outputCoordinates);
+
+	virtual void refreshGui();
 };
 
 #endif /* PipelineProcessor_H_ */

@@ -25,20 +25,20 @@ FundamentalMatrixEstimatorProcessor::~FundamentalMatrixEstimatorProcessor() {
 
 }
 
-void FundamentalMatrixEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
-	vector<PointTrace*>* traces;
-
-	if(video->sceneTraces.size() < 10) {
-		traces = (&video->pointTraces);
+void FundamentalMatrixEstimatorProcessor::processStart(Video *video, Frame* firstframe) {
+	if(video->getPointTraceCount().find(PointTrace::scene)->second < 10) {
+		traces = video->pointTraces;
 	}
 	else {
-		traces = (&video->sceneTraces);
+		traces = video->filterPointTraces(PointTrace::scene);
 	}
+}
 
+void FundamentalMatrixEstimatorProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 	vector<Point2f> points1;
 	vector<Point2f> points2;
 
-	for(PointTrace* trace : *traces) {
+	for(PointTrace* trace : traces) {
 		ExtendedPoint* ep1 = trace->filter(frame1);
 		ExtendedPoint* ep2 = trace->filter(frame2);
 
@@ -58,16 +58,12 @@ void FundamentalMatrixEstimatorProcessor::processDoubleFrame(Video* video, Frame
 	cout << "fundamental matrix type " << fundamentalMat.type() << endl;
 
 	// Reclassify
-	video->sceneTraces.clear();
-	video->objectTraces.clear();
 	for(int i=0; i<classification.size(); i++) {
 		if(classification[i] == 1) {
 			video->pointTraces[i]->type = PointTrace::scene;
-			video->sceneTraces.push_back(video->pointTraces[i]);
 		}
 		else {
 			video->pointTraces[i]->type = PointTrace::object;
-			video->objectTraces.push_back(video->pointTraces[i]);
 		}
 	}
 }

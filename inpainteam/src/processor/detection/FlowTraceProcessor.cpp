@@ -37,36 +37,6 @@ void extractDescriptorSURF(Frame* frame, Point2f pt, int delta, Mat &descriptor)
 	extractor.compute(frame->image, keypoints, descriptor);
 }
 
-/*void extractDescriptorPixel(Frame* frame, Point2f pt, int delta, Mat &descriptor) {
-	// TODO border treatment
-	Point_<int> p(pt.x, pt.y);
-	int channels = frame->image.channels();
-
-	if(p.x-delta < 0 || p.y-delta < 0 ||
-			p.x+delta >= frame->image.cols || p.y+delta >= frame->image.rows) {
-		return;
-	}
-
-	/*Mat result(1, (2*delta+1)*(2*delta+1), frame->image.type());
-
-	int colResult = 0;
-	for(int col=(p.x-delta)*channels; col<(p.x+delta)*channels; col++) {
-		int rowResult = 0;
-		for(int row=p.y-delta; row<p.y+delta; row++) {
-			*result.ptr(rowResult, colResult) = *frame->image.ptr(row, col);
-			rowResult++;
-		}
-		colResult++;
-	}
-
-	descriptor = result;*/
-/*	int x = p.x-delta, y = p.y-delta, width = 2*delta+1, height = width;
-	Mat c = frame->image(Rect(x,y,width,height));
-
-	c = c.clone();
-	descriptor = c.reshape(0, 1);
-}*/
-
 void extractDescriptors(Frame* frame,
 		vector<Point2f> grid, Mat &descriptors,
 		vector<unsigned char> &status, int delta) {
@@ -282,7 +252,9 @@ void FlowTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* 
 			frame1->image, frame2->image, // images
 			grid1, grid2, // initial points and estimation
 			status, // whether flow is valid for each point
-			err); // indicates quality of each point?
+			err, // indicates quality of each point?
+			Size(10,10), // window size
+			2); // max level
 
 	// TODO: filter with err
 	for(int i=0; i<status.size(); i++) {

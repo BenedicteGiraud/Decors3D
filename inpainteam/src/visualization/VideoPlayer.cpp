@@ -21,6 +21,10 @@
 using namespace std;
 using namespace cv;
 
+void VideoPlayerProcessorCallback::refreshGui() {
+	player->refresh();
+}
+
 VideoPlayer::VideoPlayer() {
 	framesPerSecond = 24;
 	provider = NULL;
@@ -49,10 +53,20 @@ void VideoPlayer::setOutputDirectory(string outputDirectory) {
 }
 
 void mouseCallbackFunction(int event, int x, int y, int flags, void* userdata) {
-	((VideoProvider*)userdata)->mouseEventCallback(event, x, y, flags);
+	if(userdata == NULL) return;
+	VideoPlayer* player = (VideoPlayer*)userdata;
+	player->mouseEvent(event, x, y, flags);
+}
+
+void VideoPlayer::mouseEvent(int event, int x, int y, int flags) {
+	provider->mouseEventCallback(event, x, y, flags, &callback);
 }
 
 int outputIndex;
+
+void VideoPlayer::refresh() {
+	imshow("Video" , provider->getImage());
+}
 
 /**
  * Plays the video until the user presses a key, with specified frame rate
@@ -68,10 +82,10 @@ void VideoPlayer::play() {
 	provider->start();
 	string windowName = "Video";
 	namedWindow(windowName, WINDOW_NORMAL);
-	setMouseCallback(windowName, mouseCallbackFunction, provider);
+	setMouseCallback(windowName, mouseCallbackFunction, this);
 
 	while(true) {
-		imshow("Video" , provider->getImage());
+		refresh();
 
 		int key;
 		if(pause) {

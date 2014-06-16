@@ -2,6 +2,7 @@
 
 #include "entities/Video.h"
 #include "ApplicationInpainting.h"
+#include "ApplicationInpaintingThomas.h"
 #include "Segmentation.h"
 
 using namespace std;
@@ -26,9 +27,6 @@ using namespace cv;
  * - comments
  * - move processor classes to subfolders (except interfaces)
  */
-
-// nouvelle fonction main : prendre la video et en faire qqch
-// mettre ce qui traine dans ApplicationInpaiting
 
 
 /**

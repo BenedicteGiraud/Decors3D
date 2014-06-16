@@ -39,7 +39,7 @@ public:
 	Frame(cv::Mat image, Video* video, int index);
 	virtual ~Frame();
 
-	void detectKeyPoints();
+	ExtendedPoint* getNearestKeyPoint(cv::Point2f point);
 };
 
 #endif /* FRAME_H_ */
