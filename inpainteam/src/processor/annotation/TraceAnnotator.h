@@ -36,6 +36,7 @@ private:
 	Frame* frame;
 	Selection selection1 = Selection(NULL);
 	Selection selection2 = Selection(NULL);
+    Point2f point;
 
 public:
 	TraceAnnotator();

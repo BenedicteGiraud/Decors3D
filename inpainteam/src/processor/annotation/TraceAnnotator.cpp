@@ -12,6 +12,7 @@
 #include "entities/ExtendedPoint.h"
 #include "entities/Video.h"
 #include "entities/Frame.h"
+#include "processor/detection/KeyPointProcessor.h"
 
 using namespace cv;
 using namespace std;
@@ -49,7 +50,7 @@ void TraceAnnotator::printSelectionInformation(Selection &s1, Selection &s2) {
 
 	double distance = norm(point1->coordinates - point2->coordinates);
 	cout << "distance " << distance << " ";
-	double difference = norm(point1->descriptor - point2->descriptor);
+    double difference = KeyPointProcessor::descriptorDistance(point1->descriptor, point2->descriptor);
 	cout << "descriptor diff " << difference << " ";
 	cout << endl;
 }
@@ -132,18 +133,29 @@ void TraceAnnotator::processFrame(Video* video, Frame* frame, cv::Mat* image, Pr
 void TraceAnnotator::mouseEventCallback(int event, int x, int y, int flags, ProcessorCallback* callback) {
 	if(frame == NULL) return;
 	if (event == EVENT_LBUTTONDOWN) {
-		Point2f point = callback->getInputImageCoordinates(Point2f(x,y));
-		ExtendedPoint *minPoint = frame->getNearestKeyPoint(point);
-		if(minPoint != NULL) {
-			selection1 = Selection(minPoint);
+        point = callback->getInputImageCoordinates(Point2f(x,y));
+        ExtendedPoint *ep = //frame->getNearestKeyPoint(point);
+        // TODO: memory leak
+        new ExtendedPoint(point, NULL);
+        if(ep != NULL) {
+            Mat desc;
+            KeyPointProcessor::extractPatchDescriptor(frame->image, desc, point);
+            ep->descriptor = desc;
+            selection1 = Selection(ep);
 			callback->refreshGui();
 		}
+
 	}
 	else if(event == EVENT_RBUTTONDOWN) {
 		Point2f point = callback->getInputImageCoordinates(Point2f(x,y));
-		ExtendedPoint *minPoint = frame->getNearestKeyPoint(point);
-		if(minPoint != NULL) {
-			selection2 = Selection(minPoint);
+        ExtendedPoint *ep = //frame->getNearestKeyPoint(point);
+        // TODO: memory leak
+        new ExtendedPoint(point, NULL);
+        if(ep != NULL) {
+            Mat desc;
+            KeyPointProcessor::extractPatchDescriptor(frame->image, desc, point);
+            ep->descriptor = desc;
+            selection2 = Selection(ep);
 			callback->refreshGui();
 		}
 	}

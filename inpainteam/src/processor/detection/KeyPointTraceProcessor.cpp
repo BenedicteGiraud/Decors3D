@@ -136,11 +136,14 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 }
 
 void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double maxDescriptorDistance) {
-	Mat homography;
-	if(!video->getHomography(frame1, frame2, homography)) {
+    cout<< "method unmatched traces is called" << endl;
+    Mat homography;
+    /*if(!video->getHomography(frame1, frame2, homography)) {
+        cout<< " je suis la !" << endl;
 		return;
 	}
 
+    cout<< " le if est passe" << endl; */
 	// TODO: add optical flow algorithm to adapt projected points
 	for(ExtendedPoint *point : frame1->keypoints) {
 		if(point->trace == NULL) continue;
@@ -152,6 +155,7 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
 
 		double distance = getCombinedDistance(0, point->descriptor, desc);
 		if(distance < maxDescriptorDistance) {
+            cout <<"dist = " << distance <<"  *** maxDist = " << maxDescriptorDistance << endl;
 			ExtendedPoint* ep = KeyPointProcessor::addKeypoint(frame2, projPoint, desc, ExtendedPoint::projected);
 			if(ep != NULL) {
 				point->trace->addOrReplacePoint(ep);
@@ -167,5 +171,5 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 	if(frame1->rawDescriptors.rows == 0 || frame2->rawDescriptors.rows == 0) return;
 
 	double maxDescriptorDistance = matchPoints(video, frame1, frame2);
-	continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance);
+    continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance*20);
 }

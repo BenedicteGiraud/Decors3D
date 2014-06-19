@@ -29,14 +29,16 @@ KeyPointProcessor::~KeyPointProcessor() {
 }
 
 double KeyPointProcessor::descriptorDistance(cv::Mat desc1, cv::Mat desc2) {
-	double scale = (double)1/desc1.cols*desc1.channels();
-	return scale*norm(desc1-desc2);
+    double normalisationFactor = (double)1/(desc1.cols*desc1.channels()*256); // to give a result between 0 and 1
+    return normalisationFactor*norm(desc1-desc2);
 }
 
 Ptr<DescriptorExtractor> getExtractor() {
 	return DescriptorExtractor::create("SIFT");
 }
 
+// give the descriptor of the coordinates
+// scale : factor between 0 and infini : give te scale of the descriptor
 void KeyPointProcessor::extractPatchDescriptor(Mat image, Mat &descriptor, Point2f point, int halfSideLength, float scale) {
 
 	/*int halfSideLength = 5;
@@ -50,10 +52,10 @@ void KeyPointProcessor::extractPatchDescriptor(Mat image, Mat &descriptor, Point
 	int size = halfSideLength * 2 + 1;
 	descriptor = Mat(1, size*size*image.channels(), CV_8U);
 	int i=0;
-	for(int row=-halfSideLength; row<=halfSideLength; row++) {
-		for(int col=-halfSideLength; col<=halfSideLength; col++) {
-			int imageRow = borderInterpolate(point.y+scale*row, image.rows, BORDER_REPLICATE);
-			int imageCol = borderInterpolate(point.x+scale*col, image.cols, BORDER_REPLICATE);
+    for(int deltaRow=-halfSideLength; deltaRow<=halfSideLength; deltaRow++) {
+        for(int deltaCol=-halfSideLength; deltaCol<=halfSideLength; deltaCol++) {
+            int imageRow = borderInterpolate(point.y+scale*deltaRow, image.rows, BORDER_REPLICATE);
+            int imageCol = borderInterpolate(point.x+scale*deltaCol, image.cols, BORDER_REPLICATE);
 			descriptor.at<Vec<uchar, 3>>(0, i) =
 					image.at<Vec<uchar,3>>(imageRow, imageCol);
 			i++;
