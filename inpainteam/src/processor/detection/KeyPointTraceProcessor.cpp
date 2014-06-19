@@ -32,7 +32,7 @@ KeyPointTraceProcessor::~KeyPointTraceProcessor() {
 inline double getCombinedDistance(double normedSpatialDistance, Mat desc1, Mat desc2) {
 	double descriptorDifference = KeyPointProcessor::descriptorDistance(desc1, desc2);
 	//cout << "(" << point1 << "," << point2.second << endl;
-	return (20*(double)normedSpatialDistance)+(descriptorDifference);
+	return (0.5*(double)normedSpatialDistance)+(descriptorDifference);
 }
 
 bool checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
@@ -63,7 +63,6 @@ void matchPointsBF(Frame*  frame1, Frame* frame2) {
 }
 
 double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
-	cout << endl << " matching points " << endl;
 	int searchDistance = min(frame1->image.rows, frame2->image.rows) / 5;
 	double maxDescriptorDifference = DBL_MAX; //.55;
 	bool createNewPoints = false;
@@ -99,7 +98,6 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 		}
 	}
 
-	cout << "queue" << endl;
 	int countProcessed = 0;
 	int countAdded = 0;
 	double quantilDistance = DBL_MAX;
@@ -110,13 +108,12 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 		if(element.second.second->trace == NULL) {
 			//cout << "adding " << element.second.first << "," << element.second.second << endl;
 			if(checkAndAddToTrace(element.second.first, element.second.second)) {
-				countAdded++;
 				Mat desc1 = element.second.first->descriptor;
 				Mat desc2 = element.second.second->descriptor;
 				double distance = KeyPointProcessor::descriptorDistance(desc1, desc2);
-				if(distance > sumDescriptorDistance) {
-					sumDescriptorDistance = distance;
-				}
+
+				sumDescriptorDistance += distance;
+				countAdded++;
 			}
 		}
 		countProcessed++;
@@ -134,6 +131,8 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 	}
 	return sumDescriptorDistance / countAdded;
 }
+
+
 
 void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double maxDescriptorDistance) {
     cout<< "method unmatched traces is called" << endl;
@@ -154,8 +153,10 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
 		KeyPointProcessor::extractPatchDescriptor(frame2->image, desc, projPoint);
 
 		double distance = getCombinedDistance(0, point->descriptor, desc);
+
+		cout << "continueUnmatchedTraces: desc dist " << distance << " max " << maxDescriptorDistance << endl;
 		if(distance < maxDescriptorDistance) {
-            cout <<"dist = " << distance <<"  *** maxDist = " << maxDescriptorDistance << endl;
+			cout << "trying to add point " << projPoint << endl;
 			ExtendedPoint* ep = KeyPointProcessor::addKeypoint(frame2, projPoint, desc, ExtendedPoint::projected);
 			if(ep != NULL) {
 				point->trace->addOrReplacePoint(ep);
@@ -164,6 +165,22 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
 	}
 }
 
+void cleanupTraces(Video* video) {
+	auto itTrace = video->pointTraces.begin();
+	for(; itTrace != video->pointTraces.end(); itTrace++) {
+		auto it = (*itTrace)->points.begin();
+		for(; it!=(*itTrace)->points.end(); it++) {
+			if(it->second->trace != (*itTrace)) {
+				(*itTrace)->points.erase(it);
+			}
+		}
+		if((*itTrace)->points.size() == 0) {
+			video->pointTraces.erase(itTrace);
+		}
+	}
+}
+
+
 void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 	int searchDistance = 10;
 	// calculate matches between frame
@@ -171,5 +188,7 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 	if(frame1->rawDescriptors.rows == 0 || frame2->rawDescriptors.rows == 0) return;
 
 	double maxDescriptorDistance = matchPoints(video, frame1, frame2);
-    continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance*20);
+	continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance/200);
+
+	cleanupTraces(video);
 }
