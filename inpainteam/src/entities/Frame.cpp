@@ -7,8 +7,9 @@
 
 #include "entities/Frame.h"
 
-using namespace cv;
 #include <cv.h>
+using namespace cv;
+using namespace std;
 
 Frame::Frame(Mat image, Video* video, int index) {
 	this->image = image;
@@ -30,4 +31,15 @@ ExtendedPoint* Frame::getNearestKeyPoint(Point2f point) {
 		}
 	}
 	return minPoint;
+}
+
+multimap<double, ExtendedPoint*> Frame::getNearestKeyPoints(Point2f point, double maxDistance) {
+	multimap<double, ExtendedPoint*> result;
+	for(ExtendedPoint* keypoint : keypoints) {
+		double distance = norm(keypoint->coordinates - point);
+		if(distance < maxDistance) {
+			result.insert(pair<double, ExtendedPoint*>(distance, keypoint));
+		}
+	}
+	return result;
 }

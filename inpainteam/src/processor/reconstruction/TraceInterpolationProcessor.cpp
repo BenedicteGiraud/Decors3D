@@ -46,8 +46,7 @@ void TraceInterpolationProcessor::processStart(Video *video) {
 	debugVideo = new Video();
 }
 
-char dNeighbor[8][2] = {{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}};
-
+extern char dNeighbor[8][2];
 
 struct WorkingItem {
 	static int nextid;

@@ -77,9 +77,6 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 	// fill up working list
 	queue<WorkingItem*> workingitems;
 	WorkingItem::nextid = 0;
-	PixelInformationType init;
-	vector<DistanceType> initVec;
-	init.done = false;
 	vector<PixelInformationType> infoMat;
 	int infoCols = image->cols;
 	for(int row=0; row<image->rows; row++) {

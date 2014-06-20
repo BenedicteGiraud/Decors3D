@@ -8,6 +8,7 @@
 #ifndef FRAME_H_
 #define FRAME_H_
 
+#include <map>
 #include <cv.h>
 
 #include "entities/ExtendedPoint.h"
@@ -40,6 +41,7 @@ public:
 	virtual ~Frame();
 
 	ExtendedPoint* getNearestKeyPoint(cv::Point2f point);
+	std::multimap<double, ExtendedPoint*> getNearestKeyPoints(cv::Point2f point, double maxDistance);
 };
 
 #endif /* FRAME_H_ */
