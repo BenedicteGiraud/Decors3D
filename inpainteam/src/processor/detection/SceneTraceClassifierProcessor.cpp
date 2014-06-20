@@ -82,8 +82,6 @@ multimap<double, PointTrace*> getHomographyErrorMap(Video* video) {
 			}
 
 			double normalized = distance/ trace->points.size();
-			cout << "distance A " << normalized << endl;
-
 			distances.insert(pair<double, PointTrace*>(normalized, trace));
 		}
         else {

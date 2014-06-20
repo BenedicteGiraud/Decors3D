@@ -94,6 +94,9 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 	}
 
 	cout << "dbg B frame " << frame->index << endl;
+
+	Mat homography;
+	bool useHomography = video->getHomography(frame, video->frames.front(), homography);
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
@@ -116,8 +119,7 @@ void TraceInterpolationProcessor::processFrame(Video* video, Frame* frame, cv::M
 		}
 		if(work->center->trace->type == PointTrace::scene) {
 			Point2f backProj(work->col, work->row);
-			Mat homography;
-			if(video->getHomography(frame, video->frames.front(), homography)) {
+			if(useHomography) {
 				Point2f newBackProj = Tools::applyHomography(homography, backProj);
 				backProj = newBackProj;
 			}

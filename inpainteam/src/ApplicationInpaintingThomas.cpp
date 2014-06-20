@@ -61,7 +61,7 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     video->applyFrameProcessor(keypoints);
     video->applyDoubleFrameProcessor(keypointTrace); //*/
 
-    player.play();
+    //player.play();
 
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
     //MovementReprojection movementReprojection;
@@ -77,6 +77,7 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
 
     for(int i=0; i<1; i++) {
 		video->applyDoubleFrameProcessor(homographyEstimator);
+		video->applyDoubleFrameProcessor(keypointTrace);
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
 		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
 		//video->applyVideoProcessor(sceneTraceClassifierProcessor);

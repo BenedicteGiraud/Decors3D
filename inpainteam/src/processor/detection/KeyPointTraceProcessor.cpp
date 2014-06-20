@@ -32,7 +32,7 @@ KeyPointTraceProcessor::~KeyPointTraceProcessor() {
 inline double getCombinedDistance(double normedSpatialDistance, Mat desc1, Mat desc2) {
 	double descriptorDifference = KeyPointProcessor::descriptorDistance(desc1, desc2);
 	//cout << "(" << point1 << "," << point2.second << endl;
-	return (20*(double)normedSpatialDistance)+(descriptorDifference);
+	return (0.5*(double)normedSpatialDistance)+(descriptorDifference);
 }
 
 bool KeyPointTraceProcessor::checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
@@ -109,14 +109,13 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 
 		if(element.second.second->trace == NULL) {
 			//cout << "adding " << element.second.first << "," << element.second.second << endl;
-            if(KeyPointTraceProcessor::checkAndAddToTrace(element.second.first, element.second.second)) {
-				countAdded++;
+			if(KeyPointTraceProcessor::checkAndAddToTrace(element.second.first, element.second.second)) {
 				Mat desc1 = element.second.first->descriptor;
 				Mat desc2 = element.second.second->descriptor;
 				double distance = KeyPointProcessor::descriptorDistance(desc1, desc2);
-				if(distance > sumDescriptorDistance) {
-					sumDescriptorDistance = distance;
-				}
+
+				sumDescriptorDistance += distance;
+				countAdded++;
 			}
 		}
 		countProcessed++;
@@ -164,6 +163,22 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
 	}
 }
 
+void cleanupTraces(Video* video) {
+	auto itTrace = video->pointTraces.begin();
+	for(; itTrace != video->pointTraces.end(); itTrace++) {
+		auto it = (*itTrace)->points.begin();
+		for(; it!=(*itTrace)->points.end(); it++) {
+			if(it->second->trace != (*itTrace)) {
+				(*itTrace)->points.erase(it);
+			}
+		}
+		if((*itTrace)->points.size() == 0) {
+			video->pointTraces.erase(itTrace);
+		}
+	}
+}
+
+
 void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2) {
 	int searchDistance = 10;
 	// calculate matches between frame
@@ -171,5 +186,7 @@ void KeyPointTraceProcessor::processDoubleFrame(Video* video, Frame* frame1, Fra
 	if(frame1->rawDescriptors.rows == 0 || frame2->rawDescriptors.rows == 0) return;
 
 	double maxDescriptorDistance = matchPoints(video, frame1, frame2);
-    continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance*20);
+	continueUnmatchedTraces(video, frame1, frame2, maxDescriptorDistance/200);
+
+	cleanupTraces(video);
 }

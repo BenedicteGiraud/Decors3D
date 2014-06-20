@@ -50,7 +50,9 @@ void TraceAnnotator::printSelectionInformation(Selection &s1, Selection &s2) {
 
 	double distance = norm(point1->coordinates - point2->coordinates);
 	cout << "distance " << distance << " ";
-    double difference = KeyPointProcessor::descriptorDistance(point1->descriptor, point2->descriptor);
+	double difference = KeyPointProcessor::descriptorDistance(point1->descriptor, point2->descriptor);
+	Mat diff = abs(point1->descriptor - point2->descriptor);
+	KeyPointProcessor::visualizeDescriptor("descDiff", diff);
 	cout << "descriptor diff " << difference << " ";
 	cout << endl;
 }
@@ -143,8 +145,8 @@ void TraceAnnotator::mouseEventCallback(int event, int x, int y, int flags, Proc
             ep->descriptor = desc;
             selection1 = Selection(ep);
 			callback->refreshGui();
+			KeyPointProcessor::visualizeDescriptor("desc1", desc);
 		}
-
 	}
 	else if(event == EVENT_RBUTTONDOWN) {
 		Point2f point = callback->getInputImageCoordinates(Point2f(x,y));
@@ -157,6 +159,7 @@ void TraceAnnotator::mouseEventCallback(int event, int x, int y, int flags, Proc
             ep->descriptor = desc;
             selection2 = Selection(ep);
 			callback->refreshGui();
+			KeyPointProcessor::visualizeDescriptor("desc2", desc);
 		}
 	}
 }

@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	}*/
 
 	Video video(inputFilename);
-    ApplicationInpaintingThomas::videoTreatment(&video, outputDirectory);
+	ApplicationInpaintingThomas::videoTreatment(&video, outputDirectory);
 
 	return 0;
 }

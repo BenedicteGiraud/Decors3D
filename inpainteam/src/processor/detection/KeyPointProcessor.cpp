@@ -5,6 +5,7 @@
  *      Author: tr
  */
 
+#include <cmath>
 #include <cv.h>
 #include <highgui.h>
 
@@ -28,9 +29,21 @@ KeyPointProcessor::~KeyPointProcessor() {
 
 }
 
+void KeyPointProcessor::visualizeDescriptor(string windowName, cv::Mat desc) {
+	int channels = 3;
+	int rows = sqrt(desc.cols/channels);
+	Mat img = desc.reshape(channels, rows);
+	cout << " descriptor visualization row " << img.rows << " cols " << img.cols << endl;
+	cout << " original descriptor row " << desc.rows << " cols " << desc.cols << endl;
+	cout << " should be " << rows << " x " << rows << " sqrt " << sqrt(desc.cols/channels) << endl;
+
+	namedWindow(windowName, WINDOW_NORMAL);
+	imshow(windowName, img);
+}
+
 double KeyPointProcessor::descriptorDistance(cv::Mat desc1, cv::Mat desc2) {
     double normalisationFactor = (double)1/(desc1.cols*desc1.channels()*256); // to give a result between 0 and 1
-    return normalisationFactor*norm(desc1-desc2);
+    return normalisationFactor*norm(abs(desc1-desc2));
 }
 
 Ptr<DescriptorExtractor> getExtractor() {
