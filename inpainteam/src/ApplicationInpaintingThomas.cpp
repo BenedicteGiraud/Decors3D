@@ -27,7 +27,7 @@
 #include "processor/optimization/TraceKalmanFilterProcessor.h"
 #include "processor/optimization/MovementReprojection.h"
 #include "processor/optimization/ClassKeyPointsWithNeighbor.h"
-#include "processor/reconstruction/TraceInterpolationProcessor.h"
+#include "processor/reconstruction/TraceInterpolationProcessor2.h"
 
 
 #include "ApplicationInpaintingThomas.h"
@@ -77,7 +77,7 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
 
     for(int i=0; i<1; i++) {
 		video->applyDoubleFrameProcessor(homographyEstimator);
-		video->applyDoubleFrameProcessor(keypointTrace);
+		//video->applyDoubleFrameProcessor(keypointTrace);
 		video->applyVideoProcessor(sceneTraceClassifierProcessor);
 		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
 		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
@@ -86,7 +86,7 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     video->applyVideoProcessor(sceneTraceClassifierProcessor);
     player.play();
 
-    TraceInterpolationProcessor tip;
+    TraceInterpolationProcessor2 tip;
     video->applyFrameProcessor(tip);
     //player.play();
 
