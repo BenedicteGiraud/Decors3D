@@ -42,7 +42,7 @@ public:
 
 	std::vector<PixelInformationType> infoMat;
 
-	void populate(std::vector<ExtendedPoint*> points);
+	void populate(std::vector<ExtendedPoint*> points, double maxDistance);
 	ExtendedPoint* getNearestKeyPoint(cv::Point2f point);
 	std::multimap<double, ExtendedPoint*> getNearestKeyPoints(cv::Point2f point, double maxDistance);
 };

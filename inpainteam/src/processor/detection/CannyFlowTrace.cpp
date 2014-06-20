@@ -92,10 +92,13 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
 	int patchsize = max(max(frame1->image.rows, frame1->image.cols)/10, 4);
 	cout << "frame " << frame1->index << " patch size " << patchsize << endl;
 	DistanceMap distanceMap(cannyMat2.rows, cannyMat2.cols);
-	distanceMap.populate(frame1->keypoints);
+	distanceMap.populate(frame1->keypoints, patchsize);
 	multimap<double, pair<ExtendedPoint*, ExtendedPoint*>> candidates;
 	for(int row=0; row<cannyMat2.rows; row++) {
 		for(int col=0; col<cannyMat2.cols; col++) {
+			if (cannyMat2.at<uchar>(row, col) < 250) {
+				continue;
+			}
 			Point2f keypoint = Point2f(col, row);
 			Mat desc;
 			KeyPointProcessor::extractPatchDescriptor(frame2->image, desc, keypoint);
@@ -105,7 +108,7 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
 			ep->descriptor = desc;
 			auto nextKeypoints = distanceMap.getNearestKeyPoints(keypoint, DBL_MAX);
 			for(auto nextKeypoint : nextKeypoints) {
-				double distance = (1+exp(-nextKeypoint.first*nextKeypoint.first));
+				double distance = 1; //(1+exp(-abs(nextKeypoint.first)));
 				distance *= KeyPointProcessor::descriptorDistance(desc, nextKeypoint.second->descriptor);
 
 				pair<ExtendedPoint*, ExtendedPoint*> possibleMatch(nextKeypoint.second, ep);
@@ -118,7 +121,7 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
 	if(candidates.size() == 0) return;
 	double maxDist = candidates.rbegin()->first;
 	auto it = candidates.begin();
-	for(int i=0; i<candidates.size()/2; i++) {
+	for(int i=0; i<candidates.size()/4; i++) {
 		it++;
 	}
 	double quantilDist = it->first;
@@ -126,7 +129,7 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
 	cout << " candidates " << endl;
 	it = candidates.begin();
 	for(; it!=candidates.end(); it++) {
-		if(it->first > quantilDist+0.05*(maxDist-quantilDist)) break;
+		if(it->first > quantilDist+0.5*(maxDist-quantilDist)) break;
 		PointTrace *trace = it->second.first->getOrCreate();
 		if(trace->filter(frame2) != NULL) {
 			//delete it->second.second;

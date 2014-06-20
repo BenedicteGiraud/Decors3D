@@ -35,16 +35,6 @@ TraceInterpolationProcessor2::~TraceInterpolationProcessor2() {
 }
 
 typedef double CountType;
-struct DistanceType {
-	unsigned int distance;
-	int coordX;
-	int coordY;
-	ExtendedPoint* point;
-};
-struct PixelInformationType {
-	bool done;
-	vector<DistanceType> nearestKeypoints;
-};
 typedef double InternType;
 typedef uchar ImageType;
 
@@ -74,16 +64,18 @@ struct WorkingItem {
 void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback) {
 	Mat points(video->pointTraces.size(), 2, CV_32F);
 
+	vector<PixelInformationType> infoMat;
+	int infoMatsIdx = infoMats.size();
+	infoMats.push_back(infoMat);
 	// fill up working list
 	queue<WorkingItem*> workingitems;
 	WorkingItem::nextid = 0;
-	vector<PixelInformationType> infoMat;
 	int infoCols = image->cols;
 	for(int row=0; row<image->rows; row++) {
 		for(int col=0; col<image->cols; col++) {
 			PixelInformationType info;
 			info.done = false;
-			infoMat.push_back(info);
+			infoMats[infoMatsIdx].push_back(info);
 		}
 	}
 
@@ -102,7 +94,7 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 		item->center.coordY = ep->coordinates.y;
 		workingitems.push(item);
 
-		PixelInformationType *info = &infoMat.at(item->row * infoCols + item->col);
+		PixelInformationType *info = &infoMats[infoMatsIdx].at(item->row * infoCols + item->col);
 		info->nearestKeypoints.push_back(item->center);
 	}
 
@@ -111,7 +103,7 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
-		PixelInformationType *info = &infoMat.at(work->row *infoCols + work->col);
+		PixelInformationType *info = &infoMats[infoMatsIdx].at(work->row *infoCols + work->col);
 		if(info->done) {
 			delete work;
 			continue;
@@ -125,7 +117,7 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 
 			if(nrow < 0 || ncol < 0) continue;
 			if(nrow >= image->rows || ncol >= image->cols) continue;
-			if(infoMat.at(nrow * infoCols + ncol).nearestKeypoints.size() > 3) continue;
+			if(infoMats[infoMatsIdx].at(nrow * infoCols + ncol).nearestKeypoints.size() > 3) continue;
 
 			int distanceX = ncol-(work->center.coordX);
 			int distanceY = nrow-(work->center.coordY);
@@ -140,7 +132,7 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 			workingitems.push(newitem);
 
 			// actualize information
-			PixelInformationType *info = &infoMat.at(nrow * infoCols + ncol);
+			PixelInformationType *info = &infoMats[infoMatsIdx].at(nrow * infoCols + ncol);
 			info->nearestKeypoints.push_back(newitem->center);
 		}
 		delete work;
@@ -151,59 +143,86 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 			return;
 		}
 	}
+}
 
+void TraceInterpolationProcessor2::processEnd(Video *video) {
+	if(video->frames.size() == 0) return;
+	int rows = video->frames.front()->image.rows;
+	int cols = video->frames.front()->image.cols;
 
 	auto itSum = summedInterpolation.begin();
 	auto itCount = count.begin();
-	int frameToReconstruct = 0;
-	for(; itSum!=summedInterpolation.end(), itCount != count.end(); itSum++, itCount++, frameToReconstruct++) {
-		Mat homography;
-		bool useHomography = video->getHomography(frame, *(video->frames.begin()+frameToReconstruct), homography);
 
-		for(int row=0; row<image->rows; row++) {
-			for(int col=0; col<image->cols; col++) {
+	int reconstructFrameIdx = 0;
+	for(; itSum != summedInterpolation.end(), itCount != count.end(); itSum++, itCount++, reconstructFrameIdx++) {
+		cout << "reconstructing frame " << reconstructFrameIdx << endl;
+		Frame *reconstructFrame = video->frames[reconstructFrameIdx];
+		for(int row=0; row<rows; row++) {
+			for(int col=0; col<cols; col++) {
+				for(int i=0; i<video->frames.size(); i++) {
+					if(itCount->at<CountType>(row, col) > 0.002) continue;
 
-				PixelInformationType *info = &infoMat.at(row * infoCols + col);
-				bool doInterpolation = true;
-				if(info->nearestKeypoints.size() == 0) doInterpolation = true;
-				if(info->nearestKeypoints.size() > 0) {
-					int pointScene = 0;
-					int total = 0;
-					double weighted = 0;
-					double distanceSum = 0;
-					for(DistanceType dist : info->nearestKeypoints) {
-						if(dist.point->trace == NULL) {
-							cout << "weird stuff happened: trace of point is empty, but it should contain sth" << endl;
-							continue;
-						}
-						if(dist.point->trace->type == PointTrace::scene) {
-							pointScene ++;
-							weighted += dist.distance;
-						}
-						distanceSum += dist.distance;
+					int maxDiff = min(reconstructFrameIdx, (int)video->frames.size()-reconstructFrameIdx-1);
+					int frameDiff = (i%2 ? -1 : 1 ) * ((i+1)/2);
+					int informationFrameIdx = reconstructFrameIdx;
+					if(abs(frameDiff) > maxDiff) {
+						frameDiff = (i-(2*maxDiff));
+						informationFrameIdx += (maxDiff == informationFrameIdx ? 1 : -1) * frameDiff;
 					}
-					doInterpolation &= pointScene >= 1;
-					double epsilon = 0.0001;
-					doInterpolation &= ((weighted+epsilon) / (distanceSum+epsilon) > 0.05);
-				}
+					else {
+						informationFrameIdx += frameDiff;
+					}
+					if(informationFrameIdx < 0 || informationFrameIdx >= video->frames.size()) {
+						cout << "i " << i << endl;
+						cout << "maxDiff " << maxDiff << endl;
+						cout << "frameDiff " << frameDiff << endl;
+						cout << "informationFrameIdx " << informationFrameIdx << endl;
+					}
 
-				if(doInterpolation) {
-					Point2f backProj(col, row);
+					Frame *informationFrame = *(video->frames.begin()+informationFrameIdx);
+					Mat homography;
+					bool useHomography = video->getHomography(reconstructFrame, informationFrame, homography);
+
+					Point2f projPoint(col, row);
 					if(useHomography) {
-						Point2f newBackProj = Tools::applyHomography(homography, backProj);
-						backProj = newBackProj;
+						Point2f newProjPoint = Tools::applyHomography(homography, projPoint);
+						projPoint = newProjPoint;
 					}
-					Point backProjInt = backProj;
+					Point backProjInt = projPoint;
+					if(backProjInt.x < 0 || backProjInt.y < 0 ||
+							backProjInt.y >= rows || backProjInt.x >= cols) continue;
 
-					if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
-							backProjInt.y < (*itSum).rows && backProjInt.x < (*itSum).cols) {
-						int thisFrame = frame->index;
-						int indexDiff = abs(frameToReconstruct - thisFrame);
+					PixelInformationType *info = &infoMats[informationFrameIdx].at(row * cols + col);
+					bool doInterpolation = true;
+					if(info->nearestKeypoints.size() == 0) doInterpolation = true;
+					if(info->nearestKeypoints.size() > 0) {
+						int pointScene = 0;
+						int total = 0;
+						double weighted = 0;
+						double distanceSum = 0;
+						for(DistanceType dist : info->nearestKeypoints) {
+							if(dist.point->trace == NULL) {
+								cout << "weird stuff happened: trace of point is empty, but it should contain sth" << endl;
+								continue;
+							}
+							if(dist.point->trace->type == PointTrace::scene) {
+								pointScene ++;
+								weighted += dist.distance;
+							}
+							distanceSum += dist.distance;
+						}
+						doInterpolation &= pointScene >= 1;
+						double epsilon = 0.0001;
+						doInterpolation &= ((weighted+epsilon) / (distanceSum+epsilon) > 0.05);
+					}
+
+					if(doInterpolation) {
+						int thisFrame = reconstructFrame->index;
+						int indexDiff = abs(reconstructFrameIdx - thisFrame);
 						double weight = 1+exp(-indexDiff*indexDiff);
-						Vec<InternType, 3> *ptr = &(*itSum).at<Vec<InternType, 3>>(backProjInt);
-						Vec<InternType, 3> pixel = image->at<Vec<ImageType, 3>>(row,col);
-						(*itSum).at<Vec<InternType, 3>>(backProjInt) += weight*pixel;
-						(*itCount).at<CountType>(backProjInt) += weight;
+						Vec<InternType, 3> pixel = informationFrame->image.at<Vec<ImageType, 3>>(projPoint);
+						(*itSum).at<Vec<InternType, 3>>(row,col) += weight*pixel;
+						(*itCount).at<CountType>(row,col) += weight;
 					}
 				}
 			}

@@ -19,6 +19,17 @@
 
 using namespace cv;
 
+struct DistanceType {
+	unsigned int distance;
+	int coordX;
+	int coordY;
+	ExtendedPoint* point;
+};
+struct PixelInformationType {
+	bool done;
+	vector<DistanceType> nearestKeypoints;
+};
+
 class TraceInterpolationProcessor2: public FrameProcessor {
 public:
 	TraceInterpolationProcessor2();
@@ -27,9 +38,11 @@ public:
 	Video* debugVideo;
 	vector<cv::Mat> summedInterpolation;
 	vector<cv::Mat> count;
+	vector<vector<PixelInformationType>> infoMats;
 
 	virtual void processStart(Video *video);
 	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
+	virtual void processEnd(Video *video);
 
 	cv::Mat getImage();
 	/*cv::Mat getCountImage();*/

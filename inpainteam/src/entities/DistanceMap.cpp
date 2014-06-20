@@ -25,7 +25,7 @@ DistanceMap::~DistanceMap() {
 	// TODO Auto-generated destructor stub
 }
 
-void DistanceMap::populate(vector<ExtendedPoint*> points) {
+void DistanceMap::populate(vector<ExtendedPoint*> points, double maxDistance) {
 	// init intern data structure
 	queue<DistanceMap::WorkingItem*> workingitems;
 	DistanceMap::WorkingItem::nextid = 0;
@@ -81,6 +81,7 @@ void DistanceMap::populate(vector<ExtendedPoint*> points) {
 			int distanceX = ncol-(work->center.coordX);
 			int distanceY = nrow-(work->center.coordY);
 			unsigned distance = distanceX*distanceX + distanceY*distanceY;
+			if(distance > maxDistance) continue;
 
 			// add new point to working list
 			WorkingItem *newitem = new WorkingItem;

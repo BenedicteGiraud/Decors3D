@@ -56,10 +56,13 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     /*FlowTraceProcessor flowTraceProcessor;
     video->applyDoubleFrameProcessor(flowTraceProcessor); //*/
 
-    KeyPointProcessor keypoints;
+    /*KeyPointProcessor keypoints;
     KeyPointTraceProcessor keypointTrace;
     video->applyFrameProcessor(keypoints);
     video->applyDoubleFrameProcessor(keypointTrace); //*/
+
+    CannyFlowTrace cannyFlowTrace;
+    video->applyDoubleFrameProcessor(cannyFlowTrace);
 
     //player.play();
 
