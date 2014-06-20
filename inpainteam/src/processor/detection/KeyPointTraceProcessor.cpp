@@ -35,7 +35,7 @@ inline double getCombinedDistance(double normedSpatialDistance, Mat desc1, Mat d
 	return (20*(double)normedSpatialDistance)+(descriptorDifference);
 }
 
-bool checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
+bool KeyPointTraceProcessor::checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2) {
 	Point2f p1 = ep1->keypoint.pt;
 	Point2f p2 = ep2->keypoint.pt;
 
@@ -58,7 +58,7 @@ void matchPointsBF(Frame*  frame1, Frame* frame2) {
 
 		ExtendedPoint* ep1 = frame1->keypoints.at(match.queryIdx);
 		ExtendedPoint* ep2 = frame2->keypoints.at(match.trainIdx);
-		checkAndAddToTrace(ep1, ep2);
+        KeyPointTraceProcessor::checkAndAddToTrace(ep1, ep2);
 	}
 }
 
@@ -109,7 +109,7 @@ double matchPoints(Video* video, Frame* frame1, Frame* frame2) {
 
 		if(element.second.second->trace == NULL) {
 			//cout << "adding " << element.second.first << "," << element.second.second << endl;
-			if(checkAndAddToTrace(element.second.first, element.second.second)) {
+            if(KeyPointTraceProcessor::checkAndAddToTrace(element.second.first, element.second.second)) {
 				countAdded++;
 				Mat desc1 = element.second.first->descriptor;
 				Mat desc2 = element.second.second->descriptor;
@@ -139,7 +139,7 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
     cout<< "method unmatched traces is called" << endl;
     Mat homography;
     /*if(!video->getHomography(frame1, frame2, homography)) {
-        cout<< " je suis la !" << endl;
+        cout<< " homography problem, does not consider the next patch !" << endl;
 		return;
 	}
 
