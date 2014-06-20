@@ -73,6 +73,7 @@ void VideoPlayer::refresh() {
  * @param framesPerSecond
  */
 void VideoPlayer::play() {
+	if(outputDirectory == "") outputDirectory = ".";
 	int delay = 1000 / framesPerSecond;
 	if(framesPerSecond > 0 && delay < 0) {
 		delay = 1;
@@ -158,7 +159,9 @@ void VideoPlayer::play() {
 
 					std::stringstream sstm;
 					sstm << (outputIndex++);
-					output.write(outputDirectory + "/videoPlayer" + sstm.str() + ".avi");
+					string outputFile = outputDirectory + "/videoPlayer" + sstm.str() + ".avi";
+					output.write(outputFile);
+					cout << "wrote file to " << outputFile << endl;
 				}
 				break;
 

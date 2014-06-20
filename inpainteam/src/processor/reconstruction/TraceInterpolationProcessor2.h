@@ -25,14 +25,16 @@ public:
 	virtual ~TraceInterpolationProcessor2();
 
 	Video* debugVideo;
-	cv::Mat summedInterpolation;
-	cv::Mat count;
+	vector<cv::Mat> summedInterpolation;
+	vector<cv::Mat> count;
 
 	virtual void processStart(Video *video);
 	virtual void processFrame(Video* video, Frame* frame, cv::Mat* image, ProcessorCallback* callback);
 
 	cv::Mat getImage();
-	cv::Mat getCountImage();
+	/*cv::Mat getCountImage();*/
+
+	Video getVideo();
 };
 
 #endif /* TraceInterpolationProcessor2_H_ */

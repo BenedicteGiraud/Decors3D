@@ -92,6 +92,7 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
 
     //Mat inpaintedImg = tip.getImage();
     Video* inp = tip.debugVideo;
+    Video inp2 = tip.getVideo();
     //inp->play();
     VideoPlayer inpPlayer;
     CombinationVideoProvider videoprovider;
@@ -103,7 +104,10 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     videoprovider.addProvider(new AnnotationVideoProvider(video, annotationProcessor, video), width,0);
     videoprovider.addProvider(new AnnotationVideoProvider(inp, annotationProcessor, video), 0,height);
     videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), width,height);
+    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, annotationProcessor, video), 0,2*height);
+    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, resize, NULL), width,2*height);
     inpPlayer.setVideoProvider(&videoprovider);
+    inpPlayer.setOutputDirectory(outputDirectory);
     inpPlayer.play();
     //inpPlayer.setFramesAnnotator(annotationProcessor);
     //inpPlayer.playWithAnnotationData(video);

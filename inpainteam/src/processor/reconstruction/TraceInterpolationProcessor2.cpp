@@ -50,8 +50,12 @@ typedef uchar ImageType;
 
 void TraceInterpolationProcessor2::processStart(Video *video) {
 	Frame* frame = video->frames.front();
-	summedInterpolation = Mat_<Vec<InternType, 3>>(frame->image.size(), Vec<InternType, 3>(0,0,0));
-	count = Mat_<Vec<CountType, 1>>(frame->image.size(), 0);
+
+	int frameCount = video->frames.back()->index;
+	for(int i=0; i<frameCount; i++) {
+		summedInterpolation.push_back(Mat_<Vec<InternType, 3>>(frame->image.size(), Vec<InternType, 3>(0,0,0)));
+		count.push_back(Mat_<Vec<CountType, 1>>(frame->image.size(), 0));
+	}
 
 	debugVideo = new Video();
 }
@@ -107,12 +111,6 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 
 	cout << "dbg B frame " << frame->index << endl;
 
-	int frameToReconstruct = 0;
-	int countFrames = video->frames.size();
-	frameToReconstruct = countFrames / 2;
-	Mat homography;
-	bool useHomography = video->getHomography(frame, *(video->frames.begin()+frameToReconstruct), homography);
-
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
@@ -157,50 +155,59 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 		}
 	}
 
-	for(int row=0; row<image->rows; row++) {
-		for(int col=0; col<image->cols; col++) {
 
-			PixelInformationType *info = &infoMat.at(row * infoCols + col);
-			bool doInterpolation = true;
-			if(info->nearestKeypoints.size() == 0) doInterpolation = true;
-			if(info->nearestKeypoints.size() > 0) {
-				int pointScene = 0;
-				int total = 0;
-				double weighted = 0;
-				double distanceSum = 0;
-				for(DistanceType dist : info->nearestKeypoints) {
-					if(dist.point->trace == NULL) {
-						cout << "weird stuff happened: trace of point is empty, but it should contain sth" << endl;
-						continue;
+	auto itSum = summedInterpolation.begin();
+	auto itCount = count.begin();
+	int frameToReconstruct = 0;
+	for(; itSum!=summedInterpolation.end(), itCount != count.end(); itSum++, itCount++, frameToReconstruct++) {
+		Mat homography;
+		bool useHomography = video->getHomography(frame, *(video->frames.begin()+frameToReconstruct), homography);
+
+		for(int row=0; row<image->rows; row++) {
+			for(int col=0; col<image->cols; col++) {
+
+				PixelInformationType *info = &infoMat.at(row * infoCols + col);
+				bool doInterpolation = true;
+				if(info->nearestKeypoints.size() == 0) doInterpolation = true;
+				if(info->nearestKeypoints.size() > 0) {
+					int pointScene = 0;
+					int total = 0;
+					double weighted = 0;
+					double distanceSum = 0;
+					for(DistanceType dist : info->nearestKeypoints) {
+						if(dist.point->trace == NULL) {
+							cout << "weird stuff happened: trace of point is empty, but it should contain sth" << endl;
+							continue;
+						}
+						if(dist.point->trace->type == PointTrace::scene) {
+							pointScene ++;
+							weighted += dist.distance;
+						}
+						distanceSum += dist.distance;
 					}
-					if(dist.point->trace->type == PointTrace::scene) {
-						pointScene ++;
-						weighted += dist.distance;
+					doInterpolation &= pointScene >= 1;
+					double epsilon = 0.0001;
+					doInterpolation &= ((weighted+epsilon) / (distanceSum+epsilon) > 0.05);
+				}
+
+				if(doInterpolation) {
+					Point2f backProj(col, row);
+					if(useHomography) {
+						Point2f newBackProj = Tools::applyHomography(homography, backProj);
+						backProj = newBackProj;
 					}
-					distanceSum += dist.distance;
-				}
-				doInterpolation &= pointScene >= 1;
-				double epsilon = 0.0001;
-				doInterpolation &= ((weighted+epsilon) / (distanceSum+epsilon) > 0.05);
-			}
+					Point backProjInt = backProj;
 
-			if(doInterpolation) {
-				Point2f backProj(col, row);
-				if(useHomography) {
-					Point2f newBackProj = Tools::applyHomography(homography, backProj);
-					backProj = newBackProj;
-				}
-				Point backProjInt = backProj;
-
-				if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
-						backProjInt.y < summedInterpolation.rows && backProjInt.x < summedInterpolation.cols) {
-					int thisFrame = frame->index;
-					int indexDiff = abs(frameToReconstruct - thisFrame);
-					double weight = 1+exp(-indexDiff*indexDiff);
-					Vec<InternType, 3> *ptr = &summedInterpolation.at<Vec<InternType, 3>>(backProjInt);
-					Vec<InternType, 3> pixel = image->at<Vec<ImageType, 3>>(row,col);
-					summedInterpolation.at<Vec<InternType, 3>>(backProjInt) += weight*pixel;
-					count.at<CountType>(backProjInt) += weight;
+					if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
+							backProjInt.y < (*itSum).rows && backProjInt.x < (*itSum).cols) {
+						int thisFrame = frame->index;
+						int indexDiff = abs(frameToReconstruct - thisFrame);
+						double weight = 1+exp(-indexDiff*indexDiff);
+						Vec<InternType, 3> *ptr = &(*itSum).at<Vec<InternType, 3>>(backProjInt);
+						Vec<InternType, 3> pixel = image->at<Vec<ImageType, 3>>(row,col);
+						(*itSum).at<Vec<InternType, 3>>(backProjInt) += weight*pixel;
+						(*itCount).at<CountType>(backProjInt) += weight;
+					}
 				}
 			}
 		}
@@ -209,31 +216,51 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 	debugVideo->frames.push_back(new Frame(getImage(), video, debugVideo->frames.size()));
 }
 
-Mat TraceInterpolationProcessor2::getImage() {
-	Mat normedResult = Mat::zeros(summedInterpolation.size(), CV_8UC3);
+Video TraceInterpolationProcessor2::getVideo() {
+	Video result;
 
-	for(int row=0; row<summedInterpolation.rows; row++) {
-		Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
-		CountType* countptr = count.ptr<CountType>(row);
-		Vec<InternType,3> *summedInterpolationPtr = summedInterpolation.ptr<Vec<InternType,3>>(row);
-		for(int col=0; col<summedInterpolation.cols; col++) {
-			if(*countptr != 0) {
-				*ptr = (*summedInterpolationPtr) / (*countptr);
-			}
-			else {
-				*ptr = 0;
-			}
-			/*for(int channel=0; channel<summedInterpolation.channels(); channel++) {
+	auto itSum = summedInterpolation.begin();
+	auto itCount = count.begin();
+	for(; itSum!=summedInterpolation.end(), itCount != count.end(); itSum++, itCount++) {
+		Mat normedResult = Mat::zeros(itSum->size(), CV_8UC3);
+
+		for(int row=0; row<itSum->rows; row++) {
+			Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
+			CountType* countptr = itCount->ptr<CountType>(row);
+			Vec<InternType,3> *summedInterpolationPtr = itSum->ptr<Vec<InternType,3>>(row);
+			for(int col=0; col<itSum->cols; col++) {
 				if(*countptr != 0) {
-					ImageType value = *summedInterpolationPtr / *countptr;
-					*ptr = value;
+					*ptr = (*summedInterpolationPtr) / (*countptr);
 				}
 				else {
 					*ptr = 0;
 				}
 				ptr++;
 				summedInterpolationPtr++;
-			}*/
+				countptr++;
+			}
+		}
+		result << normedResult;
+	}
+
+	return result;
+}
+
+Mat TraceInterpolationProcessor2::getImage() {
+	int baseFrame = summedInterpolation.size() / 2;
+	Mat normedResult = Mat::zeros(summedInterpolation[baseFrame].size(), CV_8UC3);
+
+	for(int row=0; row<summedInterpolation[baseFrame].rows; row++) {
+		Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
+		CountType* countptr = count[baseFrame].ptr<CountType>(row);
+		Vec<InternType,3> *summedInterpolationPtr = summedInterpolation[baseFrame].ptr<Vec<InternType,3>>(row);
+		for(int col=0; col<summedInterpolation[baseFrame].cols; col++) {
+			if(*countptr != 0) {
+				*ptr = (*summedInterpolationPtr) / (*countptr);
+			}
+			else {
+				*ptr = 0;
+			}
 			ptr++;
 			summedInterpolationPtr++;
 			countptr++;
@@ -244,7 +271,7 @@ Mat TraceInterpolationProcessor2::getImage() {
 }
 
 
-Mat TraceInterpolationProcessor2::getCountImage() {
+/*Mat TraceInterpolationProcessor2::getCountImage() {
 	// TODO: rewrite
 	Mat result = Mat::zeros(count.size(), CV_8U);
 	long max = LONG_MIN;
@@ -262,4 +289,4 @@ Mat TraceInterpolationProcessor2::getCountImage() {
 		}
 	}
 	return result;
-}
+}*/
