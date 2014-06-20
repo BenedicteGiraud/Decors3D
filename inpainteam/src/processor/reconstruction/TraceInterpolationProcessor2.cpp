@@ -7,6 +7,7 @@
 
 #include <cv.h>
 #include <queue>
+#include <cmath>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -33,7 +34,7 @@ TraceInterpolationProcessor2::~TraceInterpolationProcessor2() {
 
 }
 
-typedef unsigned int CountType;
+typedef double CountType;
 struct DistanceType {
 	unsigned int distance;
 	int coordX;
@@ -44,7 +45,7 @@ struct PixelInformationType {
 	bool done;
 	vector<DistanceType> nearestKeypoints;
 };
-typedef unsigned int InternType;
+typedef double InternType;
 typedef uchar ImageType;
 
 void TraceInterpolationProcessor2::processStart(Video *video) {
@@ -189,8 +190,14 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 
 				if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
 						backProjInt.y < summedInterpolation.rows && backProjInt.x < summedInterpolation.cols) {
-					summedInterpolation.at<Vec<InternType, 3>>(backProjInt) += image->at<Vec<ImageType, 3>>(row,col);
-					count.at<CountType>(backProjInt) += 1;
+					int frameToReconstruct = 0;
+					int thisFrame = frame->index;
+					int indexDiff = abs(frameToReconstruct - thisFrame);
+					double weight = 1+exp(-indexDiff*indexDiff);
+					Vec<InternType, 3> *ptr = &summedInterpolation.at<Vec<InternType, 3>>(backProjInt);
+					Vec<InternType, 3> pixel = image->at<Vec<ImageType, 3>>(row,col);
+					summedInterpolation.at<Vec<InternType, 3>>(backProjInt) += weight*pixel;
+					count.at<CountType>(backProjInt) += weight;
 				}
 			}
 		}
@@ -203,11 +210,17 @@ Mat TraceInterpolationProcessor2::getImage() {
 	Mat normedResult = Mat::zeros(summedInterpolation.size(), CV_8UC3);
 
 	for(int row=0; row<summedInterpolation.rows; row++) {
-		ImageType* ptr = normedResult.ptr<ImageType>(row);
+		Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
 		CountType* countptr = count.ptr<CountType>(row);
-		InternType* summedInterpolationPtr = summedInterpolation.ptr<InternType>(row);
+		Vec<InternType,3> *summedInterpolationPtr = summedInterpolation.ptr<Vec<InternType,3>>(row);
 		for(int col=0; col<summedInterpolation.cols; col++) {
-			for(int channel=0; channel<summedInterpolation.channels(); channel++) {
+			if(*countptr != 0) {
+				*ptr = (*summedInterpolationPtr) / (*countptr);
+			}
+			else {
+				*ptr = 0;
+			}
+			/*for(int channel=0; channel<summedInterpolation.channels(); channel++) {
 				if(*countptr != 0) {
 					ImageType value = *summedInterpolationPtr / *countptr;
 					*ptr = value;
@@ -217,7 +230,9 @@ Mat TraceInterpolationProcessor2::getImage() {
 				}
 				ptr++;
 				summedInterpolationPtr++;
-			}
+			}*/
+			ptr++;
+			summedInterpolationPtr++;
 			countptr++;
 		}
 	}

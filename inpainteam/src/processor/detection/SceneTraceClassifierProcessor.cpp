@@ -153,11 +153,11 @@ void SceneTraceClassifierProcessor::process(Video* video) {
 	waitKey(0);*/
 
 	for(auto d : distances) {
-		if(d.first < valueMax - 3*diff) continue;
-		if(d.first < valueMax + 3*diff) {
+		//if(d.first < valueMax - 3*diff) continue;
+		if(d.first < valueMax + 20*diff) {
 			d.second->type = PointTrace::scene;
 		}
-		else if(d.first > valueMax + 10*diff) {
+		else if(d.first > valueMax + 20*diff) {
 			d.second->type = PointTrace::object;
 		}
 	}
