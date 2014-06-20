@@ -18,6 +18,8 @@ public:
 	KeyPointTraceProcessor();
 	virtual ~KeyPointTraceProcessor();
 
+    static bool checkAndAddToTrace(ExtendedPoint *ep1, ExtendedPoint *ep2);
+
 	virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
 
 	static double getSimilarityMeasure(ExtendedPoint *p1, ExtendedPoint *p2);
