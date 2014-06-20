@@ -22,6 +22,10 @@ CannyFlowTrace::CannyFlowTrace()
 CannyFlowTrace::~CannyFlowTrace(){
 }
 
+Video * CannyFlowTrace::getCannyVideo(){
+    return &cannyVideo;
+}
+
 Mat CannyFlowTrace::getCannyPoints(Frame *frame){
     int blockSize = 2;
     int apertureSize = 3;
@@ -48,15 +52,24 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
     Mat cannyMat2;
 
     cannyMat1 = getCannyPoints(frame1);
+    cannyMat2 = getCannyPoints(frame2);
+
+    // to show the cannyVideo
+    Mat threeChannel;
+    Mat in[] = {cannyMat1, cannyMat1, cannyMat1};
+    merge(in, 3, threeChannel);
+    cannyVideo<<threeChannel;
+
     // boucle for with a thresh : Thresh in order to keep only points which have a value bigger than 200
     for (int row = 0; row < frame1->image.rows; row++){
+        cout << "Je suis a la row " << row << " *****" << endl;
         for (int col = 0; col < frame1->image.cols; col++) {
             // it is not a canny point : we do not search a keypoint in thoses values
             if (cannyMat1.at<uchar>(row, col) < 250) {
                 continue;
             }
             // this is a canny point : we look for the keypoint in the canypoints
-            Point2f keypoint = Point2f(row, col);
+            Point2f keypoint = Point2f(col, row);
             Mat descr1;
             KeyPointProcessor::extractPatchDescriptor(frame1->image, descr1, keypoint);
 
@@ -70,12 +83,11 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
                         continue;
                     }
                     // this is a canny point : we look for the keypoint in the canypoints
-                    Point2f keypoint2 = Point2f(row2, col2);
+                    Point2f keypoint2 = Point2f(col2, row2);
                     Mat descr2;
                     KeyPointProcessor::extractPatchDescriptor(frame2->image, descr2, keypoint2);
                     double dist = KeyPointProcessor::descriptorDistance(descr1, descr2);
                     if (dist < distMin) {
-                        cout<< "I was here ;-) " << endl;
                         distMin = dist;
                         bestPoint = keypoint2;
                     }
@@ -86,7 +98,9 @@ void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* fram
             ExtendedPoint *point2 = new ExtendedPoint(bestPoint, frame2);
             frame2->keypoints.push_back(point2);
             KeyPointTraceProcessor::checkAndAddToTrace(point1, point2);
-            cout << "j'ai ajoute un point a la trace"<< endl;
+
+            line(frame1->image, keypoint, bestPoint, Scalar(255,0,0));
+            cout << "KeyPoints number = " << frame1->keypoints.size() << " **" << endl;
         }
     }
 }

@@ -3,15 +3,20 @@
 
 #include <cv.h>
 
-class Video;
+#include "processor/DoubleFrameProcessor.h"
+#include "entities/Video.h"
+
 class Frame;
 
-class CannyFlowTrace
+class CannyFlowTrace : public DoubleFrameProcessor
 {
 public:
+    Video cannyVideo;
+
     CannyFlowTrace();
     virtual ~ CannyFlowTrace();
 
+    Video * getCannyVideo();
     static cv::Mat getCannyPoints(Frame* frame);
     virtual void processDoubleFrame(Video* video, Frame* frame1, Frame* frame2);
 };

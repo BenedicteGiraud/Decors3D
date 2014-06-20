@@ -154,7 +154,6 @@ void continueUnmatchedTraces(Video* video, Frame* frame1, Frame* frame2, double 
 
 		double distance = getCombinedDistance(0, point->descriptor, desc);
 		if(distance < maxDescriptorDistance) {
-            cout <<"dist = " << distance <<"  *** maxDist = " << maxDescriptorDistance << endl;
 			ExtendedPoint* ep = KeyPointProcessor::addKeypoint(frame2, projPoint, desc, ExtendedPoint::projected);
 			if(ep != NULL) {
 				point->trace->addOrReplacePoint(ep);
