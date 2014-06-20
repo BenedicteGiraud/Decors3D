@@ -107,6 +107,7 @@ void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory)
     player.setOutputDirectory(outputDirectory);
 
     // configure processor pipeline
+
     CannyFlowTrace cannyFlowTrace;
     video->applyDoubleFrameProcessor(cannyFlowTrace);
     //player.play(); // pour afficher un seul canal
@@ -115,7 +116,7 @@ void ApplicationInpainting::videoTreatment(Video *video, string outputDirectory)
     VideoPlayer inpPlayer;
     CombinationVideoProvider videoprovider;
     FrameProcessor *resize = getResizeProcessor(video);
-    videoprovider.addProvider(new AnnotationVideoProvider(video, resize, video), 0,0);
+    videoprovider.addProvider(new AnnotationVideoProvider(video, annotationProcessor, video), 0,0);
     Mat image = videoprovider.getImage();
     int height = image.rows;
     int width = image.cols;

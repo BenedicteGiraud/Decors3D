@@ -1,4 +1,4 @@
-#include "CannyFlowTrace.h"
+﻿#include "CannyFlowTrace.h"
 
 #include <cv.h>
 
@@ -47,60 +47,79 @@ Mat CannyFlowTrace::getCannyPoints(Frame *frame){
     return dest;
 }
 
-void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2){
-    Mat cannyMat1;
-    Mat cannyMat2;
+void CannyFlowTrace::processStart(Video* video, Frame* firstFrame){
+    Mat cannyMat;
+    cannyMat = getCannyPoints(firstFrame);
 
-    cannyMat1 = getCannyPoints(frame1);
+    // to show the cannyVideo
+    Mat threeChannel;
+    Mat in[] = {cannyMat, cannyMat, cannyMat};
+    merge(in, 3, threeChannel);
+    cannyVideo<<threeChannel;
+
+    for(int row=0; row<firstFrame->image.rows; row++) {
+        for(int col=0; col<firstFrame->image.cols; col++) {
+            // I am a Canny Point
+            if(cannyMat.at<uchar>(row, col) > 200) {
+
+                Point2f keypoint = Point2f(col, row);
+                Mat descr;
+                KeyPointProcessor::extractPatchDescriptor(firstFrame->image, descr, keypoint);
+
+                ExtendedPoint *point1 = new ExtendedPoint(keypoint, firstFrame);
+                point1->descriptor = descr;
+                firstFrame->keypoints.push_back(point1);
+
+                int sizer = min(5, cannyMat.rows-row);
+                int sizec = min(5, cannyMat.cols-col);
+                cannyMat(Rect(col, row, sizec, sizer)) = Scalar(0);
+            }
+        }
+    }
+}
+
+void CannyFlowTrace::processDoubleFrame(Video* video, Frame* frame1, Frame* frame2){
+    Mat cannyMat2;
     cannyMat2 = getCannyPoints(frame2);
 
     // to show the cannyVideo
     Mat threeChannel;
-    Mat in[] = {cannyMat1, cannyMat1, cannyMat1};
+    Mat in[] = {cannyMat2, cannyMat2, cannyMat2};
     merge(in, 3, threeChannel);
     cannyVideo<<threeChannel;
 
     // boucle for with a thresh : Thresh in order to keep only points which have a value bigger than 200
-    for (int row = 0; row < frame1->image.rows; row++){
-        cout << "Je suis a la row " << row << " *****" << endl;
-        for (int col = 0; col < frame1->image.cols; col++) {
-            // it is not a canny point : we do not search a keypoint in thoses values
-            if (cannyMat1.at<uchar>(row, col) < 250) {
-                continue;
-            }
-            // this is a canny point : we look for the keypoint in the canypoints
-            Point2f keypoint = Point2f(col, row);
-            Mat descr1;
-            KeyPointProcessor::extractPatchDescriptor(frame1->image, descr1, keypoint);
+    for (ExtendedPoint *point : frame1->keypoints) {
+        // this is a canny point : we look for the keypoint in the canypoints
+        Mat descr1 = point->descriptor;
 
-            double distMin = DBL_MAX;
-            Point2f bestPoint ;
-            // Compare this keypoint to thoses of the next frame
-            for (int row2 = 0; row2 < frame2->image.rows; row2++){
-                for (int col2 = 0; col2 < frame2->image.cols; col2++) {
-                    // it is not a canny point : we do not search a keypoint in thoses values
-                    if (cannyMat2.at<uchar>(row2, col2) < 250) {
-                        continue;
-                    }
-                    // this is a canny point : we look for the keypoint in the canypoints
-                    Point2f keypoint2 = Point2f(col2, row2);
-                    Mat descr2;
-                    KeyPointProcessor::extractPatchDescriptor(frame2->image, descr2, keypoint2);
-                    double dist = KeyPointProcessor::descriptorDistance(descr1, descr2);
-                    if (dist < distMin) {
-                        distMin = dist;
-                        bestPoint = keypoint2;
-                    }
+        double distMin = DBL_MAX;
+        Point2f bestPoint ;
+        Mat bestDescr;
+        // Compare this keypoint to thoses of the next frame
+        for (int row2 = 0; row2 < frame2->image.rows; row2++){
+            for (int col2 = 0; col2 < frame2->image.cols; col2++) {
+                // it is not a canny point : we do not search a keypoint in thoses values
+                if (cannyMat2.at<uchar>(row2, col2) < 250) {
+                    continue;
+                }
+                // this is a canny point : we look for the keypoint in the canypoints
+                Point2f keypoint2 = Point2f(col2, row2);
+                Mat descr2;
+                KeyPointProcessor::extractPatchDescriptor(frame2->image, descr2, keypoint2);
+                double dist = KeyPointProcessor::descriptorDistance(descr1, descr2);
+                if (dist < distMin) {
+                    distMin = dist;
+                    bestPoint = keypoint2;
+                    bestDescr = descr2;
                 }
             }
-            ExtendedPoint *point1 = new ExtendedPoint(keypoint, frame1);
-            frame1->keypoints.push_back(point1);
-            ExtendedPoint *point2 = new ExtendedPoint(bestPoint, frame2);
-            frame2->keypoints.push_back(point2);
-            KeyPointTraceProcessor::checkAndAddToTrace(point1, point2);
-
-            line(frame1->image, keypoint, bestPoint, Scalar(255,0,0));
-            cout << "KeyPoints number = " << frame1->keypoints.size() << " **" << endl;
         }
+        ExtendedPoint *point2 = new ExtendedPoint(bestPoint, frame2);
+        point2->descriptor = bestDescr;
+        frame2->keypoints.push_back(point2);
+        KeyPointTraceProcessor::checkAndAddToTrace(point, point2);
+
+        cout << "KeyPoints number = " << frame1->keypoints.size() << " **" << endl;
     }
 }
