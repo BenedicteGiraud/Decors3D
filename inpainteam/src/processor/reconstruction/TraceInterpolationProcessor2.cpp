@@ -107,8 +107,12 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 
 	cout << "dbg B frame " << frame->index << endl;
 
+	int frameToReconstruct = 0;
+	int countFrames = video->frames.size();
+	frameToReconstruct = countFrames / 2;
 	Mat homography;
-	bool useHomography = video->getHomography(frame, video->frames.front(), homography);
+	bool useHomography = video->getHomography(frame, *(video->frames.begin()+frameToReconstruct), homography);
+
 	while(!workingitems.empty()) {
 		WorkingItem* work = workingitems.front(); workingitems.pop();
 		if(work == NULL) continue;
@@ -190,7 +194,6 @@ void TraceInterpolationProcessor2::processFrame(Video* video, Frame* frame, cv::
 
 				if(backProjInt.x >= 0 && backProjInt.y >= 0 &&
 						backProjInt.y < summedInterpolation.rows && backProjInt.x < summedInterpolation.cols) {
-					int frameToReconstruct = 0;
 					int thisFrame = frame->index;
 					int indexDiff = abs(frameToReconstruct - thisFrame);
 					double weight = 1+exp(-indexDiff*indexDiff);

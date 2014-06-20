@@ -17,6 +17,7 @@ class Video
 {
 private:
 	double framesPerSecond;
+	std::map<std::pair<int, int>, Mat> getHomographyCache;
 
 public:
 	std::vector<Frame*> frames;

@@ -123,6 +123,11 @@ void Video::applyDoubleFrameProcessor(DoubleFrameProcessor &processor) {
 
 // TODO: check this function
 bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
+	auto it = getHomographyCache.find(pair<int,int>(from->index, to->index));
+	if(it != getHomographyCache.end()) {
+		homography = it->second;
+		return true;
+	}
 	bool inv = from->index > to->index;
 	if(inv) {
 		Frame* tmp = to;
@@ -149,6 +154,7 @@ bool Video::getHomography(Frame *from, Frame *to, Mat &homography) {
 	else {
 		homography=result;
 	}
+	getHomographyCache[pair<int,int>(from->index, to->index)] = homography;
 	return true;
 }
 
