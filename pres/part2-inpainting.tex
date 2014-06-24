@@ -14,7 +14,7 @@
  % Frame Architecture inpainting
 \begin{frame}
   \frametitle{Architecture du programme}
-  \insertF{Fig/architectureGlobale.png}{Architecture de la partie Inpainting}{1}
+  \insertF{Fig/architectureInpainting.png}{Architecture de la partie Inpainting}{1}
 
 
 \end{frame}
@@ -43,6 +43,8 @@
   	\end{itemize}
   	
   \end{itemize}
+    \insertF{Fig/cannyPoints.png}{Points de Canny}{0.4}
+
 
 \end{frame}
 
@@ -70,24 +72,28 @@
   	\end{itemize}
   	\end{itemize}
   \end{itemize}
+  
+    \insertF{Fig/cannyKeypoints.png}{Mise en évidence des keypoints et de la trace}{0.4}
+
 
 \end{frame}
-
 
 
  %%%%%%%%%%%%%%%
  % Frame inpainting principe
 \begin{frame}
-  \frametitle{Coloriage}
+  \frametitle{Remplissage}
   
   \begin{itemize}
   \item Classifier les zones
   	\begin{itemize}
-  	\item fixe <-> noir
-  	\item mobile <-> couleur du fond
+  	\item fixe $\leftrightarrow$ noir
+  	\item mobile $\leftrightarrow$ couleur du fond
   	\end{itemize}
   \item Remplir quand le point devient fixe  
   \end{itemize}
+
+% ajouter une image si possible
 
 \end{frame}
 
