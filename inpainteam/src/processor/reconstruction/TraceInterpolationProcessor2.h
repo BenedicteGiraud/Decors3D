@@ -37,6 +37,7 @@ public:
 
 	Video* debugVideo;
 	vector<cv::Mat> summedInterpolation;
+	vector<cv::Mat> weight;
 	vector<cv::Mat> count;
 	vector<vector<PixelInformationType>> infoMats;
 

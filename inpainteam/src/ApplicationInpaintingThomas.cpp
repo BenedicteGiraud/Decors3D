@@ -53,22 +53,21 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     player.setOutputDirectory(outputDirectory);
 
     // configure processor pipeline
-    /*FlowTraceProcessor flowTraceProcessor;
-    video->applyDoubleFrameProcessor(flowTraceProcessor); //*/
 
-    /*KeyPointProcessor keypoints;
+    KeyPointProcessor keypoints;
     KeyPointTraceProcessor keypointTrace;
     video->applyFrameProcessor(keypoints);
-    video->applyDoubleFrameProcessor(keypointTrace); //*/
+    //video->applyDoubleFrameProcessor(keypointTrace); //*/
 
-    CannyFlowTrace cannyFlowTrace;
-    video->applyDoubleFrameProcessor(cannyFlowTrace);
+    FlowTraceProcessor flowTraceProcessor;
+    video->applyDoubleFrameProcessor(flowTraceProcessor); //*/
+
+    /*CannyFlowTrace cannyFlowTrace;
+    video->applyDoubleFrameProcessor(cannyFlowTrace);*/
 
     //player.play();
 
     SceneTraceClassifierProcessor sceneTraceClassifierProcessor;
-    //MovementReprojection movementReprojection;
-    //video->applyVideoProcessor(movementReprojection);
 
     //player.play();
 
@@ -85,8 +84,9 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
 		//video->applyDoubleFrameProcessor(fundamentalMatEstimator);
 		//video->applyVideoProcessor(sceneTraceClassifierProcessor);
     }
-    
-    video->applyVideoProcessor(sceneTraceClassifierProcessor);
+
+    /*MovementReprojection movementReprojection;
+    video->applyDoubleFrameProcessorInverse(movementReprojection);*/
     player.play();
 
     TraceInterpolationProcessor2 tip;
@@ -100,15 +100,18 @@ void ApplicationInpaintingThomas::videoTreatment(Video *video, string outputDire
     VideoPlayer inpPlayer;
     CombinationVideoProvider videoprovider;
     FrameProcessor *resize = getResizeProcessor(video);
+
+    // original video
     videoprovider.addProvider(new AnnotationVideoProvider(video, resize, NULL), 0,0);
     Mat image = videoprovider.getImage();
-    int height = image.rows;
-    int width = image.cols;
+    int height = image.rows, width = image.cols;
     videoprovider.addProvider(new AnnotationVideoProvider(video, annotationProcessor, video), width,0);
-    videoprovider.addProvider(new AnnotationVideoProvider(inp, annotationProcessor, video), 0,height);
-    videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), width,height);
-    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, annotationProcessor, video), 0,2*height);
-    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, resize, NULL), width,2*height);
+    // inpainting of one frame
+    videoprovider.addProvider(new AnnotationVideoProvider(inp, resize, NULL), 0,height);
+    videoprovider.addProvider(new AnnotationVideoProvider(inp, annotationProcessor, video), width,height);
+    // inpainted video
+    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, resize, NULL), 0,2*height);
+    videoprovider.addProvider(new AnnotationVideoProvider(&inp2, annotationProcessor, video), width,2*height);
     inpPlayer.setVideoProvider(&videoprovider);
     inpPlayer.setOutputDirectory(outputDirectory);
     inpPlayer.play();

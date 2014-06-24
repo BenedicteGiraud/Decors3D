@@ -34,7 +34,8 @@ TraceInterpolationProcessor2::~TraceInterpolationProcessor2() {
 
 }
 
-typedef double CountType;
+typedef unsigned int CountType;
+typedef double WeightType;
 typedef double InternType;
 typedef uchar ImageType;
 
@@ -44,6 +45,7 @@ void TraceInterpolationProcessor2::processStart(Video *video) {
 	int frameCount = video->frames.back()->index;
 	for(int i=0; i<frameCount; i++) {
 		summedInterpolation.push_back(Mat_<Vec<InternType, 3>>(frame->image.size(), Vec<InternType, 3>(0,0,0)));
+		weight.push_back(Mat_<Vec<WeightType, 1>>(frame->image.size(), 0));
 		count.push_back(Mat_<Vec<CountType, 1>>(frame->image.size(), 0));
 	}
 
@@ -151,16 +153,26 @@ void TraceInterpolationProcessor2::processEnd(Video *video) {
 	int cols = video->frames.front()->image.cols;
 
 	auto itSum = summedInterpolation.begin();
+	auto itWeight = weight.begin();
 	auto itCount = count.begin();
 
 	int reconstructFrameIdx = 0;
-	for(; itSum != summedInterpolation.end(), itCount != count.end(); itSum++, itCount++, reconstructFrameIdx++) {
+	for(; itSum != summedInterpolation.end(), itWeight != weight.end(), itCount != count.end();
+			itSum++, itWeight++, itCount++, reconstructFrameIdx++) {
 		cout << "reconstructing frame " << reconstructFrameIdx << endl;
 		Frame *reconstructFrame = video->frames[reconstructFrameIdx];
 		for(int row=0; row<rows; row++) {
-			for(int col=0; col<cols; col++) {
-				for(int i=0; i<video->frames.size(); i++) {
-					if(itCount->at<CountType>(row, col) > 0.002) continue;
+			auto itSumPtr = (*itSum).ptr<Vec<InternType, 3>>(row);
+			auto itWeightPtr = (*itWeight).ptr<WeightType>(row);
+			auto itCountPtr = (*itCount).ptr<CountType>(row);
+
+			for(int col=0; col<cols; col++, itSumPtr++, itWeightPtr++, itCountPtr++) {
+
+				// loop variable i is mapped by turns to
+				// reconstructFrame, reconstructFrame+1, reconstructFrame-1, reconstructFrame+2, reconstructFrame-2, ...
+				for(int i=0; i<video->frames.size(), i<10; i++) {
+					// if(itWeight->at<WeightType>(row, col) > 0.0)
+					if(itCount->at<CountType>(row, col) > 0) break;
 
 					int maxDiff = min(reconstructFrameIdx, (int)video->frames.size()-reconstructFrameIdx-1);
 					int frameDiff = (i%2 ? -1 : 1 ) * ((i+1)/2);
@@ -179,6 +191,7 @@ void TraceInterpolationProcessor2::processEnd(Video *video) {
 						cout << "informationFrameIdx " << informationFrameIdx << endl;
 					}
 
+					//if(col > cols/4 && (reconstructFrameIdx == informationFrameIdx || itCount->at<CountType>(row, col) > 0)) break;
 					Frame *informationFrame = *(video->frames.begin()+informationFrameIdx);
 					Mat homography;
 					bool useHomography = video->getHomography(reconstructFrame, informationFrame, homography);
@@ -217,12 +230,15 @@ void TraceInterpolationProcessor2::processEnd(Video *video) {
 					}
 
 					if(doInterpolation) {
-						int thisFrame = reconstructFrame->index;
-						int indexDiff = abs(reconstructFrameIdx - thisFrame);
+						/*cout << "(" << row << "," << col << ") "
+							<< "count " << ((*itCount).at<CountType>(row,col))
+							<< "reconstr " << reconstructFrameIdx << " with " << informationFrameIdx << endl;*/
+						int indexDiff = abs(reconstructFrameIdx - informationFrameIdx);
 						double weight = 1+exp(-indexDiff*indexDiff);
 						Vec<InternType, 3> pixel = informationFrame->image.at<Vec<ImageType, 3>>(projPoint);
-						(*itSum).at<Vec<InternType, 3>>(row,col) += weight*pixel;
-						(*itCount).at<CountType>(row,col) += weight;
+						*itSumPtr += weight*pixel;
+						*itWeightPtr += weight;
+						*itCountPtr += 1;
 					}
 				}
 			}
@@ -236,13 +252,13 @@ Video TraceInterpolationProcessor2::getVideo() {
 	Video result;
 
 	auto itSum = summedInterpolation.begin();
-	auto itCount = count.begin();
-	for(; itSum!=summedInterpolation.end(), itCount != count.end(); itSum++, itCount++) {
+	auto itWeight = weight.begin();
+	for(; itSum!=summedInterpolation.end(), itWeight != weight.end(); itSum++, itWeight++) {
 		Mat normedResult = Mat::zeros(itSum->size(), CV_8UC3);
 
 		for(int row=0; row<itSum->rows; row++) {
 			Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
-			CountType* countptr = itCount->ptr<CountType>(row);
+			WeightType* countptr = itWeight->ptr<WeightType>(row);
 			Vec<InternType,3> *summedInterpolationPtr = itSum->ptr<Vec<InternType,3>>(row);
 			for(int col=0; col<itSum->cols; col++) {
 				if(*countptr != 0) {
@@ -268,7 +284,7 @@ Mat TraceInterpolationProcessor2::getImage() {
 
 	for(int row=0; row<summedInterpolation[baseFrame].rows; row++) {
 		Vec<ImageType,3> *ptr = normedResult.ptr<Vec<ImageType,3>>(row);
-		CountType* countptr = count[baseFrame].ptr<CountType>(row);
+		WeightType* countptr = weight[baseFrame].ptr<WeightType>(row);
 		Vec<InternType,3> *summedInterpolationPtr = summedInterpolation[baseFrame].ptr<Vec<InternType,3>>(row);
 		for(int col=0; col<summedInterpolation[baseFrame].cols; col++) {
 			if(*countptr != 0) {
