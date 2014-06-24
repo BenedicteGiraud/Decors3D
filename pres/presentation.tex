@@ -6,9 +6,9 @@
 \usepackage[frenchb]{babel}
 \usepackage{fancyhdr} % Required for custom headers
 \usepackage[utf8]{inputenc}
-\usepackage[lined,boxed]{algorithm2e}
-\usepackage[all]{xy}
-\usepackage{animate} %need the animate.sty file
+%\usepackage[lined,boxed]{algorithm2e}
+%\usepackage[all]{xy}
+%\usepackage{animate} %need the animate.sty file
 \graphicspath{{./Figure/}} 
 % editing header
 \setbeamertemplate{headline}
@@ -100,7 +100,74 @@
     \end{flushright}
     \end{minipage}\\[3cm]
  \end{frame}
- 
+
+ \section{Segmentation}
+ %MODIFIER ICI
+ \section{Inpainting}
+ %MODIFIER ICI
+ \section{Modélisation 3D}
+ \subsection{Entrée}
+	  
+	  \begin{frame}
+	  \frametitle{Entrée du programme}
+	  On prend en entrée:
+	  \begin{itemize}
+	    
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Des images d’une même scène décalée dans l’espace
+	    \end{itemize}
+
+	    
+	  \end{frame}
+	  
+	  \subsection{Traitement}
+	  %\subsection{Bundler}
+	  
+	  \begin{frame}
+	  \frametitle{Bundler}
+	   Bundler:
+	  \begin{itemize}
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Calcule les SIFT pour trouver des correspondances
+	    
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Estime la position des caméras
+	    
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Calcule un nuage de points 3D dense
+	    \end{itemize}
+	  \end{frame}
+	  
+	  %\subsection{MeshLab}
+	  
+	  \begin{frame}
+	  \frametitle{MeshLab}
+	    MeshLab:
+	  \begin{itemize}
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Récupère le nuage de points calculé
+	    
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Construit un maillage
+	    
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Calcule une couleur par sommet du maillage
+	    \end{itemize}
+	 \end{frame}
+
+	 \subsection{Sortie}
+	 \begin{frame}
+	  \frametitle{Sortie du programme}
+	   Nous avons donc en sortie:
+	  \begin{itemize}
+	    \setbeamertemplate{itemize item}[triangle]
+	    \item Un maillage avec les couleurs par scène données en entrée.
+	    
+	    
+	    \end{itemize}
+	 \end{frame}
+ \section{Examples}
+
  % please change content in the following files (with ending .tex)
  \input{part0-intro}
  \input{part1-segmentation}
