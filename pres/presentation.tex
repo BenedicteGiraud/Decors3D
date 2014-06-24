@@ -84,33 +84,36 @@
     \centering
     \begin{minipage}{0.4\textwidth}
     \begin{flushleft} \large
-    \emph{Authors:}\\
+    \emph{Auteurs:}\\
     T. Dalens, A. Dhobb,\\
-    B. Giroud, M. Keriben,\\
+    B. Giroud, M. Keribin,\\
     T. Rebele, M. Xu\\
     \end{flushleft}
     \end{minipage}
     \begin{minipage}{0.4\textwidth}
     \begin{flushright} \large
-    \emph{Course:}\\
-    SI 381
+    \emph{Cours :}\\
+    SI 381\\
+    \emph{Encadrants :}\\
+    M. Roux
+    S. Ladjal
     \end{flushright}
     \end{minipage}\\[3cm]
  \end{frame}
- \section{Segmentation en plans}
- %MODIFIER ICI
+\section{Segmentation en plans}
+
  
  \begin{frame}
  \frametitle{Architecture}
- \textbf{EntrÃ©e :}  Une vidÃ©o \\ 
+ \textbf{Entrée :}  Une vidéo \\ 
  
- \textbf{Sortie :}  Une sÃ©rie de frames clÃ©s pour chaque plan de la vidÃ©o \\
+ \textbf{Sortie :}  Une série de frames clÃ©s pour chaque plan de la vidéo \\
  
  \end{frame}
 
  \begin{frame}
  \frametitle{Histogramme HSV}
- \insertTwoF{Fig/hsv1.jpg}{Fig/hsv2.jpg}{dÃ©composition selon H,S et V}{0.3}
+ \insertTwoF{Fig/hsv1.jpg}{Fig/hsv2.jpg}{décomposition selon H,S et V}{0.3}
  \end{frame}
  
  \begin{frame}
@@ -121,27 +124,27 @@
  \end{frame}
  
  \begin{frame}
- \frametitle{DÃ©tection des changements plans}
+ \frametitle{Détection des changements plans}
  
- \textbf{Principe :} On compare les histogrammes entre 2 frames consÃ©cutives. Si l'intersection entre ces 2 histogrammes est infÃ©rieure Ã  un certain seuil, cela indique qu'il y a un changement de plan. \\
+ \textbf{Principe :} On compare les histogrammes entre 2 frames consÃ©cutives. Si l'intersection entre ces 2 histogrammes est inférieure à un certain seuil, cela indique qu'il y a un changement de plan. \\
  \[d_{intersection}(H_{1},H_{2}) = \sum_{i} min(H_{1}(i),H_{2}(i))\]
  
  \end{frame}
  
  
  \begin{frame}
- \frametitle{Extraction de frames clÃ©s d'une mÃªme scÃ¨ne}
+ \frametitle{Extraction de frames clés d'une même scène}
  \textbf{Principe :}
 \begin{itemize} 
-\item{On fixe un deuxiÃ¨me seuil}
-\item{On extrait la premiÃ¨re frame du plan qui est la frame de rÃ©fÃ©rence}
-\item{Pour chaque frame de ce plan, on calcule l'intersection de son histogramme avec l'histogramme de la frame de rÃ©fÃ©rence}
-\item{Si l'intersection est infÃ©rieure Ã  notre seuil, on extrait cette frame qui devient la nouvelle frame de rÃ©fÃ©rence}
+\item{On fixe un deuxième seuil}
+\item{On extrait la première frame du plan qui est la frame de référence}
+\item{Pour chaque frame de ce plan, on calcule l'intersection de son histogramme avec l'histogramme de la frame de référence}
+\item{Si l'intersection est inférieure à  notre seuil, on extrait cette frame qui devient la nouvelle frame de référence}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
- \frametitle{Extraction de frames clÃ©s d'une mÃªme scÃ¨ne}
+ \frametitle{Extraction de frames clés d'une même scène}
 \end{frame}
 
  
@@ -186,5 +189,16 @@
  \frac{\sin(x)}{x} = 6
  \]
  \end{frame}
+ 
+\end{document}
+
+ 
+ % please change content in the following files (with ending .tex)
+ \input{part0-intro}
+ \input{part1-segmentation}
+ \input{part2-inpainting}
+ \input{part3-reconstruction3d}
+ \input{part4-conclusion}
+ \input{exemple}
  
 \end{document}
