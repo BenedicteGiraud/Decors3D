@@ -100,97 +100,15 @@
     \end{flushright}
     \end{minipage}\\[3cm]
  \end{frame}
-\section{Segmentation en plans}
+ 
+ \section{Segmentation en plans}
+ %MODIFIER ICI
 
- 
- \begin{frame}
- \frametitle{Architecture}
- \textbf{Entrée :}  Une vidéo \\ 
- 
- \textbf{Sortie :}  Une série de frames clÃ©s pour chaque plan de la vidéo \\
- 
- \end{frame}
-
- \begin{frame}
- \frametitle{Histogramme HSV}
- \insertTwoF{Fig/hsv1.jpg}{Fig/hsv2.jpg}{décomposition selon H,S et V}{0.3}
- \end{frame}
- 
- \begin{frame}
- \frametitle{Histogramme HSV}
- On calcule un histogramme HSV normalisÃ© sur 16 bins pour chaque frame : 8 bins pour H, 4 pour S et 4 pour V.\\
- \vspace{1cm}
- \verb![Rasheed, Shah, CVPR 2003]!\\
- \end{frame}
- 
- \begin{frame}
- \frametitle{Détection des changements plans}
- 
- \textbf{Principe :} On compare les histogrammes entre 2 frames consÃ©cutives. Si l'intersection entre ces 2 histogrammes est inférieure à un certain seuil, cela indique qu'il y a un changement de plan. \\
- \[d_{intersection}(H_{1},H_{2}) = \sum_{i} min(H_{1}(i),H_{2}(i))\]
- 
- \end{frame}
- 
- 
- \begin{frame}
- \frametitle{Extraction de frames clés d'une même scène}
- \textbf{Principe :}
-\begin{itemize} 
-\item{On fixe un deuxième seuil}
-\item{On extrait la première frame du plan qui est la frame de référence}
-\item{Pour chaque frame de ce plan, on calcule l'intersection de son histogramme avec l'histogramme de la frame de référence}
-\item{Si l'intersection est inférieure à  notre seuil, on extrait cette frame qui devient la nouvelle frame de référence}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
- \frametitle{Extraction de frames clés d'une même scène}
-\end{frame}
-
- 
-
- 
- 
- 
  \section{Inpainting}
  %MODIFIER ICI
+ 
  \section{ModÃ©lisation 3D}
  %MODIFIER ICI
- \section{Examples}
- 
- \begin{frame}
-  \frametitle{Exemples d'images}
-  \insertF{Fig/chat1.jpg}{petit chaton 1}{0.3}
-  \insertF{Fig/chat2.jpg}{petit chaton 2}{0.3}
- \end{frame}
- 
- \begin{frame}
-  \frametitle{Exemples d'images}
-  \insertTwoF{Fig/chat1.jpg}{Fig/chat2.jpg}{petits chatons}{0.4}
- \end{frame}
- \begin{frame}
-   Exemples de table des matiÃ¨res
-
- \begin{enumerate}
-
-
-   \item partie 1
-   \item partie 2
-   \item partie 3
-   
- \end{enumerate}
-
- 
- \end{frame} 
- 
- \begin{frame}
- exemples de texte avec \emph{emphase}, \textbf{gras}, maths $x_{n+1}^2=0$ et encore maths
- \[
- \frac{\sin(x)}{x} = 6
- \]
- \end{frame}
- 
-\end{document}
 
  
  % please change content in the following files (with ending .tex)
