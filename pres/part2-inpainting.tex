@@ -1,18 +1,19 @@
-
  \section{Inpainting}
  %MODIFIER ICI
 \begin{frame}
-  \frametitle{Inpainting}
-  %% FAIRE UNE DIAPO DE SECTION SERAIT MIEUX !!
+  \frametitle{Inpainting :D}
+  \begin{itemize}
+  \item FAIRE UNE DIAPO DE SECTION SERAIT MIEUX !!
+  \end{itemize}
 
 \end{frame}
 
 
 
  %%%%%%%%%%%%%%%
- % Frame
+ % Frame Architecture inpainting
 \begin{frame}
-  \frametitle{Inpainting - Architecture du programme}
+  \frametitle{Architecture du programme}
   \insertF{Fig/architectureGlobale.png}{Architecture de la partie Inpainting}{1}
 
 
@@ -21,27 +22,72 @@
 
 
  %%%%%%%%%%%%%%%
- % Frame
+ % Frame KeyPoints
 \begin{frame}
-  \frametitle{Inpainting - ???}
+  \frametitle{Keypoints}
+  
+  \begin{itemize}
+  \item SURF
+  	\begin{itemize}
+  	\item
+  	\end{itemize}
+  	
+  \item GFTT (Harris)
+	\begin{itemize}
+  	\item
+  	\end{itemize}
+  	
+  \item Canny
+    \begin{itemize}
+  	\item
+  	\end{itemize}
+  	
+  \end{itemize}
 
 \end{frame}
 
 
 
  %%%%%%%%%%%%%%%
- % Frame
+ % Frame create trace
 \begin{frame}
-  \frametitle{Inpainting - ???}
+  \frametitle{Trace}
+  \begin{itemize}
+  \item Recherche de correspondances entre points
+  	\begin{itemize}
+  	\item Sélection des keypoints
+  	\item Recherche dans le voisinage frame suivante
+  	\end{itemize}
+  \item Estimer l'homographie
+  \item Trace
+  	\begin{itemize}
+  	\item Créer et continuer la trace
+  	\item Classifier la trace
+  	\begin{itemize}
+  		\item fixe
+  		\item mobile
+  		\item indéterminé
+  	\end{itemize}
+  	\end{itemize}
+  \end{itemize}
 
 \end{frame}
 
 
 
  %%%%%%%%%%%%%%%
- % Frame
+ % Frame inpainting principe
 \begin{frame}
-  \frametitle{Inpainting - ???}
+  \frametitle{Coloriage}
+  
+  \begin{itemize}
+  \item Classifier les zones
+  	\begin{itemize}
+  	\item fixe <-> noir
+  	\item mobile <-> couleur du fond
+  	\end{itemize}
+  \item Remplir quand le point devient fixe  
+  \end{itemize}
 
 \end{frame}
 
@@ -49,7 +95,7 @@
  %%%%%%%%%%%%%%%
   % Frame demonstration
  \begin{frame}
-   \frametitle{Introduction - Démonstration}
+   \frametitle{Démonstration}
    \insertF{Fig/workInProgress.png}{Lancement de la démonstration inpainting 2D + t}{0.5}
 
 
