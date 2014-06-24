@@ -1,0 +1,104 @@
+\section{Introduction}
+ %%%%%%%%%%%%%%%%%%%
+ % Frame presentation of the programm : idee, what he does
+ \begin{frame}
+   \frametitle{Introduction - Contexte}
+   
+   \begin{itemize}
+   
+   \item Industrie du film est très importante et donne de nombreux produits dérivés
+   	\begin{itemize}
+   	\item Parodies
+   	\item Industrie des jeux vidéos
+   	\item Reconstruction décor réel en virtuel
+   	\end{itemize}
+   
+   \item État de l'art
+   	\begin{itemize}
+   	\item Indexation
+   	\item Détection de personnages
+   	\item Inpainting 2D+t
+   	\item Reconstruction 3D d'objets
+
+   	\end{itemize}
+   	
+   \item Notre idée
+   	\begin{itemize}
+   	\item Supprimer les personnages pour obtenir les décors des films
+   	\end{itemize}
+   
+   \end{itemize}
+ 
+ \end{frame}
+
+
+ %%%%%%%%%%%%%%%%%%%
+ % Frame plan
+\begin{frame}
+  \frametitle{Introduction - Plan de la présentation}
+  \begin{itemize}
+  \item Introduction
+  \end{itemize}
+  \begin{enumerate}
+  \item Segmentation
+  \item Inpainting 2D+t
+  \item Reconstruction 3D
+  \end{enumerate}
+  \begin{itemize}
+  \item Conclusion
+  \item Démonstration
+  \end{itemize}
+  
+
+\end{frame}
+
+
+ %%%%%%%%%%%%%%%
+  % Frame purposes, how to use it
+ \begin{frame}
+   \frametitle{Introduction - Objectif}
+   
+   \begin{itemize}
+   \item Obtenir le décor des films
+   	\begin{itemize}
+   	\item Sous format 3D si possible
+   	\item En 2D sinon
+   	\end{itemize}
+   	
+   \item Fonctionnement idéal
+   	\begin{itemize}
+   	\item Donner un film en entrée
+   	\item Détecter les différents points de vue
+   	\item Grouper les scènes d'un même décor
+   	\item Supprimer les personnages
+   	\item Obtenir un maillage 3D du décor
+   	\end{itemize}
+   
+   \item Problèmes à résoudre
+  	\begin{itemize}
+	\item Présence de personnages devant le décor
+	\item Définition du décor
+	\item Scène fixes
+  	\end{itemize}
+
+   \end{itemize}
+	
+ \end{frame}
+ 
+ %%%%%%%%%%%%%%%%%%%
+ % Frame architecture
+\begin{frame}
+  \frametitle{Introduction - Architecture}
+  \insertF{Fig/architectureGlobale.png}{Architecture de notre programme}{1}
+
+\end{frame}
+
+
+ %%%%%%%%%%%%%%%
+  % Frame demonstration
+ \begin{frame}
+   \frametitle{Introduction - Démonstration}
+   \insertF{Fig/workInProgress.png}{Lancement de la démonstration en parallèle}{0.5}
+
+
+ \end{frame}
