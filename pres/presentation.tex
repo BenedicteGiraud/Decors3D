@@ -76,8 +76,7 @@
 
 \begin{document}
 
- \title{Décors3D} 
- \section{Présentation}
+ \title{Décors3D}
  %title page
  \begin{frame}
 \titlepage
@@ -101,24 +100,28 @@
     \end{minipage}\\[3cm]
  \end{frame}
  
-
-
- 
- \section{Segmentation en plans}
- %MODIFIER ICI
-
- \section{Inpainting}
- %MODIFIER ICI
- 
- \section{Modélisation 3D}
- %MODIFIER ICI
+ \begin{frame}<beamer>
+ \frametitle{Plan de la présentation}
+ \tableofcontents[hidesubsections]
+ \end{frame}
 
  
  % please change content in the following files (with ending .tex)
  \input{part0-intro}
+
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>
+ \frametitle{Plan de la présentation}
+ \tableofcontents[currentsection,hideothersubsections]
+ \end{frame}
+}
  \input{part1-segmentation}
  \input{part2-inpainting}
  \input{part3-reconstruction3d}
+ 
+%\AtBeginSection[]{}
+  
  \input{part4-conclusion}
  % \input{exemple}
  
