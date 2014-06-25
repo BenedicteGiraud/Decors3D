@@ -23,19 +23,17 @@
     
  \end{frame} 
  
-\subsection{Entrée}
-	  
-	  \begin{frame}
-	  \frametitle{Entrée du programme}
-	  On prend en entrée:
-	  \begin{itemize}
-	    
-	    \setbeamertemplate{itemize item}[triangle]
-	    \item Des images d’une même scène décalée dans l’espace
-	    \end{itemize}
+\subsection{Architecture du programme}
+ %%%%%%%%%%%%%%%
+ % Frame Architecture inpainting
+\begin{frame}
+  \frametitle{Architecture du programme}
+  \insertF{Fig/architectureReco3d.png}{Architecture de la partie Reconstruction 3D}{1}
 
-	    
-	  \end{frame}
+\end{frame}	  
+	  
+	  
+	  
 	  
 	  \subsection{Traitement}
 	  %\subsection{Bundler}
@@ -53,8 +51,11 @@
 	    \setbeamertemplate{itemize item}[triangle]
 	    \item Calcule un nuage de points 3D dense
 	    \end{itemize}
+	    
+	   \insertF{Fig/nuagePtsTemple4coup.png}{Nuage de points}{0.4}
+
 	  \end{frame}
-	  
+	  	  
 	  %\subsection{MeshLab}
 	  
 	  \begin{frame}
@@ -70,6 +71,13 @@
 	    \setbeamertemplate{itemize item}[triangle]
 	    \item Calcule une couleur par sommet du maillage
 	    \end{itemize}
+	    
+  \begin{figure}
+  \includegraphics[width=0.45\textwidth]{Fig/nuagePtsTemple6coup.png}
+  \includegraphics[width=0.45\textwidth]{Fig/nuagePtsTemple6coup.png}
+  \caption{Reconstruction du maillage}
+  \end{figure}
+  
 	 \end{frame}
 
 	 \subsection{Sortie}
