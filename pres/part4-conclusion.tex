@@ -18,6 +18,23 @@
 
 
 %%%%%%%%%%%%%%%%%%%
+ % Frame show the result of demo in live
+ \begin{frame}
+ \frametitle{Résultat de la démonstration}
+ \begin{figure}
+   \includegraphics[width=0.5\textwidth]{Fig/workInProgress.png}
+   \end{figure}
+
+\end{frame}
+
+% frame bibligraphy
+\nocite{*}
+\begin{frame}[allowframebreaks]
+    \bibliographystyle{apalike}
+    \bibliography{references.bib}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%
  % Frame question
  \begin{frame}
  \frametitle{Questions}
@@ -25,10 +42,4 @@
  \includegraphics[width=0.5\textwidth]{Fig/question.jpg}
  \end{figure}
 
-\end{frame}
-
-\nocite{*}
-\begin{frame}[allowframebreaks]
-    \bibliographystyle{apalike}
-    \bibliography{references.bib}
 \end{frame}
