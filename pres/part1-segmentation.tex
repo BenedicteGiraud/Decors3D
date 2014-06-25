@@ -1,6 +1,5 @@
  \section{Segmentation}
  %MODIFIER ICI
- %MODIFIER ICI
  %%%%%%%%%%%%%%%
  % Frame Section title
  \begin{frame}
@@ -24,14 +23,17 @@
     
  \end{frame}
  
- \begin{frame}
- \frametitle{Architecture}
- \textbf{Entrée :}  Une vidéo \\ 
  
- \textbf{Sortie :}  Une série de frames clés pour chaque plan de la vidéo \\
- 
- \end{frame}
+%%%%%%%%%%%%%%%
+ % Frame Architecture inpainting
+\begin{frame}
+  \frametitle{Architecture du programme}
+  \insertF{Fig/architectureSegmentation.png}{Architecture de la partie Segmentation}{1}
 
+\end{frame} 
+ 
+ 
+ 
  \begin{frame}
  \frametitle{Histogramme HSV}
  \insertTwoF{Fig/hsv1.jpg}{Fig/hsv2.jpg}{décomposition selon H,S et V}{0.3}
@@ -67,3 +69,14 @@
 \begin{frame}
  \frametitle{Extraction de frames clés d'une même scène}
 \end{frame}
+
+
+ %%%%%%%%%%%%%%%
+  % Frame demonstration
+ \begin{frame}
+   \frametitle{Démonstration}
+   \begin{figure}
+   \includegraphics[width=0.5\textwidth]{Fig/workInProgress.png}
+   \end{figure}
+
+ \end{frame}
