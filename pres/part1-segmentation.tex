@@ -74,6 +74,76 @@
 \end{frame}
 
 
+%%%%%%%%%%%%%%%%
+\begin{frame}
+ \frametitle{Films en noir et blanc}
+ Films en noir et blanc :
+ \begin{enumerate}
+ \item Méthode similaire
+ \item Histogramme une dimension, niveau de gris, 8 cases
+ \item Résultats comparables mais inférieurs
+  \insertTwoF{Fig/ldv0037-0000.jpg}{Fig/ldv0039-0001.jpg}{Extraits de \emph{La Dolce Vita}}{0.4}
+ \end{enumerate}
+ \end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Première idée : détecter les visages
+  \insertTwoF{Fig/stark.jpg}{Fig/statue.jpg}{Extraits de \emph{The Fellowship of the Ring}}{0.6}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Première idée : détecter les visages
+  \insertTwoF{Fig/twd1.jpg}{Fig/twd2.jpg}{Extraits de \emph{The Walking Dead}}{0.5}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Méthode : détecteur en cascade de Haar
+\begin{enumerate}
+\item Fonctionne sur l'image intégrale
+\item Calcul de différences sur cette image
+\item Entraînement des différents "patchs" avec AdaBoost
+  \insertF{Fig/haarfeatures.png}{"patchs" pour la méthode de Haar}{0.5}
+
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Deuxième idée : estimation du flou \\
+Méthode : convolution avec un Laplacien
+  \insertTwoF{Fig/lvd1.jpg}{Fig/lvd2.jpg}{Images floues de \emph{A Perfect World}}{0.4}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Deuxième idée : estimation du flou \\
+Méthode : convolution avec un Laplacien \\
+Puis on regarde la netteté des points
+
+  \insertTwoF{Fig/lvd3.jpg}{Fig/lvd4.jpg}{Images de \emph{A Perfect World}. A gauche, le score de netteté est plus élevé qu'à droite.}{0.4}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sélection des bonnes séquences}
+Deuxième idée : estimation du flou \\
+Méthode : convolution avec un Laplacien \\
+Puis on regarde la netteté des points
+
+  \insertTwoF{Fig/lvd3a.png}{Fig/lvd4a.png}{Convolution avec le Laplacien.}{0.47}
+\end{frame}
+\begin{frame}
+\frametitle{Regroupement des séquences}
+Idée : plusieurs plans peuvent être de la même scène \\
+Méthode : On compare les histogrammes des plans successifs
+\insertTwoF{Fig/lvd5.jpg}{Fig/lvd6.jpg}{Deux plans de \emph{A Perfect World}}{0.4}
+\end{frame}
+
 
  %%%%%%%%%%%%%%%
   % Frame demonstration
