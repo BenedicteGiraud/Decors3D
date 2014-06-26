@@ -45,21 +45,39 @@
   \item SURF
   	\begin{itemize}
   	\item Inspiré des SIFTs
-  	\item Utilise ondelettes de Haar
+  	\item Plus rapide
+  	\item Utilise ondelettes de Haar 2D
   	\end{itemize}
   	
-  \item GFTT (Harris)
-	\begin{itemize}
-  	\item Détection des coins
-  	\end{itemize}
-  	
-  \item Canny
+  \item GFTT
     \begin{itemize}
+    \item Utilise les points de Harris
+    \item Détection de coins
+    \end{itemize}
+  	
+  \item LucasKanade Optical Flow
+    \begin{itemize}
+    \item Grille sur chaque frame
+    \item Suivi des keypoints dans la grille
+    \item Adaptation du nombre de Keypoints
+    \end{itemize}
+  \end{itemize}
+\end{frame}  	
+  
+\begin{frame}
+  \frametitle{Keypoints}
+  
+  \begin{itemize}
+  \item Canny : Détection des contours
+    \begin{itemize}
+  	\item Réduction du bruit
+  	\item Gradient d'intensité
   	\item Détection des contours
+  	\item Seuillage des contours
   	\end{itemize}
   	
   \end{itemize}
-    \insertF{Fig/cannyPoints.png}{Points de Canny}{0.4}
+    \insertF{Fig/cannyPoints.png}{Points de Canny}{0.6}
 
 
 \end{frame}
