@@ -33,7 +33,9 @@
 \end{frame} 
  
  
- 
+
+
+ %%%%%%%%%%%%%%%
  \begin{frame}
  \frametitle{Histogramme HSV}
  \insertTwoF{Fig/hsv1.jpg}{Fig/hsv2.jpg}{décomposition selon H,S et V}{0.3}
@@ -50,13 +52,13 @@
  \frametitle{Détection des changements plans}
  
  \textbf{Principe :} On compare les histogrammes entre 2 frames consécutives. Si l'intersection entre ces 2 histogrammes est inférieure à un certain seuil, cela indique qu'il y a un changement de plan. \\
- \[d_{intersection}(H_{1},H_{2}) = \sum_{i} min(H_{1}(i),H_{2}(i))\]
+ \[d_{intersection}(H_{1},H_{2}) = \sum_{i} \min(H_{1}(i),H_{2}(i))\]
  
  \end{frame}
  
  
  \begin{frame}
- \frametitle{Extraction de frames clés d'une même scène}
+ \frametitle{Extraction de frames clés d'un même plan}
  \textbf{Principe :}
 \begin{itemize} 
 \item{On fixe un deuxième seuil}
@@ -67,8 +69,10 @@
 \end{frame}
 
 \begin{frame}
- \frametitle{Extraction de frames clés d'une même scène}
+ \frametitle{Extraction de frames clés d'un même plan}
+ \insertF{Fig/Spiderman.jpg}{Frames clés d'un plan de \emph{Spiderman 2}}{1}
 \end{frame}
+
 
 
  %%%%%%%%%%%%%%%
