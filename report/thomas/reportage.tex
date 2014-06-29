@@ -1,0 +1,69 @@
+\documentclass[8pt,twoside=off,titlepage=false, twocolumn]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+%\usepackage[left=1.5cm,right=1.5cm]{geometry}
+\usepackage[left=3cm,top=3.1cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+\usepackage{microtype}
+\usepackage{gensymb}
+\usepackage{tabulary}
+\usepackage[french]{varioref}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{multicol}
+
+\usepackage{mathpazo}
+\usepackage[scaled=.95]{helvet}
+\usepackage{courier}
+
+\linespread {1.10}\selectfont
+
+\renewcommand*\sectfont{\normalcolor\rmfamily\bfseries}
+\renewcommand*\descfont{\rmfamily\bfseries}
+\setkomafont{dictum}{\normalfont\normalcolor\rmfamily\small}
+
+\setlength\parindent{0pt}
+\clubpenalty10000
+\widowpenalty10000
+\displaywidowpenalty=10000
+
+
+\begin{document}
+
+\begin{titlepage}
+\title{Décors3D}
+%\title{Décors3D - Reconstruction du décors à partir d'un vidéo}
+%\subtitle{Projet de traitement des images \\ Télécom ParisTech \\ \  \\Encadrant: 
+%M. Roux, S. Ladjal}
+\author{Thomas Rebele}
+\date{\today}
+\end{titlepage}
+
+\begingroup
+ \makeatletter
+ %\@titlepagetrue
+ \maketitle
+\endgroup
+
+\tableofcontents
+
+\section{Introduction}
+
+
+
+\addcontentsline{toc}{section}{Références}
+
+\nocite{*}
+
+    \bibliographystyle{apalike}
+    \bibliography{references}
+
+
+\end{document}
