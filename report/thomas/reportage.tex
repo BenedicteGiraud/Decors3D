@@ -4,10 +4,10 @@
 \usepackage[french]{babel}
 
 %\usepackage[left=1.5cm,right=1.5cm]{geometry}
-\usepackage[left=3cm,top=3.1cm]{geometry}
+\usepackage[left=1.5cm,top=1cm,right=1.5cm,bottom=1.7cm]{geometry}
 \usepackage{graphicx}
 \usepackage{subcaption}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{wrapfig}
 \usepackage{microtype}
 \usepackage{gensymb}
@@ -18,12 +18,18 @@
 \usepackage{listings}
 \usepackage{tikz}
 \usepackage{multicol}
+\usepackage{titlesec}
+\titlespacing\section{0pt}{10pt plus 4pt minus 2pt}{2pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{7pt plus 4pt minus 2pt}{2pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{4pt plus 4pt minus 2pt}{2pt plus 2pt minus 2pt}
+\titlespacing\paragraph{0pt}{2pt plus 4pt minus 2pt}{2pt plus 2pt minus 2pt}
+\setlength{\parskip}{1mm plus4mm minus1mm}
 
 \usepackage{mathpazo}
 \usepackage[scaled=.95]{helvet}
 \usepackage{courier}
 
-\linespread {1.10}\selectfont
+\linespread {1.0}\selectfont
 
 \renewcommand*\sectfont{\normalcolor\rmfamily\bfseries}
 \renewcommand*\descfont{\rmfamily\bfseries}
@@ -36,12 +42,12 @@
 
 
 \begin{document}
-
+\pagenumbering{gobble}
+\thispagestyle{empty}
 \begin{titlepage}
-\title{Décors3D}
-%\title{Décors3D - Reconstruction du décors à partir d'un vidéo}
-%\subtitle{Projet de traitement des images \\ Télécom ParisTech \\ \  \\Encadrant: 
-%M. Roux, S. Ladjal}
+\title{Décors3D - Reconstruction du décors à partir d'un vidéo}
+\subtitle{Projet de traitement des images \\ Télécom ParisTech \\ \  \\Encadrant: 
+M. Roux, S. Ladjal}
 \author{Thomas Rebele}
 \date{\today}
 \end{titlepage}
@@ -52,15 +58,71 @@
  \maketitle
 \endgroup
 
-\tableofcontents
+%\tableofcontents
 
 \section{Introduction}
 
+Pour le projet d'imagerie SI381 nous avons essayé d'implementér des algorithmes pour la réconstruction du décors en 3D. Au début de projet le sujet a été divisé en trois parties:
+\begin{itemize}
+\item la \emph{segmentation} en differents parties
+\item l'\emph{inpainting} pour enlever les personnages
+\item la \emph{réconstruction} pour le modèle en 3D
+\end{itemize}
 
+Avec Muriel Keribin j'ai travaillé sur la partie \flqq\ inpainting \frqq. La difficulté (ce qui est different des autres algorithmes dans la litérature) : pour que on peut faire l'inpainting automatiquement on ne veut pas utiliser une masque, c'ést-à-dire que on veut trouver les objets bougés sans l'aide humaine.
+
+\section{Architecture du programme}
+
+Au début de la periode on a fait le choix d'implementer en C++ en utilisant la bibliothèque OpenCV, qui inclut beaucoup des algorithmes de traitment des images.
+
+Educé dans l'informatique en générale j'ai distribué la fonctionalité en petits fonctions associé aux classes selon un approach objet-orientée. L'architecture générale ressemble à Model-View-Controler. J'ai implementé plusieurs classes pour générer les differents types des donnés, c'est-à-dire des classes Video, Frame, ExtendedPoint et PointTrace.
+
+Les classes dans \flqq\ processor\frqq\ sont résponsable pour la détection, la visualisation des points clés et la réconstruction. Il y a plusieurs algorithmes de détéction de points clés, et deux versions de la réconstruction.
+
+Dernièrement j'ai implementé un petit player vidéo qui permet de visualiser les différents étapes de l'algorithme avec des vues multiples en même temps (le vidéo originale, avec les points détéctés, le vidéo \mbox{\flqq\ inpainted \frqq}, ...). Des raccourcis clavier permet de naviger dans le vidéo, ou le sauvegarder avec la visualisation.
+
+\section{Étapes de l'algorithme d'inpainting}
+
+Notre algorithme se décompose en plusieurs étapes qui sont (normalement) executé consécutivement. Des détails sont expliqués dans les sous-sections suivantes.
+
+\begin{enumerate}
+\item détection des points clés
+\item trouver des correspondances entre deux frames et les combiner dans traces
+\item classification des traces en \emph{scène}, \emph{objet} et \emph{inconnu}
+\item la combinaison des information des frames (inpainting)
+\end{enumerate}
+
+Mon idée c'était que on pourrait executer quelques étapes plusieurs fois pour améliorer le résultat. Par example nous estimons l'homographie avec RANSAC avec une fonction de OpenCV. En connaissant l'homographie on peut estimer la position d'un point de la scène dans le prochain frame, ce qui simplifie de trouver des correspondances. De trouver des correspondances pourrait être amélioré quand on relance la détecion des points clés.
+
+\subsection{Détection des points clés}
+
+\paragraph{SURF et GFTT} : Ces deux algorithmes sont déjà implementés dans OpenCV, donc il fallait seulement de les éxecuter et sauvegarder les resultats dans la classe Frame. SURF est inspiré par SIFT, mais prend moins de temps pour l'execution selon \cite{surf}. La méthode GFTT de OpenCV a un paramètre pour utiliser les points de Harris, et c'est qu'on utilise.
+
+\paragraph{Lucas Kanade} : Voyez la sous-section prochaine.
+
+\subsection{Correspondances}
+
+\paragraph{Distance Similarity Matching}: OpenCV a un algorithme pour faire le matching entre les points, mais ça n'a pas donné des bons résultats. Il y avait toujours quelques outliers, qui ont dérangé les prochaines étapes. La méthode d'OpenCV prend seulement la similarité en compte.
+
+Mon idée était donc d'implementer un algorithme qui prend en compte la similarité et la distance. Pour chaque couple de points clés l'algorithme calcule la distance $rawDist_{ij} $ entre les coordinates de la frame actuelle et la prédiction dans la frame prochaine. La prédiction est basé sur l'homographie si elle était déjà culculé, sinon l'homographie est l'identité. Si la distance et moins que la distance de recherche $searchDist$ la distance normalisé $rawDist_{ij} / searchDist$ est calculé, sinon il continue à porchain couple. Ensuite il calcule la similarité avec $sim_{ij} = \| desc_i - decs_j \|$, où $desc_i$ est le déscripteur de point $i$. 
+
+Les deux valeurs sont combinés selon $d_{ij} = \frac{1}{2} dist_{ij} + sim_{ij}$. La valeur $\frac{1}{2}$ à bien marché dans les premiers experiences. Un histogram des valeurs $d_{ij}$ est crée, et les couples de points, qui ont une distance moins que le $20\%$ quantil plus 5\% de ce quantil jusqu'à la distance maximale, sont mis en correspondance. Le temps limité n'a pas permis une évaluation de cet approche, mais il semblait de marcher assez bien. Une amélioration serait peut-être de faire un histogram 2D de $dist_{ij}$ et $sim_{ij}$ et trouver la classe la plus grande.
+
+\paragraph{Lucas Kanade Optical Flow}
+
+La prochaine idée était d'utiliser l'algorithme de Lucas Kanade pour calculer le flux optique. On commence avec une grille et on calcule pour ces points la position correspondante dans le prochaine frame. Pour que on a des points partout dans l'image des traces sont arrêtés quand il y a trop de points autour, ou des nouvelles points clés sont crées quand il n'y a pas assez dans une région. L'avantage de cet algorithme est que la mise en correspondance se passe automatiquement et on a des feature points dense. La desavantage: la calculation prend plus de temps que pour les autres approches.
+
+\subsection{Classification des traces}
+
+
+
+\subsection{Inpainting}
+
+\section{Comparaison avec la literature}
+
+\subsection{Inpainting}
 
 \addcontentsline{toc}{section}{Références}
-
-\nocite{*}
 
     \bibliographystyle{apalike}
     \bibliography{references}
