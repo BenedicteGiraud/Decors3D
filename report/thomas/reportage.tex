@@ -114,13 +114,17 @@ La prochaine idée était d'utiliser l'algorithme de Lucas Kanade pour calculer 
 
 \subsection{Classification des traces}
 
-
+Pour la classification des traces l'algorithme compare les coordonées de pixels d'une trace avec l'estimation de le point calculé avec l'homographie. Pour chaque trace avec les points $(p_1, \dots, p_n)$, l'erreur est $\sum_{1\le i < n} \| p_i+1 - H_{i, i+1} p_{i} \|$. Le seuil est trouvé automatiquement avec le maximum d'un histogram des distances de 200 bins. Les traces avec un erreur moins que le maximum bin plus 20 sont classifiés comme partie de la scène.
 
 \subsection{Inpainting}
+
+\paragraph{Version 1} : Ici seulement l'inpainting est fait seulement pour un frame. Pour chaque pixel le point clé le plus proche est cherché, et si il est partie de la scène on ajout la valeur à une matrice de somme avec les coordinatés projétes avec l'homographie. On prend une simple moyenne des valeurs.
+
+\paragraph{Version 2} : Le résultat est un vidéo inpainted. Pour chaque pixel de frame $i$ qu'il faut compléter, l'algorithme cherche dans les frames successives ou précedentes (dans la façon $i+0, i+1, i-1, i+2, i-2, \dots$) si il y a un point (dans les coordinates projétés) qui porte de l'information utilisable. Les points sont pondérés avec une mésure de la distance des index de frame à réconstruire et le frame qui porte l'information: $1+e^{-|i-j|^2}$.
 
 \section{Comparaison avec la literature}
 
-\subsection{Inpainting}
+Dans la litérature on a seulement trouvé des examples qui utilisent des masques pour indiquer les objets. La pluspart des articles se limite aux caméras fixes. Un article qui dit qu'il est applicable avec un bougement libre da la caméra est \cite{background-inpainting}. Les auteurs utilisent aussi des homographies pour estimer la position des objets. Contrairement à la méthode présenté dans les paragraphes précedentes ils utilisent plusieurs homographies, ce qui semble d'améliorer le résultat en approximant les differents parties de la scène avec plusieurs plans. Comme nous avons seulement utilisé une homographie, notre algorithme estime la scène comme un seul plan, ce qui n'est pas assez précis.
 
 \addcontentsline{toc}{section}{Références}
 
