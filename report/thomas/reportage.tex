@@ -33,7 +33,7 @@
 
 \renewcommand*\sectfont{\normalcolor\rmfamily\bfseries}
 \renewcommand*\descfont{\rmfamily\bfseries}
-\setkomafont{dictum}{\normalfont\normalcolor\rmfamily\small}
+\setkomafont{dictai}{\normalfont\normalcolor\rmfamily\small}
 
 \setlength\parindent{0pt}
 \clubpenalty10000
@@ -62,28 +62,28 @@ M. Roux, S. Ladjal}
 
 \section{Introduction}
 
-Pour le projet d'imagerie SI381 nous avons essayé d'implementér des algorithmes pour la réconstruction du décors en 3D. Au début de projet le sujet a été divisé en trois parties:
+Pour le projet d'imagerie SI381 nous avons essayé d'implémenter des algorithmes pour la reconstruction du décors en 3D. Au début de projet le sujet a été divisé en trois parties:
 \begin{itemize}
-\item la \emph{segmentation} en differents parties
+\item la \emph{segmentation} en différents parties
 \item l'\emph{inpainting} pour enlever les personnages
-\item la \emph{réconstruction} pour le modèle en 3D
+\item la \emph{reconstruction} pour le modèle en 3D
 \end{itemize}
 
-Avec Muriel Keribin j'ai travaillé sur la partie \flqq\ inpainting \frqq. La difficulté (ce qui est different des autres algorithmes dans la litérature) : pour que on peut faire l'inpainting automatiquement on ne veut pas utiliser une masque, c'ést-à-dire que on veut trouver les objets bougés sans l'aide humaine.
+Avec Muriel Keribin j'ai travaillé sur la partie \flqq\ inpainting \frqq. La difficulté (ce qui est diffèrent des autres algorithmes dans la littérature) : pour que on peut faire l'inpainting automatiquement on ne veut pas utiliser une masque, c'est-à-dire que on veut trouver les objets bougés sans l'aide humaine.
 
 \section{Architecture du programme}
 
-Au début de la periode on a fait le choix d'implementer en C++ en utilisant la bibliothèque OpenCV, qui inclut beaucoup des algorithmes de traitment des images.
+Au début de la période on a fait le choix d'implémenter en C++ en utilisant la bibliothèque OpenCV, qui inclut beaucoup des algorithmes de traitement des images.
 
-Educé dans l'informatique en générale j'ai distribué la fonctionalité en petits fonctions associé aux classes selon un approach objet-orientée. L'architecture générale ressemble à Model-View-Controler. J'ai implementé plusieurs classes pour générer les differents types des donnés, c'est-à-dire des classes Video, Frame, ExtendedPoint et PointTrace.
+Éduqué dans l'informatique en générale j'ai distribué la fonctionnalité en petits fonctions associé aux classes selon une approche objet-orientée. L'architecture générale ressemble à Model-View-Controler. J'ai implémenté plusieurs classes pour générer les différents types des donnés, c'est-à-dire des classes Vidéo, Frame, ExtendedPoint et PointTrace.
 
-Les classes dans \flqq\ processor\frqq\ sont résponsable pour la détection, la visualisation des points clés et la réconstruction. Il y a plusieurs algorithmes de détéction de points clés, et deux versions de la réconstruction.
+Les classes dans \flqq\ processor\frqq\ sont responsable pour la détection, la visualisation des points clés et la reconstruction. Il y a plusieurs algorithmes de détection de points clés, et deux versions de la reconstruction.
 
-Dernièrement j'ai implementé un petit player vidéo qui permet de visualiser les différents étapes de l'algorithme avec des vues multiples en même temps (le vidéo originale, avec les points détéctés, le vidéo \mbox{\flqq\ inpainted \frqq}, ...). Des raccourcis clavier permet de naviger dans le vidéo, ou le sauvegarder avec la visualisation.
+Dernièrement j'ai implémenté un petit player vidéo qui permet de visualiser les différents étapes de l'algorithme avec des vues multiples en même temps (le vidéo originale, avec les points détectés, le vidéo \mbox{\flqq\ inpainted \frqq}, ...). Des raccourcis clavier permet de naviguer dans le vidéo, ou le sauvegarder avec la visualisation.
 
 \section{Étapes de l'algorithme d'inpainting}
 
-Notre algorithme se décompose en plusieurs étapes qui sont (normalement) executé consécutivement. Des détails sont expliqués dans les sous-sections suivantes.
+Notre algorithme se décompose en plusieurs étapes qui sont (normalement) exécuté consécutivement. Des détails sont expliqués dans les sous-sections suivantes.
 
 \begin{enumerate}
 \item détection des points clés
@@ -92,39 +92,39 @@ Notre algorithme se décompose en plusieurs étapes qui sont (normalement) execu
 \item la combinaison des information des frames (inpainting)
 \end{enumerate}
 
-Mon idée c'était que on pourrait executer quelques étapes plusieurs fois pour améliorer le résultat. Par example nous estimons l'homographie avec RANSAC avec une fonction de OpenCV. En connaissant l'homographie on peut estimer la position d'un point de la scène dans le prochain frame, ce qui simplifie de trouver des correspondances. De trouver des correspondances pourrait être amélioré quand on relance la détecion des points clés.
+Mon idée c'était que on pourrait exécuter quelques étapes plusieurs fois pour améliorer le résultat. Par exemple nous estimons l'homographie avec RANSAC avec une fonction de OpenCV. En connaissant l'homographie on peut estimer la position d'un point de la scène dans le prochain frame, ce qui simplifie de trouver des correspondances. De trouver des correspondances pourrait être amélioré quand on relance la détection des points clés.
 
 \subsection{Détection des points clés}
 
-\paragraph{SURF et GFTT} : Ces deux algorithmes sont déjà implementés dans OpenCV, donc il fallait seulement de les éxecuter et sauvegarder les resultats dans la classe Frame. SURF est inspiré par SIFT, mais prend moins de temps pour l'execution selon \cite{surf}. La méthode GFTT de OpenCV a un paramètre pour utiliser les points de Harris, et c'est qu'on utilise.
+\paragraph{SURF et GFTT} : Ces deux algorithmes sont déjà implémentés dans OpenCV, donc il fallait seulement de les exécuter et sauvegarder les résultats dans la classe Frame. SURF est inspiré par SIFT, mais prend moins de temps pour l'exécution selon \cite{surf}. La méthode GFTT de OpenCV a un paramètre pour utiliser les points de Harris, et c'est qu'on utilise.
 
 \paragraph{Lucas Kanade} : Voyez la sous-section prochaine.
 
 \subsection{Correspondances}
 
-\paragraph{Distance Similarity Matching}: OpenCV a un algorithme pour faire le matching entre les points, mais ça n'a pas donné des bons résultats. Il y avait toujours quelques outliers, qui ont dérangé les prochaines étapes. La méthode d'OpenCV prend seulement la similarité en compte.
+\paragraph{Distance Similarity Matching}: OpenCV a un algorithme pour faire le matching entre les points, mais ça n'a pas donné des bons résultats. Il y avait toujours quelques cas aberrants, qui ont dérangé les prochaines étapes. La méthode d'OpenCV prend seulement la similarité en compte.
 
-Mon idée était donc d'implementer un algorithme qui prend en compte la similarité et la distance. Pour chaque couple de points clés l'algorithme calcule la distance $rawDist_{ij} $ entre les coordinates de la frame actuelle et la prédiction dans la frame prochaine. La prédiction est basé sur l'homographie si elle était déjà culculé, sinon l'homographie est l'identité. Si la distance et moins que la distance de recherche $searchDist$ la distance normalisé $rawDist_{ij} / searchDist$ est calculé, sinon il continue à porchain couple. Ensuite il calcule la similarité avec $sim_{ij} = \| desc_i - decs_j \|$, où $desc_i$ est le déscripteur de point $i$. 
+Mon idée était donc d'implémenter un algorithme qui prend en compte la similarité et la distance. Pour chaque couple de points clés l'algorithme calcule la distance $rawDist_{ij} $ entre les coordonnées de la frame actuelle et la prédiction dans la frame prochaine. La prédiction est basé sur l'homographie si elle était déjà calculé, sinon l'homographie est l'identité. Si la distance et moins que la distance de recherche $searchDist$ la distance normalisé $rawDist_{ij} / searchDist$ est calculé, sinon il continue à prochain couple. Ensuite il calcule la similarité avec $sim_{ij} = \| desc_i - decs_j \|$, où $desc_i$ est le descripteur de point $i$. 
 
-Les deux valeurs sont combinés selon $d_{ij} = \frac{1}{2} dist_{ij} + sim_{ij}$. La valeur $\frac{1}{2}$ à bien marché dans les premiers experiences. Un histogram des valeurs $d_{ij}$ est crée, et les couples de points, qui ont une distance moins que le $20\%$ quantil plus 5\% de ce quantil jusqu'à la distance maximale, sont mis en correspondance. Le temps limité n'a pas permis une évaluation de cet approche, mais il semblait de marcher assez bien. Une amélioration serait peut-être de faire un histogram 2D de $dist_{ij}$ et $sim_{ij}$ et trouver la classe la plus grande.
+Les deux valeurs sont combinés selon $d_{ij} = \frac{1}{2} dist_{ij} + sim_{ij}$. La valeur $\frac{1}{2}$ à bien marché dans les premiers expériences. Un histogram des valeurs $d_{ij}$ est crée, et les couples de points, qui ont une distance moins que le $20\%$ quantil plus 5\% de ce quantil jusqu'à la distance maximale, sont mis en correspondance. Le temps limité n'a pas permis une évaluation de cet approche, mais il semblait de marcher assez bien. Une amélioration serait peut-être de faire un histogram 2D de $dist_{ij}$ et $sim_{ij}$ et trouver la classe la plus grande.
 
 \paragraph{Lucas Kanade Optical Flow}
 
-La prochaine idée était d'utiliser l'algorithme de Lucas Kanade pour calculer le flux optique. On commence avec une grille et on calcule pour ces points la position correspondante dans le prochaine frame. Pour que on a des points partout dans l'image des traces sont arrêtés quand il y a trop de points autour, ou des nouvelles points clés sont crées quand il n'y a pas assez dans une région. L'avantage de cet algorithme est que la mise en correspondance se passe automatiquement et on a des feature points dense. La desavantage: la calculation prend plus de temps que pour les autres approches.
+La prochaine idée était d'utiliser l'algorithme de Lucas Kanade pour calculer le flux optique. On commence avec une grille et on calcule pour ces points la position correspondante dans le prochaine frame. Pour que on a des points partout dans l'image des traces sont arrêtés quand il y a trop de points autour, ou des nouvelles points clés sont crées quand il n'y a pas assez dans une région. L'avantage de cet algorithme est que la mise en correspondance se passe automatiquement et on a des feature points dense. La désavantage: la calcul prend plus de temps que pour les autres approches.
 
 \subsection{Classification des traces}
 
-Pour la classification des traces l'algorithme compare les coordonées de pixels d'une trace avec l'estimation de le point calculé avec l'homographie. Pour chaque trace avec les points $(p_1, \dots, p_n)$, l'erreur est $\sum_{1\le i < n} \| p_i+1 - H_{i, i+1} p_{i} \|$. Le seuil est trouvé automatiquement avec le maximum d'un histogram des distances de 200 bins. Les traces avec un erreur moins que le maximum bin plus 20 sont classifiés comme partie de la scène.
+Pour la classification des traces l'algorithme compare les coordonnées de pixels d'une trace avec l'estimation de le point calculé avec l'homographie. Pour chaque trace avec les points $(p_1, \dots, p_n)$, l'erreur est $\sum_{1\le i < n} \| p_i+1 - H_{i, i+1} p_{i} \|$. Le seuil est trouvé automatiquement avec le maximum d'un histogram des distances de 200 bins. Les traces avec un erreur moins que le maximum bin plus 20 sont classifiés comme partie de la scène.
 
 \subsection{Inpainting}
 
-\paragraph{Version 1} : Ici seulement l'inpainting est fait seulement pour un frame. Pour chaque pixel le point clé le plus proche est cherché, et si il est partie de la scène on ajout la valeur à une matrice de somme avec les coordinatés projétes avec l'homographie. On prend une simple moyenne des valeurs.
+\paragraph{Version 1} : Ici seulement l'inpainting est fait seulement pour un frame. Pour chaque pixel le point clé le plus proche est cherché, et si il est partie de la scène on ajout la valeur à une matrice de somme avec les coordonnées projetés avec l'homographie. On prend une simple moyenne des valeurs.
 
-\paragraph{Version 2} : Le résultat est un vidéo inpainted. Pour chaque pixel de frame $i$ qu'il faut compléter, l'algorithme cherche dans les frames successives ou précedentes (dans la façon $i+0, i+1, i-1, i+2, i-2, \dots$) si il y a un point (dans les coordinates projétés) qui porte de l'information utilisable. Les points sont pondérés avec une mésure de la distance des index de frame à réconstruire et le frame qui porte l'information: $1+e^{-|i-j|^2}$.
+\paragraph{Version 2} : Le résultat est un vidéo inpainted. Pour chaque pixel de frame $i$ qu'il faut compléter, l'algorithme cherche dans les frames successives ou précédentes (dans la façon $i+0, i+1, i-1, i+2, i-2, \dots$) si il y a un point (dans les coordonnées projetés) qui porte de l'information utilisable. Les points sont pondérés avec une mesure de la distance des index de frame à reconstruire et le frame qui porte l'information: $1+e^{-|i-j|^2}$.
 
-\section{Comparaison avec la literature}
+\section{Comparaison avec la littérature}
 
-Dans la litérature on a seulement trouvé des examples qui utilisent des masques pour indiquer les objets. La pluspart des articles se limite aux caméras fixes. Un article qui dit qu'il est applicable avec un bougement libre da la caméra est \cite{background-inpainting}. Les auteurs utilisent aussi des homographies pour estimer la position des objets. Contrairement à la méthode présenté dans les paragraphes précedentes ils utilisent plusieurs homographies, ce qui semble d'améliorer le résultat en approximant les differents parties de la scène avec plusieurs plans. Comme nous avons seulement utilisé une homographie, notre algorithme estime la scène comme un seul plan, ce qui n'est pas assez précis.
+Dans la littérature on a seulement trouvé des exemple qui utilisent des masques pour indiquer les objets. La plupart des articles se limite aux caméras fixes. Un article qui dit qu'il est applicable avec un déplacement libre de la caméra est \cite{background-inpainting}. Les auteurs utilisent aussi des homographies pour estimer la position des objets. Contrairement à la méthode présenté dans les paragraphes précédentes ils utilisent plusieurs homographies, ce qui semble d'améliorer le résultat en approximant les différents parties de la scène avec plusieurs plans. Comme nous avons seulement utilisé une homographie, notre algorithme estime la scène comme un seul plan, ce qui n'est pas assez précis.
 
 \addcontentsline{toc}{section}{Références}
 
